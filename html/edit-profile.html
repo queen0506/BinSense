@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Edit Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/edit-profile.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <header class="top-nav">
+            <div class="header-content">
+                <span class="back-btn" id="back-btn">←</span>
+                <h1 class="page-title">Edit Account Information</h1>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="graphic-section">
+                <img src="../logo/edit-image.png" alt="Edit Graphic" class="center-graphic">
+            </div>
+            <p id="current-user-name" class="current-user-name">Loading user...</p>
+
+            <form class="edit-form">
+                <div class="input-group">
+                    <label for="fullName">Full Name*</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="emailAddress">Email Address*</label>
+                    <input type="email" id="emailAddress" name="emailAddress" required readonly style="background-color: #f9f9f9; color: #888;">
+                </div>
+
+                <!-- NEW: Barangay Selection for Notifications -->
+                <div class="input-group">
+                    <label for="barangay">Barangay / Location*</label>
+                    <select id="barangay" name="barangay" required class="select-input">
+                        <option value="Asinan">Asinan</option>
+                    <option value="Banicain">Banicain</option>
+                    <option value="Barretto">Barretto</option>
+                    <option value="East Bajac-Bajac">East Bajac-Bajac</option>
+                    <option value="East Tapinac">East Tapinac</option>
+                    <option value="Gordon Heights">Gordon Heights</option>
+                    <option value="Kalaklan">Kalaklan</option>
+                    <option value="Mabayuan">Mabayuan</option>
+                    <option value="New Banicain">New Banicain</option>
+                    <option value="New Ilalim">New Ilalim</option>
+                    <option value="New Kababae">New Kababae</option>
+                    <option value="New Kalalake">New Kalalake</option>
+                    <option value="Old Cabalan">Old Cabalan</option>
+                    <option value="Pag-asa">Pag-asa</option>
+                    <option value="Santa Rita">Santa Rita</option>
+                    <option value="West Bajac-Bajac">West Bajac-Bajac</option>
+                    <option value="West Tapinac">West Tapinac</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-update">Update Information</button>
+            </form>
+        </main>
+
+        <div id="toast" class="toast"></div>
+
+    </div>
+
+    <script type="module" src="../js/edit-profile.js"></script>
+</body>
+</html>

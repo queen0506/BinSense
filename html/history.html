@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/history.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <header class="top-nav">
+            <h1 class="dashboard-title">Guide</h1>
+            <!-- Removed: Notification button, badge, and panel[cite: 18] -->
+        </header>
+
+        <main class="main-content">
+            <h2 class="guide-headline">Waste Segregation Guide</h2>
+            <p class="guide-subtitle">Follow these instructions to sort your trash properly. Click each button to know what to put in each waste bin.</p>
+            
+            <div class="activity-list">
+                <button class="guide-btn" data-modal="bioModal">
+                    <div class="guide-btn-content">
+                        <h3>Biodegradable</h3>
+                        <p>Organic materials that can be broken down by microorganisms into fine particles.</p>
+                    </div>
+                </button>
+
+                <button class="guide-btn" data-modal="recyModal">
+                    <div class="guide-btn-content">
+                        <h3>Recyclable</h3>
+                        <p>Waste materials that can still be processed into raw materials for new products.</p>
+                    </div>
+                </button>
+
+                <button class="guide-btn" data-modal="residModal">
+                    <div class="guide-btn-content">
+                        <h3>Residual</h3>
+                        <p>Non-hazardous materials that have no further use and cannot be composted.</p>
+                    </div>
+                </button>
+
+                <button class="guide-btn" data-modal="hazModal">
+                    <div class="guide-btn-content">
+                        <h3>Hazardous</h3>
+                        <p>Materials containing toxic substances requiring special handling and disposal.</p>
+                    </div>
+                </button>
+            </div>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="dashboard.html" class="nav-link">
+                    <img src="../logo/Home.png" alt="Home" class="icon-30">
+                </a>
+                <a href="analytics.html" class="nav-link">
+                    <img src="../logo/Bar chart-2.png" alt="Analytics" class="icon-30">
+                </a>
+                <a href="#" class="nav-link active">
+                    <img src="../logo/Activity History.png" alt="Reports" class="icon-30">
+                </a>
+                <a href="menu.html" class="nav-link">
+                    <img src="../logo/Menu.png" alt="Menu" class="icon-30">
+                </a>
+            </div>
+        </footer>
+
+        <div class="guide-modal-overlay" id="guideModalOverlay">
+            <div class="guide-modal-box">
+                <div class="modal-body-content">
+                    <h2 id="modalTitle" class="modal-h2">What to put in:</h2>
+                    <p id="modalDesc" class="modal-desc"></p>
+                    <ol id="modalList" class="modal-ol"></ol>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-okay-btn" id="modalCloseBtn">Okay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../js/history.js"></script>
+</body>
+</html>

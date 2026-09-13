@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Statistics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/analytics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <header class="top-nav">
+            <h1 class="dashboard-title">Statistics</h1>
+        </header>
+
+        <main class="main-content">
+            <h2 class="section-title">Waste Overview</h2>
+            
+            <div class="chart-container">
+                <canvas id="binChart"></canvas>
+            </div>
+
+            <div class="status-performance-card">
+                <!-- Removed: status-icon-circle block[cite: 18] -->
+                <div class="status-text">
+                    <h3>You're doing great!</h3>
+                    <p>Today's average usage is 0%. Keep collecting responsibly!</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="dashboard.html" class="nav-link"><img src="../logo/Home.png" alt="Home" class="icon-30"></a>
+                <a href="#" class="nav-link active"><img src="../logo/Bar chart-2.png" alt="Analytics" class="icon-30"></a>
+                <a href="history.html" class="nav-link"><img src="../logo/Activity History.png" alt="Reports" class="icon-30"></a>
+                <a href="menu.html" class="nav-link"><img src="../logo/Menu.png" alt="Menu" class="icon-30"></a>
+            </div>
+        </footer>
+
+    </div>
+
+    <script type="module" src="../js/analytics.js"></script>
+</body>
+</html>

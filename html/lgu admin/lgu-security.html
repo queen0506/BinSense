@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy & Security</title>
+
+    <link rel="stylesheet" href="../../css/lgu admin/lgu-security.css">
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- IMPORTANT: your path -->
+    <script type="module" src="../../js/lgu admin/lgu-security.js"></script>
+</head>
+<body>
+
+<div class="mobile-container">
+
+    <!-- NAV -->
+    <div class="top-nav">
+        <div class="header-content">
+            <span class="back-btn" id="back-btn">←</span>
+            <h1 class="page-title">Privacy & Security</h1>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="card">
+
+            <!-- PASSWORD -->
+            <h2 class="section-title">Password</h2>
+            <p class="section-desc">
+                Change your password and manage your account security.
+            </p>
+
+            <div class="input-group">
+                <label>Current password</label>
+                <input type="password" id="current-password">
+            </div>
+
+            <div class="input-group">
+                <label>New password</label>
+                <input type="password" id="new-password">
+            </div>
+
+            <div class="input-group">
+                <label>Confirm password</label>
+                <input type="password" id="confirm-password">
+            </div>
+
+            <button id="change-password-btn" class="btn-primary">
+                Change Password
+            </button>
+
+            <hr class="divider">
+
+            <!-- DELETE -->
+            <h2 class="section-title">Delete Account</h2>
+            <p class="section-desc">
+                Permanently remove your account and all associated data from BinSense.
+            </p>
+
+            <button id="delete-account-trigger" class="btn-primary">
+                Delete Account
+            </button>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

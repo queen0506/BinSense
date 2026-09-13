@@ -1,0 +1,169 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Reddit Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.mobile-container {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    background-color: #8CC63F;
+    display: flex;
+    flex-direction: column;
+}
+
+.branding {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo-wrapper { width: 360px; display: flex; justify-content: center; }
+.logo { max-width: 100%; height: auto; }
+
+/* White Form Container */
+.content-card {
+    flex: 0.55;
+    background-color: white;
+    border-top-left-radius: 80px;
+    border-top-right-radius: 80px;
+    padding: 45px 35px;
+    text-align: center;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
+}
+
+.title { color: #8CC63F; font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+.subtitle { color: #999; font-size: 1rem; margin-bottom: 30px; }
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+input {
+    background-color: #F4F4F4;
+    border: none;
+    border-radius: 25px;
+    padding: 16px 20px;
+    font-size: 1rem;
+    color: #333;
+}
+
+input::placeholder { color: #BBB; }
+
+.error-text {
+    color: red;
+    font-size: 0.85rem;
+    display: none;
+}
+
+/* PASSWORD INPUT WRAPPER */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 45px;
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: url('../logo/hiding.png') no-repeat center;
+    background-size: 22px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+
+.password-toggle:hover {
+    opacity: 1;
+}
+
+.password-toggle.active {
+    background: url('../logo/show.png') no-repeat center;
+    background-size: 22px;
+}
+
+/* LINKS */
+.forgot-link { text-align: right; margin-top: -10px; }
+.forgot-link a { color: #8CC63F; font-size: 0.85rem; text-decoration: none; }
+
+.btn-primary {
+    background-color: #A2D149;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-primary:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+.toggle-text { margin-top: 25px; color: #777; font-size: 0.9rem; }
+.link { color: #8CC63F; font-weight: 700; cursor: pointer; }
+
+/* --- RESPONSIVE ENHANCEMENTS --- */
+
+@media screen and (min-width: 768px) {
+    body {
+        background-color: #f0f0f0; /* Maintain background depth */
+    }
+
+    .mobile-container {
+        max-width: 900px; /* Expand container width */
+        height: auto;
+        min-height: 80vh;
+        border-radius: 30px;
+        flex-direction: row; /* Side-by-side layout for desktop */
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+
+    .branding {
+        flex: 1;
+        padding: 40px;
+    }
+
+    .content-card {
+        flex: 1;
+        border-radius: 0; /* Remove top-round in split view */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 60px;
+    }
+}
+
+/* Specific adjustment for very large screens */
+@media screen and (min-width: 1200px) {
+    .mobile-container {
+        max-width: 1000px;
+    }
+}

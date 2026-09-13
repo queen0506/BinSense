@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Device Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/system admin/system-management.css">
+    <link rel="stylesheet" href="../../css/system admin/system-management-modern.css">
+</head>
+<body>
+
+<div class="mobile-container" id="app-container">
+    <header class="top-nav">
+        <button class="header-back-arrow" onclick="toggleView('list')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <h1 class="dashboard-title">Device Management</h1>
+    </header>
+
+    <main class="content-area">
+        <section id="device-list-view">
+            <div class="summary-section">
+                <h2 class="group-title">Device Status Summary</h2>
+                <div class="white-card summary-box">
+                    <div class="summary-row"><span>Total Devices</span><span id="total-count">0</span></div>
+                    <div class="summary-row"><span>Active</span><span id="active-count" class="active-text">0</span></div>
+                    <div class="summary-row"><span>Offline</span><span id="offline-count">0</span></div>
+                </div>
+            </div>
+
+            <div class="list-section">
+                <div class="group-header">
+                    <h2 class="group-title">Registered Smart Bins</h2>
+                    <button class="add-btn">
+                        <img src="../../logo/plus.png" alt="Add" class="add-icon">
+                    </button>
+                </div>
+                <div id="bins-list" class="bins-container"></div>
+            </div>
+        </section>
+
+    <section id="realtime-status-view" style="display: none;">
+        <h2 class="group-title">Real-Time Data Status</h2>
+        <div class="white-card status-box" id="active-bin-details">
+                <p class="sync-text">Connecting to Firebase...</p>
+            <div class="connection-status">
+                <span class="status-label">Initializing...</span>
+            </div>
+        </div>
+        <!-- ADDED BUTTON BELOW -->
+        <button id="remove-bin-btn" class="remove-btn" style="display: none;">Remove the Bin</button>
+    </section>
+    </main>
+
+    <div id="register-modal" class="modal-overlay" style="display: none;">
+        <div class="white-card modal-content">
+            <h2 class="group-title">Register New Smart Bin</h2>
+            
+            <input type="text" id="new-bin-id" placeholder="Bin ID (e.g., 01)" class="modal-input">
+            <input type="text" id="new-bin-barangay" placeholder="Barangay Name" class="modal-input">
+            
+            <div class="coord-inputs">
+                <input type="number" id="new-bin-lat" placeholder="Latitude" step="any" class="modal-input">
+                <input type="number" id="new-bin-lng" placeholder="Longitude" step="any" class="modal-input">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn">Cancel</button>
+                <button type="button" class="confirm-btn">Register Device</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bottom-nav">
+        <div class="nav-icons-container">
+            <a href="system-management.html" class="nav-link active"><img src="../../logo/Home.png" class="icon-30"></a>
+            <a href="system-users.html" class="nav-link"><img src="../../logo/Bar chart-2.png" class="icon-30"></a>
+            <a href="system-logs.html" class="nav-link"><img src="../../logo/Activity History.png" class="icon-30"></a>
+            <a href="system-menu.html" class="nav-link"><img src="../../logo/Menu.png" class="icon-30"></a>
+        </div>
+        <div class="home-indicator"></div>
+    </footer>
+</div>
+
+    <script type="module" src="../../js/system admin/system-management.js"></script>
+</body>
+</html>

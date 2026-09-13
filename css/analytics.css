@@ -1,0 +1,233 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Shared dashboard polish */
+.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card {
+    min-width: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+table { width: 100%; max-width: 100%; }
+canvas { max-width: 100%; }
+
+@media (min-width: 1024px) {
+    .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
+    .chart-container, .chart-container-box, .report-card, .white-card { max-width: 100%; }
+    .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+}
+
+body {
+    font-family: 'Reddit Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.mobile-container {
+    width: 100%;
+    max-width: 414px;
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* TOP NAVIGATION */
+.top-nav {
+    background-color: #99cc33;
+    padding: 55px 25px 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.dashboard-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+/* MAIN CONTENT */
+.main-content {
+    flex: 1;
+    padding: 25px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #48742C;
+}
+
+.chart-container {
+    background: #ffffff;
+    border-radius: 30px;
+    padding: 20px;
+    height: 280px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.status-performance-card {
+    background-color: #99cc33;
+    border-radius: 25px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    color: white;
+    text-align: left; /* Ensures text aligns correctly without the icon[cite: 19] */
+}
+
+/* Removed: .status-icon-circle and .status-icon styles[cite: 19] */
+
+/* BOTTOM NAVIGATION */
+.bottom-nav {
+    background-color: #99cc33;
+    border-top-left-radius: 35px;
+    border-top-right-radius: 35px;
+    padding: 20px 35px 35px 35px;
+}
+
+.nav-icons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-link.active { background-color: rgba(255, 255, 255, 0.3); padding: 8px; border-radius: 12px; }
+
+.icon-30 { width: 30px; height: 30px; object-fit: contain; }
+
+/* --- FIXED ANALYTICS DESKTOP DESIGN --- */
+@media (min-width: 1024px) {
+    body {
+        background-color: #f4f7f2;
+        display: block;
+        overflow: hidden;
+    }
+
+    .mobile-container {
+        max-width: 100%;
+        height: 100vh;
+        display: grid;
+        /* Balanced column ratio for content breathing room */
+        grid-template-columns: 140px 1fr; 
+        grid-template-rows: auto 1fr;
+        background-color: transparent;
+    }
+
+    /* --- SIDEBAR PILL[cite: 4] --- */
+    .bottom-nav {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3;
+        position: relative;
+        height: calc(100vh - 80px);
+        width: 85px;
+        background: #99cc33; 
+        margin: 40px auto;
+        border-radius: 100px;
+        padding: 40px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center;
+        box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-icons-container {
+        flex-direction: column;
+        gap: 35px;
+        align-items: center;
+    }
+
+    /* White active circle[cite: 4] */
+    .nav-link.active {
+        background-color: white !important;
+        border-radius: 50%;
+        width: 55px;
+        height: 55px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+    }
+
+    /* Green icon filter[cite: 4] */
+    .nav-link.active .icon-30 {
+        filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
+    }
+
+    .nav-icons-container a:not(.active) .icon-30 {
+        filter: brightness(0) invert(1);
+    }
+
+    /* --- CONTENT PLACING & SIZE --- */
+    .top-nav {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        background-color: transparent;
+        /* Aligning title with the content below */
+        padding: 50px 60px 10px 20px; 
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashboard-title {
+        color: #1a1a1a;
+        font-size: 2rem; /* Larger for desktop prominence */
+        margin-bottom: 5px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        color: #48742C;
+        margin-bottom: 7px;
+    }
+
+    .main-content {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        padding: 0 60px 40px 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    /* Expanding chart size[cite: 5] */
+    .chart-container {
+        width: 80%;
+        /* Adjusted height to be more prominent on wide screens[cite: 5] */
+        height: 450px; 
+        background: white;
+        border-radius: 35px;
+        padding: 30px;
+        margin-bottom: 0;
+        border: 1px solid #edf0ec;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        margin-top: -25px;
+    }
+
+    /* Fixed Performance Card[cite: 5] */
+    .status-performance-card {
+        width: 80%;
+        padding: 30px;
+        font-size: 1.2rem;
+        border-radius: 30px;
+    }
+}
+

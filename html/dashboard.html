@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        <header class="top-nav">
+            <h1 class="dashboard-title">Dashboard</h1>
+            <button class="notification-btn" id="notificationBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </button>
+        </header>
+
+        <main class="main-content">
+            <div id="notificationPanel" class="notification-panel">
+                <div class="notification-panel-header">
+                    <h3>Notifications</h3>
+                    <button class="close-notification-btn" id="closeNotificationBtn">&times;</button>
+                </div>
+                <div id="notificationList" class="notification-list">
+                    <p class="empty-notification-message">No new notifications</p>
+                </div>
+                <div class="notification-panel-footer">
+                    <button class="clear-all-btn" id="clearNotifications">Clear All</button>
+                </div>
+            </div>
+
+            <div id="citizen-bins-container" class="bins-grid">
+                <div class="add-bin-placeholder" id="openModalBtn">
+                    <div class="add-card">
+                        <span class="plus-icon">+</span>
+                        <p>Add Bin</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="binModal" class="modal">
+                <div class="modal-content">
+                    <h3>Connect Smart Bin</h3>
+                    <input type="text" id="binIdInput" placeholder="Enter Bin ID (e.g., 01)">
+                    <div class="modal-actions">
+                        <button id="cancelBtn" class="secondary-btn">Cancel</button>
+                        <button id="confirmAddBtn" class="primary-btn">Connect</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="detailsModal" class="modal">
+                <div class="modal-content">
+                    <h3>Smart Bin Details</h3>
+                    <div id="detailsBody" style="margin: 20px 0; text-align: left;"></div>
+                    <div class="modal-actions">
+                        <button id="closeDetailsBtn" class="primary-btn">Close</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="#" class="nav-link active"><img src="../logo/Home.png" class="icon-30"></a>
+                <a href="analytics.html" class="nav-link"><img src="../logo/Bar chart-2.png" class="icon-30"></a>
+                <a href="history.html" class="nav-link"><img src="../logo/Activity History.png" class="icon-30"></a>
+                <a href="menu.html" class="nav-link"><img src="../logo/Menu.png" class="icon-30"></a>
+            </div>
+        </footer>
+    </div>
+
+        <!-- DAILY SEGREGATION REMINDER MODAL -->
+<div id="dailyReminderModal" class="modal">
+    <div class="modal-content reminder-content">
+       
+        <h3>Daily Reminder</h3>
+        <p id="reminderMessage">Reminder: Practice proper waste segregation and dispose of your trash on time to help keep your community clean.</p>
+        <div class="modal-actions">
+            <button id="closeReminderBtn" class="primary-btn">Got it</button>
+        </div>
+    </div>
+</div>
+
+    <script type="module" src="../js/dashboard.js"></script>
+</body>
+</html>

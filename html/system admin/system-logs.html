@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Real-Time Logs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/system admin/system-logs.css">
+</head>
+<body>
+
+<div class="mobile-container">
+    <header class="top-nav">
+        <h1 class="dashboard-title">System Logs</h1>
+    </header>
+
+    <div class="log-filter-tabs" style="padding: 25px 20px 15px;">
+        <button class="filter-tab active" onclick="switchTab(event, 'all')">All</button>
+        <button class="filter-tab" onclick="switchTab(event, 'logs')">Logs</button>
+        <button class="filter-tab" onclick="switchTab(event, 'audit')">Audit</button>
+    </div>
+
+    <div id="logs-display" class="logs-list-container" style="flex: 1; overflow-y: auto; padding: 0 20px 120px;">
+        <div style="text-align: center; color: #999; margin-top: 50px;">Synchronizing activities...</div>
+    </div>
+
+    <footer class="bottom-nav">
+        <div class="nav-icons-container">
+            <a href="system-management.html" class="nav-link"><img src="../../logo/Home.png" class="icon-30"></a>
+            <a href="system-users.html" class="nav-link"><img src="../../logo/Bar chart-2.png" class="icon-30"></a>
+            <a href="system-logs.html" class="nav-link active"><img src="../../logo/Activity History.png" class="icon-30"></a>
+            <a href="system-menu.html" class="nav-link"><img src="../../logo/Menu.png" class="icon-30"></a>
+        </div>
+    </footer>
+</div>
+
+<script src="../../js/system admin/system-logs.js" type="module"></script>
+</body>
+</html>

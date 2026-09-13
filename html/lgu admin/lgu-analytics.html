@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - LGU Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/lgu admin/lgu-analytics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <header class="top-nav">
+            <h1 class="dashboard-title">Waste Analytics</h1>
+        </header>
+
+        <main class="main-content">
+            <!-- Feature 1: Area Filtering -->
+            <div class="filter-section">
+                <select id="brgySelector" class="custom-select">
+                    <option value="all">All Barangays (Olongapo City)</option>
+                    <option value="Asinan">Asinan</option>
+                    <option value="Banicain">Banicain</option>
+                    <option value="Barretto">Barretto</option>
+                    <option value="East Bajac-Bajac">East Bajac-Bajac</option>
+                    <option value="East Tapinac">East Tapinac</option>
+                    <option value="Gordon Heights">Gordon Heights</option>
+                    <option value="Kalaklan">Kalaklan</option>
+                    <option value="Mabayuan">Mabayuan</option>
+                    <option value="New Banicain">New Banicain</option>
+                    <option value="New Ilalim">New Ilalim</option>
+                    <option value="New Kababae">New Kababae</option>
+                    <option value="New Kalalake">New Kalalake</option>
+                    <option value="Old Cabalan">Old Cabalan</option>
+                    <option value="Pag-asa">Pag-asa</option>
+                    <option value="Santa Rita">Santa Rita</option>
+                    <option value="West Bajac-Bajac">West Bajac-Bajac</option>
+                    <option value="West Tapinac">West Tapinac</option>
+                </select>
+            </div>
+
+            <!-- Feature 1: Waste Generation Trends -->
+            <div class="chart-container-box">
+                <h3 class="chart-label">Waste Generation Trend (%)</h3>
+                <div class="canvas-wrapper">
+                    <canvas id="wasteChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Feature 2: Behavioral Compliance Tracking -->
+            <section class="insights-section">
+                <h3 class="section-label">Compliance Metrics</h3>
+                
+                <div class="compliance-single-card">
+                    <span class="insight-val" id="nudgeEffectiveness">--%</span>
+                    <p class="insight-desc">Nudge Effectiveness Score</p>
+                </div>
+
+                <!-- Feature 3: Automated Insights -->
+                <div id="awarenessCard" class="awareness-card">
+                    <div class="awareness-content">
+                        <h4 class="awareness-title">Community Awareness</h4>
+                        <p id="awarenessStatus">Analyzing disposal patterns...</p>
+                    </div>
+                    <div id="statusIndicator" class="status-dot"></div>
+                </div>
+
+                <!-- Feature 3: Resource Planning -->
+                <div class="planning-box">
+                    <h4 class="planning-title">Policy & Resource Planning</h4>
+                    <p id="planningAdvice">Awaiting data sync...</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="lgu-monitoring.html" class="nav-link"><img src="../../logo/Home.png" class="icon-30"></a>
+                <a href="#" class="nav-link active"><img src="../../logo/Bar chart-2.png" class="icon-30"></a>
+                <a href="lgu-collection.html" class="nav-link"><img src="../../logo/Activity History.png" class="icon-30"></a>
+                <a href="lgu-menu.html" class="nav-link"><img src="../../logo/Menu.png" class="icon-30"></a>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="../../js/lgu admin/lgu-analytics.js"></script>
+</body>
+</html>

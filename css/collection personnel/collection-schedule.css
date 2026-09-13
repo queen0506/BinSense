@@ -1,0 +1,477 @@
+/* --- Global Reset & Base Styles --- */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body {
+    font-family: 'Reddit Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex; 
+    justify-content: center; 
+    min-height: 100vh;
+}
+
+.mobile-container {
+    width: 100%; 
+    max-width: 414px; 
+    height: 100vh;
+    background-color: white; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden;
+}
+
+/* --- Header & Top Navigation --- */
+.top-nav {
+    background-color: #99cc33;
+    padding: 55px 25px 20px 25px;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    border-bottom-left-radius: 35px; 
+    border-bottom-right-radius: 35px;
+}
+
+.dashboard-title { 
+    color: white; 
+    font-size: 1.5rem; 
+    font-weight: 700; 
+}
+
+/* --- Main Content Area --- */
+.main-content { 
+    flex: 1; 
+    padding: 20px; 
+    overflow-y: auto; 
+}
+
+.calendar-main-title {
+    color: #48742C; 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+    margin-bottom: 15px;
+}
+
+/* --- Calendar Card Styles --- */
+.calendar-card {
+    background: white; 
+    border-radius: 30px; 
+    padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+    margin-bottom: 30px;
+}
+
+.calendar-nav {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-month-year { 
+    color: #48742C; 
+    font-weight: 700; 
+    font-size: 1.2rem; 
+}
+
+.cal-btn {
+    background: none; 
+    border: none; 
+    font-size: 1.5rem;
+    color: #48742C; 
+    cursor: pointer; 
+    padding: 0 10px;
+}
+
+.calendar-weekdays {
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center; 
+    font-weight: 700; 
+    color: #ccc; 
+    font-size: 0.75rem; 
+    margin-bottom: 10px;
+}
+
+.calendar-days { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 5px; 
+    text-align: center; 
+}
+
+.calendar-days div {
+    padding: 10px 0; 
+    font-size: 0.9rem; 
+    color: #444; 
+    border-radius: 12px;
+}
+
+.calendar-days .active {
+    background-color: #99cc33; 
+    color: white; 
+    font-weight: 700;
+}
+
+/* --- Schedule Section --- */
+.schedule-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 15px;
+}
+
+.schedule-title { 
+    color: #48742C; 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+}
+
+.add-schedule-btn { 
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+}
+
+.empty-pill {
+    background: #F8F8F8; 
+    height: 65px; 
+    border-radius: 25px;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    color: #aaa; 
+    font-style: italic; 
+    font-size: 0.9rem;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.schedule-item {
+    background: white; 
+    border-left: 6px solid #99cc33;
+    padding: 18px 25px; 
+    border-radius: 25px; 
+    margin-bottom: 12px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.schedule-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* UI Feedback for Cancelled State */
+.schedule-item.cancelled {
+    border-left: 6px solid #ff4444 !important;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    background-color: #99cc33;
+    border-top-left-radius: 35px;
+    border-top-right-radius: 35px;
+    padding: 20px 35px 35px 35px;
+    position: relative;
+}
+
+.nav-icons-container { display: flex; justify-content: space-between; align-items: center; }
+.nav-link.active { background-color: rgba(255, 255, 255, 0.3); padding: 8px; border-radius: 12px; }
+.icon-30 { width: 30px; height: 30px; object-fit: contain; }
+.home-indicator { width: 130px; height: 5px; background-color: #000; border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
+
+/* --- Modal Overlays & Content --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: none; 
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-overlay.open {
+    display: flex; 
+}
+
+.modal-content {
+    background: white;
+    width: 85%;
+    max-width: 350px;
+    padding: 30px;
+    border-radius: 35px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.modal-title {
+    color: #99cc33;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.input-group { text-align: left; margin-bottom: 15px; }
+.input-group label { 
+    display: block; color: #888; font-size: 0.85rem; 
+    margin-bottom: 6px; margin-left: 5px;
+}
+
+.input-container {
+    border: 1px solid #eee;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    padding: 12px 15px;
+}
+
+.input-container input {
+    border: none; outline: none; width: 100%;
+    color: #444; font-family: 'Reddit Sans', sans-serif;
+    font-size: 1rem; background: transparent;
+}
+
+/* --- Improved Cancellation Modal Styles --- */
+.cancel-modal {
+    border-top: 8px solid #ff4444;
+}
+
+.cancel-icon-container {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.cancel-warning {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 25px;
+}
+
+.checkbox-container {
+    display: flex; align-items: center; gap: 10px;
+    margin: 20px 0; font-size: 0.85rem; color: #666;
+    padding-left: 5px;
+}
+
+.modal-actions { display: flex; gap: 12px; margin-top: 10px; }
+
+.modal-submit-btn {
+    flex: 2; padding: 14px; background: #99cc33;
+    color: white; border: none; border-radius: 18px;
+    font-weight: 700; font-size: 1rem; cursor: pointer;
+}
+
+.delete-btn { background: #ff4444 !important; }
+
+.modal-cancel-btn {
+    flex: 1; padding: 14px; background: #f0f0f0;
+    color: #888; border: none; border-radius: 18px;
+    font-weight: 700; font-size: 1rem; cursor: pointer;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.main-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.main-content {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* --- COLLECTION SCHEDULE DESKTOP REFINEMENT --- */
+@media (min-width: 1024px) {
+    body {
+        background-color: #f8faf8; /* Clean off-white background */
+        display: block;
+        overflow: hidden;
+    }
+
+    .mobile-container {
+        max-width: 100%;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 120px 1fr; /* Fixed sidebar | Flexible workspace */
+        grid-template-rows: auto 1fr;
+        background-color: transparent;
+    }
+
+    /* --- SIDEBAR PILL --- */
+    .bottom-nav {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3;
+        position: relative; 
+        height: calc(100vh - 60px); 
+        width: 80px;
+        background-color: #99cc33; 
+        margin: 30px auto; 
+        border-radius: 50px; 
+        padding: 20px 0; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centers icons vertically */
+        align-items: center;
+        box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-icons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        width: 100%;
+        align-items: center;
+    }
+
+    /* Active Indicator[cite: 3] */
+    .nav-link.active {
+        background-color: white;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-link.active .icon-30 {
+        filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%);
+    }
+
+    /* --- TOP HEADER[cite: 3] --- */
+    .top-nav {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        background-color: transparent;
+        padding: 40px 40px 10px 10px;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .dashboard-title {
+        color: #2d3436; 
+        font-size: 1.8rem;
+    }
+
+    /* --- SIDE-BY-SIDE CONTENT LAYOUT --- */
+    .main-content {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        padding: 0 40px 40px 10px; /* Reduced top padding to pull cards up */
+        display: grid;
+        grid-template-columns: 1.2fr 1fr; /* Calendar takes slightly more space */
+        gap: 30px; 
+        align-items: stretch; /* Forces both cards to have equal height if desired */
+        overflow-y: auto;
+    }
+
+    /* Hide the mobile title "Collection Schedule" since we have the header[cite: 3] */
+    .calendar-main-title {
+        grid-column: 1 / 3; /* Keep it at the top or hide it */
+        margin-bottom: 5px;
+    }
+
+    /* Calendar Card Adjustments[cite: 3] */
+    .calendar-card {
+        margin-bottom: 0;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 30px;
+        margin-top: -100px; /* Pulls the calendar up to align with the schedule card */
+    }
+
+    /* Schedule Section Adjustments[cite: 3] */
+.schedule-section {
+        background: white;
+        padding: 30px; /* Matches Calendar card padding[cite: 3] */
+        border-radius: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        height: 100%; /* Matches height with calendar[cite: 3] */
+        display: flex;
+        flex-direction: column;
+        margin-top: -100px ;
+    }
+
+    .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px; /* Clean spacing below header[cite: 3] */
+        padding-top: 5px; /* Aligns "Today's Schedule" text horizontally with "May 2026" */
+    }
+
+    .schedule-title {
+        font-size: 1.3rem; /* Slightly larger for desktop prominence[cite: 3] */
+        color: #48742C;
+    }
+
+    /* Ensure the list fills the card nicely[cite: 3] */
+    .schedule-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .empty-pill {
+        margin-top: 10px; /* Refined placement of the empty state[cite: 3] */
+    }
+
+    .home-indicator {
+        display: none;
+    }
+}
+
+/* --- Add these to your existing collection-schedule.css --- */
+
+.schedule-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0 10px 0;
+    padding: 0 5px;
+}
+
+.schedule-divider::before {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.schedule-divider::after {
+    content: "ONE-TIME SCHEDULES";
+    padding-left: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #bbb;
+    letter-spacing: 1px;
+}
+
+.fixed-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #99cc33;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+
+/* Shared dashboard polish */
+.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card { min-width: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07); }
+table { width: 100%; max-width: 100%; }
+@media (min-width: 1024px) {
+    .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
+    .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+}

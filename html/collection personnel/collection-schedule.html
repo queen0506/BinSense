@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Collection Schedule</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/collection personnel/collection-schedule.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <header class="top-nav">
+            <h1 class="dashboard-title">Waste Collection</h1>
+        </header>
+
+        <main class="main-content">
+            <h2 class="calendar-main-title">Collection Schedule</h2>
+
+            <div class="calendar-card">
+                <div class="calendar-nav">
+                    <button class="cal-btn" id="prevMonth">‹</button>
+                    <span class="calendar-month-year" id="monthDisplay">Loading...</span>
+                    <button class="cal-btn" id="nextMonth">›</button>
+                </div>
+                
+                <div class="calendar-weekdays">
+                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                </div>
+                <div id="calendarDays" class="calendar-days"></div>
+            </div>
+
+            <div class="schedule-section">
+                <div class="schedule-header">
+                    <h2 class="schedule-title">Collection Schedule</h2>
+                    <button class="add-schedule-btn" id="addScheduleBtn">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#48742C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="schedule-list" id="scheduleList">
+                    <div class="empty-pill">No broadcasts sent today.</div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="collection-dashboard.html" class="nav-link">
+                    <img src="../../logo/Home.png" alt="Home" class="icon-30">
+                </a>
+                <a href="collection-update.html" class="nav-link">
+                    <img src="../../logo/Bar chart-2.png" alt="Update" class="icon-30">
+                </a>
+                <a href="#" class="nav-link active">
+                    <img src="../../logo/Activity History.png" alt="Schedule" class="icon-30">
+                </a>
+                <a href="collection-menu.html" class="nav-link">
+                    <img src="../../logo/Menu.png" alt="Menu" class="icon-30">
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <div class="modal-overlay" id="addScheduleModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Waste Collection Schedule</h2>
+            <form id="modalScheduleForm">
+                <div class="input-group">
+                    <label>Schedule Type</label>
+                    <div class="input-container">
+                        <select id="modalScheduleType" style="width: 100%; border: none; background: transparent; font-family: inherit; font-size: 1rem; outline: none;" required>
+                            <option value="Fixed">Fixed / Permanent Schedule</option>
+                            <option value="One-Time" selected>One-Time Schedule</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Target Barangay</label>
+                    <div class="input-container">
+                        <input type="text" id="modalBarangay" placeholder="Enter Barangay" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Date</label>
+                    <div class="input-container">
+                        <input type="date" id="modalDate" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Time</label>
+                    <div class="input-container">
+                        <input type="time" id="modalTime" required>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-cancel-btn" id="closeModal">Cancel</button>
+                    <button type="submit" class="modal-submit-btn">Broadcast</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cancelConfirmModal">
+        <div class="modal-content cancel-modal">
+            <div class="cancel-icon-container">
+                <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <h2 class="modal-title" style="color: #ff4444;">Manage Schedule</h2>
+            <p class="cancel-warning">Action for <span id="cancelBrgyName" style="font-weight:700; color:#444;"></span></p>
+            
+            <div class="modal-actions">
+                <button type="button" class="modal-cancel-btn" id="closeCancelModal">Close</button>
+                <button type="button" class="modal-submit-btn delete-btn" id="confirmCancelBtn">Delete Schedule</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/collection personnel/collection-schedule.js"></script>
+</body>
+</html>

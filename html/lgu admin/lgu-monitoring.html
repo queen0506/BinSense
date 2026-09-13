@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - City Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/lgu admin/lgu-monitoring.css">
+    <link rel="stylesheet" href="../../css/lgu admin/lgu-monitoring-modern.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        <header class="top-nav">
+            <h1 class="dashboard-title">City Monitoring</h1>
+            
+        </header>
+
+        <main class="main-content">
+            <div class="filter-section">
+                <select id="brgySelector" class="custom-select">
+                    <option value="all">All Barangays (Olongapo City)</option>
+                    <option value="Asinan">Asinan</option>
+                    <option value="Banicain">Banicain</option>
+                    <option value="Barretto">Barretto</option>
+                    <option value="East Bajac-Bajac">East Bajac-Bajac</option>
+                    <option value="East Tapinac">East Tapinac</option>
+                    <option value="Gordon Heights">Gordon Heights</option>
+                    <option value="Kalaklan">Kalaklan</option>
+                    <option value="Mabayuan">Mabayuan</option>
+                    <option value="New Banicain">New Banicain</option>
+                    <option value="New Ilalim">New Ilalim</option>
+                    <option value="New Kababae">New Kababae</option>
+                    <option value="New Kalalake">New Kalalake</option>
+                    <option value="Old Cabalan">Old Cabalan</option>
+                    <option value="Pag-asa">Pag-asa</option>
+                    <option value="Santa Rita">Santa Rita</option>
+                    <option value="West Bajac-Bajac">West Bajac-Bajac</option>
+                    <option value="West Tapinac">West Tapinac</option>
+                </select>
+            </div>
+
+            <div class="status-cards-container">
+                <div class="summary-card available" onclick="openDetails('available')">
+                    <img src="../../logo/Trash (2).png" class="status-card-img" alt="Available">
+                    <div class="card-info">
+                        <span class="stat-num" id="count-available">0</span>
+                        <p>Available</p>
+                    </div>
+                </div>
+
+                <div class="summary-card filling" onclick="openDetails('filling')">
+                    <img src="../../logo/Trash (1).png" class="status-card-img" alt="Filling">
+                    <div class="card-info">
+                        <span class="stat-num" id="count-filling">0</span>
+                        <p>Filling</p>
+                    </div>
+                </div>
+
+                <div class="summary-card full" onclick="openDetails('full')">
+                    <img src="../../logo/Trash.png" class="status-card-img" alt="Full">
+                    <div class="card-info">
+                        <span class="stat-num" id="count-full">0</span>
+                        <p>Full</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-section">
+                <h3 class="section-label">Overflow Alerts</h3>
+                <div id="hotspotContainer" class="hotspot-box"></div>
+            </div>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="lgu-monitoring.html" class="nav-link active"><img src="../../logo/Home.png" class="icon-30"></a>
+                <a href="lgu-analytics.html" class="nav-link"><img src="../../logo/Bar chart-2.png" class="icon-30"></a>
+                <a href="lgu-collection.html" class="nav-link"><img src="../../logo/Activity History.png" class="icon-30"></a>
+                <a href="lgu-menu.html" class="nav-link"><img src="../../logo/Menu.png" class="icon-30"></a>
+            </div>
+        </footer>
+    </div>
+
+    <div id="detailsModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="modalTitle">Bin Details</h2>
+                <span class="close-x" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="binCardsContainer" class="modal-body"></div>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/lgu admin/lgu-monitoring.js"></script>
+</body>
+</html>

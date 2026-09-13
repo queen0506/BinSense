@@ -1,0 +1,365 @@
+/* --- BASE RESET --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Reddit Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.mobile-container {
+    width: 100%;
+    max-width: 414px;
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden; 
+}
+
+/* --- HEADER FIXES --- */
+.top-nav {
+    background-color: #99cc33;
+    padding: 55px 25px 20px 25px;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* FIX: Allow the notification panel to pop out of the header */
+    overflow: visible !important;
+    position: relative;
+    z-index: 1000;
+}
+
+.dashboard-title { color: white; font-size: 2rem; font-weight: 700; }
+
+/* --- MAIN CONTENT --- */
+.main-content { 
+    flex: 1; 
+    padding: 25px; 
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.main-content::-webkit-scrollbar { display: none; }
+
+.guide-headline { color: #48742C; font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+.guide-subtitle { color: #666; font-size: 0.9rem; line-height: 1.4; margin-bottom: 25px; }
+
+.activity-list { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
+
+.guide-btn {
+    background-color: #99CC33;
+    border: none;
+    padding: 20px;
+    border-radius: 25px;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(153, 204, 51, 0.3);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.guide-btn:active { transform: scale(0.98); }
+.guide-btn h3 { color: white; font-size: 1.1rem; margin-bottom: 5px; }
+.guide-btn p { color: rgba(255, 255, 255, 0.9); font-size: 0.8rem; line-height: 1.3; }
+
+/* --- NAVIGATION --- */
+.bottom-nav {
+    background-color: #99cc33;
+    border-top-left-radius: 35px;
+    border-top-right-radius: 35px;
+    padding: 20px 35px 35px 35px; /* Bottom padding for the black line */
+    position: relative;
+    z-index: 10; /* Keep above panel when sliding */
+}
+
+.nav-icons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-link.active { background-color: rgba(255, 255, 255, 0.3); padding: 8px; border-radius: 12px; }
+.icon-30 { width: 30px; height: 30px; }
+
+/* --- MODAL FIXES --- */
+.guide-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: none; justify-content: center; align-items: center;
+    /* FIX: Ensure modals stay below the notification panel */
+    z-index: 1500; 
+}
+
+.guide-modal-box {
+    background: white; width: 85%; padding: 40px 25px 30px 25px;
+    border-radius: 40px; position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.modal-h2 { color: #48742C; font-size: 1.2rem; margin-bottom: 5px; }
+.modal-desc { color: #888; font-size: 0.9rem; margin-bottom: 15px; }
+.modal-ol { padding-left: 20px; color: #555; font-size: 0.9rem; line-height: 1.6; }
+
+.modal-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.modal-okay-btn {
+    background-color: #99CC33;
+    color: white;
+    border: none;
+    padding: 12px 0;
+    width: 140px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(153, 204, 51, 0.3);
+}
+
+.modal-okay-btn:active { transform: scale(0.96); }
+
+/* --- CONSISTENT RESPONSIVE BASE --- */
+@media (min-width: 768px) {
+    body { 
+        align-items: center; 
+        padding: 0; /* Full-width alignment */
+    }
+    
+    .mobile-container { 
+        width: 100vw; 
+        max-width: none; 
+        height: 100vh; 
+        border-radius: 0; 
+        box-shadow: none; 
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Header: Expanded with rounded bottom corners */
+    .top-nav { 
+        padding: 40px 8% 30px 8%; 
+        border-bottom-left-radius: 40px;
+        border-bottom-right-radius: 40px;
+        width: 100%;
+    }
+
+    .dashboard-title {
+        font-size: 2.5rem;
+    }
+    
+    /* Main Content: Centered Layout */
+    .main-content { 
+        padding: 40px 15%; /* Extra side padding for readability */
+        flex: 1;
+        overflow-y: auto;
+    } 
+
+    .guide-headline {
+        font-size: 1.8rem;
+    }
+
+    /* Activity List Grid (Optional: side-by-side buttons on desktop) */
+    .activity-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        padding-bottom: 40px;
+    }
+    
+    /* Bottom Navigation: Full-width green bar */
+    .bottom-nav { 
+        background-color: #99cc33;
+        padding: 20px 15%; 
+        height: 100px;
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
+        position: relative;
+    }
+
+    .nav-icons-container {
+        justify-content: space-around;
+    }
+
+    .icon-30 {
+        width: 45px;
+        height: 45px;
+    }
+
+    /* Modal Alignment for Desktop */
+    .guide-modal-box {
+        max-width: 500px;
+    }
+}
+
+/* --- FULL DESKTOP TRANSFORMATION (1024px+) --- */
+@media screen and (min-width: 1024px) {
+    /* Notification Panel: Positioned like the Analytics page */
+    .notification-panel {
+        right: 8%; 
+        left: auto;
+        transform: none;
+        width: 400px;
+        top: 110px;
+        border-radius: 25px;
+    }
+
+    .main-content {
+        padding: 60px 20%;
+    }
+}
+
+/* --- CONSOLIDATED PROFESSIONAL DESKTOP DESIGN (1024px+) --- */
+@media screen and (min-width: 1024px) {
+    body {
+        background-color: #f4f7f2;
+        display: block;
+        overflow: hidden;
+    }
+
+    .mobile-container {
+        max-width: 100%;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 140px 1fr; /* Standardized sidebar width[cite: 4] */
+        grid-template-rows: auto 1fr;
+        background-color: transparent;
+    }
+
+    /* --- SIDEBAR PILL[cite: 4] --- */
+    .bottom-nav {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3;
+        position: relative;
+        height: calc(100vh - 80px);
+        width: 85px;
+        background: #99cc33; 
+        margin: 40px auto;
+        border-radius: 100px;
+        padding: 40px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Vertically centered icons[cite: 4] */
+        align-items: center;
+        box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
+        border-top-left-radius: 100px; 
+        border-top-right-radius: 100px;
+    }
+
+    .nav-icons-container {
+        flex-direction: column;
+        gap: 35px;
+        width: 100%;
+        align-items: center;
+    }
+
+    /* Standardized Active Circle[cite: 4, 7] */
+    .nav-link.active {
+        background-color: white !important;
+        border-radius: 50%;
+        width: 55px;  /* Matches Dashboard & Analytics[cite: 4] */
+        height: 55px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Standardized Icon Size (30px)[cite: 7] */
+    .icon-30 {
+        width: 30px !important; 
+        height: 30px !important;
+    }
+
+    /* Green Icon filter for active state[cite: 4] */
+    .nav-link.active .icon-30 {
+        filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
+    }
+
+    /* White icons for inactive state against green sidebar[cite: 4] */
+    .nav-icons-container a:not(.active) .icon-30 {
+        filter: brightness(0) invert(1);
+    }
+
+    /* --- TOP NAV (NOTIFICATION REMOVED) --- */
+    .top-nav {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        background-color: transparent;
+        padding: 50px 60px 10px 20px; /* Aligned with content area[cite: 7] */
+        border-radius: 0;
+        box-shadow: none;
+        display: flex;
+        justify-content: flex-start; /* Title aligned to left */
+        align-items: center;
+    }
+
+    .dashboard-title {
+        color: #1a1a1a;
+        font-size: 2.5rem;
+    }
+
+    /* Hide notification elements specifically for History[cite: 7] */
+    .notification-icon-container,
+    .notification-btn,
+    .notification-panel {
+        display: none !important;
+    }
+
+    /* --- MAIN CONTENT AREA[cite: 7] --- */
+    .main-content {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        padding: 0 60px 40px 20px;
+        overflow-y: auto;
+    }
+
+    .guide-headline { font-size: 1.8rem; }
+    .guide-subtitle { font-size: 1.1rem; margin-bottom: 35px; }
+
+    /* Responsive Grid for Guide Buttons[cite: 7] */
+    .activity-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 25px;
+        padding-bottom: 40px;
+    }
+
+    .guide-btn {
+        padding: 30px;
+        border-radius: 30px;
+        height: 100%; /* Ensures cards are equal height in grid[cite: 7] */
+    }
+
+    /* Desktop Modal Centering[cite: 7] */
+    .guide-modal-box {
+        max-width: 500px;
+        padding: 50px;
+    }
+}
+
+/* Shared dashboard polish */
+.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card {
+    min-width: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+table { width: 100%; max-width: 100%; }
+canvas { max-width: 100%; }
+
+@media (min-width: 1024px) {
+    .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
+    .chart-container, .chart-container-box, .report-card, .white-card { max-width: 100%; }
+    .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+}

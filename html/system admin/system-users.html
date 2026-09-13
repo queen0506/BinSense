@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - User Access Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/system admin/system-users.css">
+</head>
+<body>
+
+<div class="mobile-container" id="app-container">
+    <header class="top-nav">
+        <!-- FIXED: Added Back Button in Header -->
+        <button class="header-back-arrow" id="back-button" onclick="showRolesView()" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <h1 class="dashboard-title" id="page-title"> Security</h1>
+    </header>
+
+    <main class="content-area">
+        <section id="roles-view">
+            <h2 class="group-title">User Roles</h2>
+            <div class="roles-list">
+                <div class="white-card selectable" onclick="loadUsersByRole('Citizen')">
+                    <span class="role-name">Citizen</span>
+                    <span class="arrow">›</span>
+                </div>
+                <div class="white-card selectable" onclick="loadUsersByRole('Waste Collector')">
+                    <span class="role-name">Waste Collector</span>
+                    <span class="arrow">›</span>
+                </div>
+                <div class="white-card selectable" onclick="loadUsersByRole('LGU Admin')">
+                    <span class="role-name">LGU Admin</span>
+                    <span class="arrow">›</span>
+                </div>
+            </div>
+
+            <h2 class="group-title" style="margin-top: 25px;">System Security</h2>
+            <div class="maintenance-list">
+                <div class="white-card maintenance-card">
+                    <h3 class="role-name">Export Backup</h3>
+                    <p class="maintenance-desc">Download a JSON file containing all system data.</p>
+                    <p id="backup-timestamp" class="maintenance-desc" style="font-weight: 700; color: #99cc33;">Last backup: Never</p>
+                    <button onclick="exportSystemData()" class="white-card selectable btn-primary">Download Backup</button>
+                    <span id="export-status" class="status-msg">✅ Exported successfully.</span>
+                </div>
+
+                <div class="white-card maintenance-card" style="margin-top: 15px;">
+                    <h3 class="role-name">Restore from Backup</h3>
+                    <p class="maintenance-desc">Upload a JSON backup file to restore data.</p>
+                    <input type="file" id="restore-file-input" accept=".json" style="font-size: 0.8rem; margin: 10px 0;">
+                    <button onclick="restoreSystemData()" class="white-card selectable btn-primary">Restore Data</button>
+                    <span id="restore-status" class="status-msg">Restoration complete.</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="users-view" style="display: none;">
+            <div class="search-container white-card">
+                <input type="text" id="user-search" placeholder="Search User">
+                <div class="css-search-icon"></div>
+            </div>
+            <div id="users-list-container" class="users-list"></div>
+        </section>
+
+        <!-- UPDATED: Modal Content for User Status Management -->
+        <div id="permission-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-user-name" style="color: #333; font-size: 1.2rem;">User Name</h2>
+                    <span class="close-btn" onclick="closeModal()">&times;</span>
+                </div>
+                <p id="modal-user-email" style="color: #777; font-size: 0.85rem; margin-bottom: 15px;">user@email.com</p>
+                
+                <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                    <span id="modal-role-badge" class="role-badge">Resident</span>
+                    <button id="disable-toggle-btn" class="disable-btn">Disable</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bottom-nav">
+        <div class="nav-icons-container">
+            <a href="system-management.html" class="nav-link"><img src="../../logo/Home.png" class="icon-30"></a>
+            <a href="system-users.html" class="nav-link active"><img src="../../logo/Bar chart-2.png" class="icon-30"></a>
+            <a href="system-logs.html" class="nav-link"><img src="../../logo/Activity History.png" class="icon-30"></a>
+            <a href="system-menu.html" class="nav-link"><img src="../../logo/Menu.png" class="icon-30"></a>
+        </div>
+    </footer>
+</div>
+
+<script type="module" src="../../js/system admin/system-users.js"></script>
+</body>
+</html>

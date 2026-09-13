@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Collection Routes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="../../css/lgu admin/lgu-collection.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        <header class="top-nav">
+            <h1 class="dashboard-title">Collection Routes</h1>
+            <div class="notification-placeholder"></div>
+        </header>
+
+        <main class="main-content">
+            <div id="map" class="route-map-box"></div>
+
+            <div class="optimization-summary">
+                <div class="opt-card">
+                    <span id="binsToCollect" class="opt-val">0</span>
+                    <p class="opt-label">Bins to Collect</p>
+                </div>
+                <div class="opt-card">
+                    <span id="complianceScore" class="opt-val">--%</span>
+                    <p class="opt-label">Compliance Rate</p>
+                </div>
+            </div>
+
+            <section class="dispatch-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h3 class="section-label">Optimized Dispatch Path</h3>
+                    <span id="route-status" class="status-badge">Calculating...</span>
+                </div>
+                <div id="routeContainer" class="route-list">
+                    <p class="loading-text">Analyzing real-time sensor data...</p>
+                </div>
+                <button id="dispatchBtn" class="btn-dispatch" style="display: none;">Dispatch Route to Waste Collector</button>
+            </section>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="lgu-monitoring.html" class="nav-link"><img src="../../logo/Home.png" class="icon-30"></a>
+                <a href="lgu-analytics.html" class="nav-link"><img src="../../logo/Bar chart-2.png" class="icon-30"></a>
+                <a href="#" class="nav-link active"><img src="../../logo/Activity History.png" class="icon-30"></a>
+                <a href="lgu-menu.html" class="nav-link"><img src="../../logo/Menu.png" class="icon-30"></a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="../../js/lgu admin/lgu-collection.js"></script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Reddit Sans', sans-serif; }
+
+body { background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+.mobile-container {
+    width: 100%; max-width: 414px; height: 100vh;
+    background-color: #F8F8F8; display: flex; flex-direction: column;
+    overflow: hidden; position: relative;
+}
+
+/* TOP NAVIGATION */
+.top-nav {
+    background-color: #99cc33;
+    padding: 55px 25px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.dashboard-title { color: white; font-size: 1.5rem; font-weight: 700; transition: all 0.3s ease; }
+
+.header-back-arrow {
+    display: none;
+    position: absolute; left: 20px;
+    background: none; border: none; cursor: pointer;
+    width: 28px; height: 28px; color: white;
+}
+.header-back-arrow svg { width: 24px; height: 24px; }
+
+/* LAYOUT STATES */
+.real-time-mode .top-nav { justify-content: center; }
+.real-time-mode .header-back-arrow { display: flex; align-items: center; }
+
+/* CONTENT */
+.content-area { flex: 1; overflow-y: auto; padding: 20px 25px 100px; }
+.group-title { color: #558B2F; font-size: 1.1rem; font-weight: 700; margin: 15px 0 12px 5px; }
+
+/* HIDE SCROLLBAR BUT KEEP SCROLLING */
+.content-area {
+    /* For Firefox */
+    scrollbar-width: none; 
+    
+    /* For Internet Explorer and Edge */
+    -ms-overflow-style: none; 
+}
+
+/* For Chrome, Safari, and newer Edge */
+.content-area::-webkit-scrollbar {
+    display: none;
+}
+
+/* CARDS */
+.white-card {
+    background: #FFFFFF; border-radius: 20px; padding: 18px 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.selectable { cursor: pointer; border: 1px solid transparent; transition: background 0.2s; }
+.selectable:active { background-color: #f1f1f1; }
+
+.role-name, .user-name { color: #99cc33; font-weight: 600; font-size: 1rem; }
+.arrow { color: #CCC; font-size: 1.5rem; font-weight: bold; }
+
+/* PURE CSS SEARCH BAR & ICON */
+.search-container { padding: 12px 20px; gap: 10px; }
+.search-container input { flex: 1; border: none; outline: none; font-size: 0.95rem; background: transparent; }
+
+.css-search-icon {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #8CC63F;
+    border-radius: 50%;
+    position: relative;
+    margin-right: 5px;
+    opacity: 0.7;
+}
+
+.css-search-icon::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 8px;
+    background: #8CC63F;
+    bottom: -5px;
+    right: -3px;
+    transform: rotate(-45deg);
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+    position: absolute; bottom: 0; width: 100%;
+    background-color: #99cc33; border-top-left-radius: 35px; border-top-right-radius: 35px;
+    padding: 20px 30px 35px; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+}
+.nav-icons-container { display: flex; justify-content: space-between; align-items: center; }
+.nav-link.active { background-color: rgba(255, 255, 255, 0.25); border-radius: 12px; padding: 8px; }
+.icon-30 { width: 30px; height: 30px; object-fit: contain; }
+
+/* Maintenance Card Specialization */
+.maintenance-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch !important;
+    padding: 22px !important;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.maintenance-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 5px;
+}
+
+.maintenance-title-group {
+    display: flex; 
+    align-items: center; 
+    gap: 12px;
+}
+
+.recovery-icon {
+    font-size: 1.2rem; 
+    color: #99cc33;
+    display: inline-block;
+}
+
+.maintenance-desc {
+    color: #777; 
+    font-size: 0.75rem; 
+    line-height: 1.4; 
+    margin: 8px 0;
+}
+
+/* Status Pill */
+.status-pill {
+    font-size: 0.65rem;
+    padding: 4px 12px;
+    background: #E8F5E9;
+    color: #4CAF50;
+    border-radius: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Progress Bar */
+.progress-container {
+    display: none;
+    background: #f0f0f0;
+    height: 8px;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background: #99cc33;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-stats {
+    display: none; 
+    justify-content: space-between; 
+    margin-top: 6px;
+    color: #99cc33;
+    font-weight: 700;
+}
+
+/* Animations */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+.selectable:hover {
+    border-color: #99cc33;
+    background-color: #fafdf6;
+}
+
+/* Keep all existing styles from Source 2 here */
+
+.btn-primary {
+    background: #99cc33 !important;
+    color: white !important;
+    justify-content: center !important;
+    padding: 12px !important;
+    font-weight: 700 !important;
+}
+
+.status-msg {
+    font-size: 0.7rem;
+    color: #99cc33;
+    display: none;
+    font-weight: 600;
+}
+
+/* MODAL STYLES */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 140px; width: 100%; height: 100%;
+   
+}
+
+.modal-content {
+    background: #FFFFFF;
+    margin: 15% auto;
+    padding: 25px;
+    width: 85%;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; }
+.modal-subtitle { color: #99cc33; font-weight: 600; margin-bottom: 20px; font-size: 0.9rem; }
+.close-btn { font-size: 2rem; cursor: pointer; color: #ccc; }
+
+/* TOGGLE SWITCH */
+.permission-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.permission-label { font-size: 0.9rem; color: #444; flex: 1; padding-right: 10px; }
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px; width: 16px;
+    left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider { background-color: #99cc33; }
+input:checked + .slider:before { transform: translateX(22px); }
+
+/* ... Keep all existing styles ... */
+
+.role-badge {
+    background-color: #E0E7FF;
+    color: #4F46E5;
+    padding: 5px 15px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.disable-btn {
+    padding: 5px 15px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #ef4444;
+    background-color: white;
+    color: #ef4444;
+    transition: all 0.2s;
+}
+
+.disable-btn.active-state {
+    background-color: #ef4444;
+    color: white;
+}
+
+.user-disabled {
+    opacity: 0.6;
+    filter: grayscale(1);
+}
+
+/* Header arrow visibility logic */
+.show-back .header-back-arrow { display: flex; align-items: center; }
+
+
+/* --- SYSTEM USERS REFINED DESKTOP DESIGN (1024px+) --- */
+@media screen and (min-width: 1024px) {
+    body { background-color: #f4f7f2; display: block; overflow: hidden; }
+
+    .mobile-container {
+        max-width: 100%; height: 100vh;
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    /* --- SIDEBAR PILL (Standardized) --- */
+    .bottom-nav {
+        grid-column: 1 / 2; grid-row: 1 / 3;
+        position: relative; height: calc(100vh - 80px); width: 85px;
+        background: #99cc33; margin: 40px auto; border-radius: 100px;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-icons-container { flex-direction: column; gap: 35px; }
+    .icon-30 { width: 30px !important; height: 30px !important; }
+    .nav-link.active { background-color: white !important; border-radius: 50%; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; }
+    .nav-link.active .icon-30 { filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important; }
+    .nav-icons-container a:not(.active) .icon-30 { filter: brightness(0) invert(1); }
+
+    /* --- TOP NAV & SEARCH --- */
+    .top-nav { 
+        grid-column: 2 / 3; 
+        background: transparent; 
+        padding: 50px 60px 10px 20px; 
+        box-shadow: none; 
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .dashboard-title { color: #1a1a1a; font-size: 2.5rem; margin-bottom: 20px; }
+    
+    .search-container { 
+        width: 100%; 
+        max-width: 400px; 
+        background: white; 
+        border-radius: 15px; 
+        margin-bottom: 10px;
+        border: 1px solid #edf0ec;
+    }
+
+    /* --- TWO-COLUMN MAXIMIZED LAYOUT --- */
+    .content-area {
+        grid-column: 2 / 3; 
+        grid-row: 2 / 3;
+        padding: 0 60px 40px 20px; 
+        display: grid;
+        /* Column 1: Roles | Column 2: Security/Maintenance */
+        grid-template-columns: 1fr 1fr; 
+        column-gap: 40px; 
+        align-content: start; 
+        overflow-y: auto;
+    }
+
+    /* Section Labels Proper Placement */
+    .group-title {
+        grid-column: span 1; /* Each title stays in its own column */
+        font-size: 1.3rem;
+        margin: 20px 0 15px 0;
+    }
+
+    /* Card Sizing for Desktop */
+    .white-card {
+        margin-bottom: 15px;
+        width: 100%;
+    }
+
+    .maintenance-card {
+        padding: 25px !important;
+    }
+
+    /* Modal Styling for Desktop */
+    .modal-content {
+        max-width: 500px;
+        margin: 10% auto;
+    }
+}
+
+/* Shared dashboard polish */
+.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card { min-width: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07); }
+table { width: 100%; max-width: 100%; }
+@media (min-width: 1024px) {
+    .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
+    .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+}

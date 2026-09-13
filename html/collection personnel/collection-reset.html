@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Reset Password</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="branding">
+            <div class="logo-wrapper">
+                <img src="../logo/Logo1.png" alt="BinSense Logo" class="logo">
+            </div>
+        </header>
+
+        <main class="content-card">
+            <h2 class="title">Set New Password</h2>
+            <p class="subtitle">Choose a new password for your account</p>
+
+            <form id="reset-form" class="auth-form" onsubmit="return false;">
+                <div class="password-wrapper">
+                <input type="password" placeholder="New password" required>
+                <button type="button" class="toggle-password">Show</button>
+            </div>
+                <div class="password-wrapper">
+                <input type="password" placeholder="Confirm password" required>
+                <button type="button" class="toggle-password">Show</button>
+            </div>
+                <button type="submit" class="btn-primary">RESET PASSWORD</button>
+            </form>
+
+            <p class="toggle-text">
+                Remembered it? <a href="login.html" class="link">Login</a>
+            </p>
+        </main>
+    </div>
+
+    <!-- helper for token parsing and shared auth behaviors -->
+    <script src="../js/auth.js"></script>
+</body>
+</html>

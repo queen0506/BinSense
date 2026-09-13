@@ -1,0 +1,225 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Reddit Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh;
+}
+
+.mobile-container {
+    width: 100%; max-width: 414px; height: 100vh;
+    background-color: #F8F8F8; display: flex; flex-direction: column;
+    overflow: hidden; position: relative;
+}
+
+.top-nav {
+    background-color: #99cc33;
+    padding: 55px 25px 20px 25px;
+    display: flex; justify-content: flex-start; align-items: center;
+    border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+
+.dashboard-title { color: white; font-size: 1.8rem; font-weight: 700; }
+
+.log-filter-tabs { display: flex; justify-content: center; gap: 10px; }
+
+.filter-tab {
+    background: #e0e0e0; border: none; padding: 8px 18px; border-radius: 20px;
+    font-weight: 600; color: #666; cursor: pointer; transition: 0.2s ease;
+}
+
+.filter-tab.active { background: #99cc33; color: white; }
+
+
+/* Real-time Result Cards */
+.log-card {
+    background: white; padding: 15px; border-radius: 18px; margin-bottom: 12px;
+    border-left: 5px solid #99cc33; box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+/* Orange border for Audit to ensure accountability is visible without labels */
+.log-card.audit-border { border-left: 5px solid #FF9800; }
+
+.log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+
+.log-user { font-weight: 700; color: #333; font-size: 0.9rem; }
+
+.log-category-tag {
+    font-size: 0.6rem; font-weight: 800; padding: 2px 8px;
+    border-radius: 10px; color: white; text-transform: uppercase;
+}
+
+.log-category-tag.logs { background: #99cc33; }
+.log-category-tag.audit { background: #FF9800; }
+
+.log-msg { display: block; color: #555; font-size: 0.85rem; line-height: 1.4; margin-bottom: 10px; }
+
+.log-footer {
+    display: flex; justify-content: space-between; font-size: 0.7rem; color: #BBB;
+    border-top: 1px solid #F5F5F5; padding-top: 8px;
+}
+
+.bottom-nav {
+    background-color: #99cc33; border-top-left-radius: 35px; border-top-right-radius: 35px;
+    padding: 20px 35px 35px 35px; position: absolute; bottom: 0; width: 100%;
+}
+
+.nav-icons-container { display: flex; justify-content: space-between; align-items: center; }
+.nav-link.active { background-color: rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 8px; }
+.icon-30 { width: 30px; height: 30px; object-fit: contain; }
+
+@media screen and (min-width: 1024px) {
+
+    body {
+        background-color: #f4f7f2;
+        display: block;
+        overflow: hidden;
+    }
+
+    .mobile-container {
+        max-width: 100%;
+        height: 100vh;
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr);
+        grid-template-rows: auto auto minmax(0, 1fr);
+        background-color: transparent;
+    }
+
+    /* ================= SIDEBAR (UNCHANGED) ================= */
+    .bottom-nav {
+        grid-column: 1 / 2;
+        grid-row: 1 / 4;
+        position: relative;
+        height: calc(100vh - 80px);
+        width: 85px;
+        background: #99cc33;
+        margin: 40px auto;
+        border-radius: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
+        z-index: 10;
+    }
+
+    .nav-icons-container {
+        flex-direction: column;
+        gap: 35px;
+    }
+
+    .icon-30 {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .nav-link.active {
+        background-color: white !important;
+        border-radius: 50%;
+        width: 55px;
+        height: 55px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .nav-link.active .icon-30 {
+        filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
+    }
+
+    .nav-icons-container a:not(.active) .icon-30 {
+        filter: brightness(0) invert(1);
+    }
+
+    /* ================= HEADER ================= */
+    .top-nav {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        background: transparent;
+        padding: 50px 80px 22px 40px;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .dashboard-title {
+        color: #1a1a1a;
+        font-size: 2.8rem;
+        font-weight: 800;
+    }
+
+    /* ================= CONTENT ================= */
+    .log-filter-tabs {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        padding: 0 80px 20px 40px !important;
+        justify-content: flex-start;
+        margin: 0;
+    }
+
+    /* ================= LOG LIST ================= */
+    .logs-list-container {
+        grid-column: 2 / 3;
+        grid-row: 3 / 4;
+        min-width: 0;
+        min-height: 0;
+        padding: 0 80px 40px 40px !important;
+        overflow-y: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        align-content: start;
+        gap: 16px;
+    }
+
+    .filter-tab {
+        background: #e0e0e0;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .filter-tab.active {
+        background: #99cc33;
+        color: white;
+        box-shadow: 0 4px 10px rgba(153, 204, 51, 0.3);
+    }
+
+    .filter-tab:hover {
+        background: #cfcfcf;
+    }
+
+    .log-card {
+        background: white;
+        border-radius: 15px;
+        min-height: 132px;
+        height: auto;
+        margin: 0;
+        padding: 18px;
+        box-shadow: 
+            0 8px 15px rgba(0,0,0,0.06),
+            inset 0 1px 0 rgba(255,255,255,0.6);
+        border-left: 5px solid #99cc33;
+    }
+
+    .log-card.audit-border {
+        border-left: 5px solid #FF9800;
+    }
+
+    .log-header { display: flex; }
+    .log-msg { display: block; }
+    .log-footer { display: flex; }
+}
+
+/* Shared dashboard polish */
+.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card { min-width: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07); }
+table { width: 100%; max-width: 100%; }
+@media (min-width: 1024px) {
+    .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
+    .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+}

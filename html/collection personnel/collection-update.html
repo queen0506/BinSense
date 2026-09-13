@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Bin Update</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/collection personnel/collection-update.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        <header class="top-nav">
+            <h1 class="dashboard-title">Bin Update & Reports</h1>
+            
+        </header>
+
+        <main class="main-content">
+            <div id="binSelectionView">
+                <div class="search-container">
+                    <input type="text" placeholder="Search Bin" id="binSearch">
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <div class="bin-list" id="binContainer">
+                    <p style="text-align:center; padding:20px; color:#aaa;">Loading bins...</p>
+                </div>
+            </div>
+
+            <div id="binDetailView" style="display: none;">
+                <button id="backToList" class="back-link">‹ Back to list</button>
+                
+                <section class="info-section">
+                    <h3 class="section-label">Bin Information</h3>
+                    <div class="status-card">
+                        <h2 id="displayBinID">---</h2>
+                        <div class="status-indicator">
+                            <span class="status-dot"></span>
+                            <span id="displayStatus">---</span>
+                            <span class="status-dot"></span>
+                        </div>
+                        <!-- Last Updated element has been removed from here[cite: 7] -->
+                    </div>
+                </section>
+
+                <section class="report-section">
+                    <h3 class="section-label">Incident Report</h3>
+                    <div class="report-card">
+                        <p class="report-prompt">Report Issue:</p>
+                        <label class="radio-option">
+                            <input type="radio" name="issue" value="Overflowing">
+                            <span class="radio-custom"></span> Overflowing Trash
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="issue" value="Damaged">
+                            <span class="radio-custom"></span> Damaged Bin
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="issue" value="Others">
+                            <span class="radio-custom"></span> Others: <input type="text" id="otherIssueInput" class="inline-input" placeholder="...">
+                        </label>
+                    </div>
+                </section>
+
+                <button class="update-submit-btn" id="submitUpdate">Update</button>
+            </div>
+        </main>
+
+        <footer class="bottom-nav">
+            <div class="nav-icons-container">
+                <a href="collection-dashboard.html" class="nav-link">
+                    <img src="../../logo/Home.png" alt="Home" class="icon-30">
+                </a>
+                <a href="#" class="nav-link active">
+                    <img src="../../logo/Bar chart-2.png" alt="Update" class="icon-30">
+                </a>
+                <a href="collection-schedule.html" class="nav-link">
+                    <img src="../../logo/Activity History.png" alt="History" class="icon-30">
+                </a>
+                <a href="collection-menu.html" class="nav-link">
+                    <img src="../../logo/Menu.png" alt="Menu" class="icon-30">
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="../../js/collection personnel/collection-update.js"></script>
+</body>
+</html>

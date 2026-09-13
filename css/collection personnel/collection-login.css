@@ -1,0 +1,148 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Reddit Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.mobile-container {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    background-color: #8CC63F; /* Primary BinSense Green */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header for Logo */
+.branding {
+    flex: 1; /* Takes up the top half */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.logo-wrapper {
+    width: 400px; /* Constrains the width of your logo */
+    display: flex;
+    justify-content: center;
+}
+
+.logo {
+    max-width: 100%; /* Adjust size as needed */
+    height: auto;
+    object-fit: contain;
+}
+
+/* White Form Container */
+.content-card {
+    flex: 0.55;
+    background-color: #ffffff;
+    border-top-left-radius: 80px;
+    border-top-right-radius: 80px;
+    padding: 45px 35px;
+    text-align: center;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
+}
+
+.title {
+    color: #8CC63F;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #999;
+    font-size: 1rem;
+    margin-bottom: 35px;
+}
+
+/* Inputs */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+input {
+    background-color: #F4F4F4;
+    border: none;
+    border-radius: 25px;
+    padding: 18px 20px;
+    font-family: 'Reddit Sans', sans-serif;
+    font-size: 1rem;
+    color: #333;
+}
+
+.password-wrapper {
+    position: relative;
+}
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+}
+.password-wrapper .toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #555;
+    background: none;
+    border: none;
+    padding: 2px 4px;
+}
+
+input::placeholder {
+    color: #BBB;
+}
+
+.forgot-link {
+    text-align: right;
+    margin-top: -5px;
+}
+
+.forgot-link a {
+    color: #8CC63F;
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+/* Submit Button */
+.btn-primary {
+    background-color: #A2D149; 
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 15px;
+    text-transform: uppercase;
+}
+
+/* Switch Text */
+.toggle-text {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.link {
+    color: #8CC63F;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+}

@@ -1,0 +1,256 @@
+/* System Management page only */
+
+:root {
+    --admin-green: #99cc33;
+    --admin-dark-green: #558B2F;
+    --admin-text: #333333;
+    --admin-muted: #777777;
+    --admin-surface: #FFFFFF;
+    --admin-page: #F8F8F8;
+    --admin-border: #E2E8F0;
+    --admin-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+#app-container {
+    background: var(--admin-page);
+}
+
+#app-container .content-area {
+    padding: 20px 24px 110px;
+    overflow-y: auto;
+}
+
+#app-container .group-title {
+    color: var(--admin-dark-green);
+    letter-spacing: 0.01em;
+}
+
+#app-container .summary-box,
+#app-container .status-box,
+#app-container .bin-card,
+#app-container .modal-content {
+    border: 1px solid var(--admin-border);
+    box-shadow: var(--admin-shadow);
+}
+
+#app-container .summary-box {
+    padding: 8px 22px;
+    border-radius: 16px;
+}
+
+#app-container .summary-row {
+    min-height: 48px;
+    align-items: center;
+}
+
+#app-container .list-section {
+    margin-top: 28px;
+}
+
+#app-container .group-header {
+    padding: 0 2px;
+}
+
+#app-container .add-btn {
+    width: 40px;
+    height: 40px;
+    padding: 9px;
+    border: 1px solid var(--admin-border);
+    border-radius: 50%;
+    background: var(--admin-surface);
+    box-shadow: var(--admin-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#app-container .add-btn:hover,
+#app-container .add-btn:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.09);
+}
+
+#app-container .add-btn:focus-visible,
+#app-container .remove-btn:focus-visible,
+#app-container .confirm-btn:focus-visible,
+#app-container .cancel-btn:focus-visible {
+    outline: 2px solid var(--admin-green);
+    outline-offset: 3px;
+}
+
+#app-container .bins-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+#app-container .bin-card {
+    min-width: 0;
+    min-height: 92px;
+    margin-bottom: 0;
+    padding: 20px;
+    border-radius: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#app-container .bin-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+#app-container .bin-card h3,
+#app-container .bin-card p {
+    overflow-wrap: anywhere;
+}
+
+#app-container .status-box {
+    border-radius: 16px;
+}
+
+#app-container .remove-btn,
+#app-container .confirm-btn,
+#app-container .cancel-btn {
+    min-height: 44px;
+    border-radius: 50px;
+    padding: 6px 16px;
+}
+
+#app-container .remove-btn,
+#app-container .confirm-btn {
+    box-shadow: var(--admin-shadow);
+}
+
+#register-modal .modal-content {
+    border-radius: 16px;
+}
+
+#register-modal .modal-input {
+    border-color: var(--admin-border);
+    border-radius: 12px;
+}
+
+#register-modal .modal-actions {
+    align-items: center;
+}
+
+@media (min-width: 1024px) {
+    body:has(#app-container) {
+        background: var(--admin-page);
+        display: block;
+        overflow: hidden;
+    }
+
+    #app-container {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        width: 100vw;
+        max-width: none;
+        height: 100vh;
+        background: transparent;
+    }
+
+    #app-container .bottom-nav {
+        grid-column: 1;
+        grid-row: 1 / 3;
+        position: relative;
+        width: 80px;
+        height: calc(100vh - 60px);
+        margin: 30px auto;
+        padding: 20px 0;
+        border-radius: 50px;
+        box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    #app-container .top-nav {
+        grid-column: 2;
+        grid-row: 1;
+        padding: 48px clamp(32px, 5vw, 80px) 20px;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    #app-container .dashboard-title {
+        color: #1a1a1a;
+        font-size: clamp(2rem, 3vw, 2.8rem);
+    }
+
+    #app-container .content-area {
+        grid-column: 2;
+        grid-row: 2;
+        min-width: 0;
+        padding: 12px clamp(32px, 5vw, 80px) 48px;
+        display: block;
+    }
+
+    #app-container #device-list-view {
+        width: min(100%, 1240px);
+    }
+
+    #app-container .summary-section,
+    #app-container .list-section {
+        width: 100%;
+    }
+
+    #app-container .summary-section .group-title,
+    #app-container .list-section .group-title {
+        margin-left: 0;
+        margin-top: 0;
+        font-size: 1.15rem;
+    }
+
+    #app-container .summary-box {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0;
+        padding: 8px 24px;
+    }
+
+    #app-container .summary-row {
+        min-height: 68px;
+        padding: 12px 20px;
+        border-bottom: 0;
+        border-right: 1px solid var(--admin-border);
+    }
+
+    #app-container .summary-row:last-child {
+        border-right: 0;
+    }
+
+    #app-container .list-section {
+        margin-top: 32px;
+    }
+
+    #app-container .bins-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.25rem;
+    }
+
+    #app-container #realtime-status-view {
+        grid-column: 2;
+        grid-row: 2;
+        min-width: 0;
+        padding: 12px clamp(32px, 5vw, 80px) 48px;
+    }
+
+    #app-container #realtime-status-view .status-box,
+    #app-container #realtime-status-view .remove-btn {
+        width: min(100%, 760px);
+    }
+
+    #register-modal .modal-content {
+        width: min(92vw, 520px);
+        max-width: 520px;
+        padding: 32px;
+    }
+}
+
+@media (max-width: 600px) {
+    #app-container .summary-box {
+        padding: 8px 16px;
+    }
+
+    #app-container .bins-container {
+        grid-template-columns: 1fr;
+    }
+}

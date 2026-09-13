@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - More</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/collection personnel/collection-menu.css">
+</head>
+<body>
+
+<div class="mobile-container">
+    
+    <header class="top-nav">
+        <div>
+            <h1 class="dashboard-title">More</h1>
+            <p id="menu-user-name" class="menu-user-name">Welcome</p>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="menu-list">
+
+            <div class="menu-section">
+                <h2 class="menu-section-title">General</h2>
+
+                <a href="../../html/collection personnel/collection-edit-profile.html" class="menu-item">
+                    <div class="menu-left">
+                        <img src="../../logo/Test Account.png" class="menu-icon">
+                        <span>Account Information</span>
+                    </div>
+                    <img src="../../logo/Chevron right.png" class="arrow-icon">
+                </a>
+
+                <a href="../../html/collection personnel/collection-security.html" class="menu-item">
+                    <div class="menu-left">
+                        <img src="../../logo/Security Shield.png" class="menu-icon">
+                        <span>Privacy & Security</span>
+                    </div>
+                    <img src="../../logo/Chevron right.png" class="arrow-icon">
+                </a>
+
+                <a href="../../html/collection personnel/collection-about.html" class="menu-item">
+                    <div class="menu-left">
+                        <img src="../../logo/Info.png" class="menu-icon">
+                        <span>About</span>
+                    </div>
+                    <img src="../../logo/Chevron right.png" class="arrow-icon">
+                </a>
+
+                <a href="#" id="menu-logout" class="menu-item">
+                    <div class="menu-left">
+                        <img src="../../logo/Logout Rounded.png" class="menu-icon">
+                        <span>Log Out</span>
+                    </div>
+                    <img src="../../logo/Chevron right.png" class="arrow-icon">
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <h2 class="menu-section-title">Feedback</h2>
+
+                 <!-- BUG BUTTON -->
+                <a href="#" id="openBug" class="menu-item">
+                    <div class="menu-left">
+                        <img src="../../logo/Error.png" class="menu-icon">
+                        <span>Report a bug</span>
+                    </div>
+                    <img src="../../logo/Chevron right.png" class="arrow-icon">
+                </a>
+
+                <!-- ✅ FIXED BUTTON -->
+                <a href="#" id="openFeedback" class="menu-item">
+                    <div class="menu-left">
+                        <img src="../../logo/Email Send.png" class="menu-icon">
+                        <span>Send feedback</span>
+                    </div>
+                    <img src="../../logo/Chevron right.png" class="arrow-icon">
+                </a>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bottom-nav">
+        <div class="nav-icons-container">
+            <a href="collection-dashboard.html" class="nav-link">
+                <img src="../../logo/Home.png" class="icon-30">
+            </a>
+            <a href="collection-update.html" class="nav-link">
+                <img src="../../logo/Bar chart-2.png" class="icon-30">
+            </a>
+            <a href="collection-schedule.html" class="nav-link">
+                <img src="../../logo/Activity History.png" class="icon-30">
+            </a>
+            <a href="#" class="nav-link active">
+                <img src="../../logo/Menu.png" class="icon-30">
+            </a>
+        </div>
+        <div class="home-indicator"></div>
+    </footer>
+
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div id="feedbackModal" class="modal-overlay">
+    <div class="modal-box">
+        <img src="" class="modal-logo">
+        <h2 class="modal-title">BinSense</h2>
+        <p class="modal-subtitle">How would you rate the overall user experience?</p>
+        <p class="modal-small">Do you find it easy to use?</p>
+        <div class="star-rating">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+        </div>
+        <label class="modal-label">Can you tell us more?</label>
+        <textarea id="feedbackText" placeholder="We'd love to hear more!"></textarea>
+        <div class="modal-buttons">
+            <button id="cancelBtn" class="btn-cancel">Cancel</button>
+            <button class="btn-submit">Submit</button>
+        </div>
+    </div>
+</div>
+
+<!-- BUG REPORT MODAL -->
+<div id="bugModal" class="modal-overlay">
+    <div class="modal-box">
+        <img src="" class="modal-logo">
+        <h2 class="modal-title">Report a Bug</h2>
+        <p class="modal-subtitle normal-text">Help us improve BinSense</p>
+        <label class="modal-label">Bug Title</label>
+        <input type="text" class="bug-input" placeholder="Title of the issue">
+        <label class="modal-label">What happened?</label>
+        <textarea placeholder="Describe the issue clearly..."></textarea>
+        <label class="modal-label">Severity</label>
+        <select class="bug-select">
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+            <option>Critical</option>
+        </select>
+        <div class="modal-buttons">
+            <button id="cancelBug" class="btn-cancel">Cancel</button>
+            <button class="btn-submit">Submit</button>
+        </div>
+    </div>
+</div>
+
+<!-- LOGOUT CONFIRMATION MODAL -->
+<div id="logoutModal" class="modal-overlay">
+    <div class="modal-box">
+        <h2 class="modal-title" style="color: #99cc33;">Confirm Logout</h2>
+        <p class="modal-subtitle">Are you sure you want to log out?</p>
+        <div class="modal-buttons" style="margin-top: 25px; gap: 10px;">
+            <button id="cancelLogout" class="btn-cancel" style="flex: 1;">Cancel</button>
+            <button id="confirmLogout" class="btn-submit" style="flex: 1; background-color: #99cc33;">Logout</button>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ CORRECT JS -->
+<script type="module" src="../../js/collection personnel/collection-auth.js"></script>
+<script type="module" src="../../js/collection personnel/collection-menu.js"></script>
+
+</body>
+</html>

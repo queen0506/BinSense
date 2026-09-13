@@ -1,0 +1,346 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Reddit Sans', sans-serif;
+}
+
+:root {
+    --primary-green: #8CC63F; 
+    --text-dark: #4A4A4A;
+    --card-bg: #FFFFFF;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Scroll Snap Container - Invisible Scrollbar */
+.scroll-container {
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+}
+
+.page {
+    height: 100vh;
+    width: 100%;
+    scroll-snap-align: start;
+    position: relative;
+    padding: 40px 25px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.page-white { background-color: #ffffff; }
+.page-green { background-color: var(--primary-green); }
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.logo-img { 
+    width: 180px; 
+    height: auto; 
+}
+
+.headline {
+    color: var(--primary-green);
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 15px;
+}
+
+.sub-headline, .section-desc {
+    color: #888;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+.white-text { color: #ffffff !important; }
+.green-text { color: var(--primary-green); }
+.center-text { text-align: center; }
+
+.section-title { font-weight: 700; }
+
+.btn-get-started {
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(140, 198, 63, 0.3);
+}
+
+.feature-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 9px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+    color: var(--primary-green);
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.card p {
+    font-size: 0.75rem;
+    color: #777;
+    line-height: 1.4;
+}
+
+.hero-assets {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.asset-circles {
+    position: absolute;
+    bottom: -40px;
+    right: -40px;
+    width: 380px;
+    z-index: 1;
+}
+
+.asset-robot {
+    position: absolute;
+    bottom: 50px;
+    right: 10px;
+    width: 330px;
+    z-index: 2;
+}
+
+.phone-container {
+    margin: 20px auto;
+    position: relative;
+}
+
+.asset-phone { width: 330px; }
+
+.cta-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 20px;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background: white;
+    width: 85%;
+    max-width: 320px;
+    padding: 35px 25px;
+    border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.modal-subtitle {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-modal {
+    background-color: var(--primary-green);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-modal:active { transform: scale(0.98); }
+
+.close-modal {
+    display: block;
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: #bbb;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* --- DESKTOP SPACE MAXIMIZATION --- */
+
+@media screen and (min-width: 1024px) {
+    /* Main container alignment for Desktop */
+    #landing1 .content {
+        max-width: 1200px; 
+        padding-left: 8%;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* Keeps text left-aligned on desktop */
+    }
+
+    /* TARGETED FIX: Centering the "Why It Matters?" section (landing3) */
+    #landing3 .content {
+        align-items: center; /* Centers children horizontally */
+        text-align: center;   /* Centers the text lines */
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    #landing3 .section-desc {
+        text-align: center;   /* Overrides the global left-align for this section */
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 900px;     /* Keeps the text block narrow and centered like the image */
+    }
+
+    .page-green .content {
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .logo-img {
+        width: 290px;
+        padding-left: 8%;
+    }
+
+    /* Section Title alignment */
+    .page-green .section-title {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    .headline {
+        font-size: 2.8rem;
+        margin-bottom: 20px;
+        max-width: 900px;
+        line-height: 1.1;
+    }
+
+    /* FIXED: Grey description placement and sizing */
+    .sub-headline, .section-desc {
+        color: #888;
+        font-size: 1.2rem; /* Slightly larger for desktop readability */
+        line-height: 1.6;
+        max-width: 800px; /* Controls text width to prevent stretching across the screen */
+        margin-bottom: 35px;
+        text-align: left; /* Aligns with the headline for a clean vertical grid */
+    }
+
+    .page-green .section-desc {
+        font-size: 1.2rem;
+        max-width: 1000px;
+        margin-bottom: 50px;
+        text-align: left;
+    }
+
+    .asset-robot {
+        width: 520px;
+        right: 5%;
+    }
+
+    .asset-circles {
+        width: 500px;
+    }
+
+    /* Maximize the feature cards area - nested in media query for desktop layout */
+    .feature-cards {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        width: 100%;
+    }
+
+    /* Make cards taller and content more spacious */
+    .card {
+        padding: 40px 30px;
+        min-height: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+
+    .card p {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+}
+
+/* Extra large screens enhancement */
+@media screen and (min-width: 1440px) {
+    .page-green .content {
+        max-width: 1400px;
+    }
+}

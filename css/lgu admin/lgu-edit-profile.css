@@ -1,0 +1,294 @@
+/* BinSense Styling Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Reddit Sans', sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.mobile-container {
+    width: 100%;
+    max-width: 414px;
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* --- TOP NAVIGATION --- */
+.top-nav {
+    background-color: #99cc33; /* The primary green from BinSense */
+    padding: 55px 25px 30px 25px; /* Spacing for status bar and title */
+    border-bottom-left-radius: 35px;
+    border-bottom-right-radius: 35px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.back-btn {
+    position: absolute;
+    left: 0;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.page-title {
+    color: white;
+    font-size: 1.2rem; /* Matched to design */
+    font-weight: 700;
+    flex: 1;
+    text-align: center;
+}
+
+.current-user-name {
+    margin: 10px 0 20px 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #48742C;
+    text-align: center;
+}
+
+.icon-24 {
+    width: 24px;
+    height: 24px;
+}
+
+/* --- MAIN CONTENT & GRAPHIC --- */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.graphic-section {
+    padding: 40px 0;
+}
+
+.center-graphic {
+    width: 130px; /* Sizing based on design */
+    height: auto;
+    object-fit: contain;
+}
+
+/* --- FORM STYLING (Matched to image_16.png) --- */
+.edit-form {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.input-group {
+    margin-bottom: 25px; /* Spacing between fields */
+    width: 100%;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700; /* reddit sans bold */
+    color: #48742C; /* The dark label green */
+    margin-bottom: 8px; /* matched to design spacing */
+}
+
+.input-group input {
+    width: 100%;
+    padding: 18px; /* matched to design height */
+    border-radius: 12px; /* soft rounded look */
+    border: 1px solid #C4C4C4; /* light gray border */
+    background-color: white;
+    font-family: 'Reddit Sans', sans-serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    border-color: #99cc33; /* subtle active green border */
+}
+
+/* --- BUTTON STYLING (Matched to image_16.png) --- */
+.btn-update {
+    width: 100%;
+    background-color: #99cc33; /* matched to button green */
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 15px; /* slightly more rounded than inputs */
+    font-family: 'Reddit Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-update:active {
+    opacity: 0.9;
+}
+
+/* CONSISTENT RESPONSIVE BASE */
+@media (min-width: 768px) {
+    body { align-items: center; padding: 20px; }
+    .mobile-container { width: min(100%, 860px); max-width: 860px; min-height: 90vh; border-radius: 20px; box-shadow: 0 14px 35px rgba(0,0,0,0.15); }
+    .top-nav { padding: 45px 30px 28px 30px; }
+    .main-content { padding: 30px; }
+    .bottom-nav { padding: 14px 25px; min-height: 70px; height: 70px; }
+}
+
+@media (min-width: 1200px) {
+    .mobile-container { width: min(100%, 1040px); max-width: 1040px; }
+    .main-content { padding: 36px; }
+}
+
+
+/* --- EDIT PROFILE DESKTOP REFINEMENT --- */
+@media (min-width: 1024px) {
+    /* ... Copy Sidebar & Grid styles from Section 1 ... */
+
+    .top-nav {
+        background-color: transparent;
+        padding: 40px 40px 0 10px;
+    }
+
+    .back-btn { color: #99cc33; position: static; margin-right: 20px; }
+    .page-title { color: #2d3436; font-size: 1.8rem; text-align: left; }
+
+    .main-content {
+        max-width: 600px; /* Constrain form width for desktop */
+        margin-left: 0;
+    }
+
+    .edit-form {
+        background: white;
+        padding: 40px;
+        border-radius: 30px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+}
+
+@media (min-width: 1024px) {
+
+    /* ===== CLEAN BACKGROUND ===== */
+    body {
+        background: #f5f7f6;
+        align-items: flex-start;
+        padding: 40px 20px;
+    }
+
+    /* ===== CONTAINER (KEEP STRUCTURE, FIX WIDTH) ===== */
+    .mobile-container {
+        width: 100%;
+        max-width: 1000px;
+        height: auto;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    /* ===== HEADER (SIMPLE & CLEAN) ===== */
+    .top-nav {
+        padding: 20px 30px;
+        border-bottom: 1px solid #eee;
+        border-radius: 0;
+    }
+
+    .header-content {
+        justify-content: flex-start;
+    }
+
+    .back-btn {
+        position: static;
+        color: #99cc33;
+        margin-right: 10px;
+    }
+
+    .page-title {
+        color: #2d3436;
+        font-size: 1.4rem;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+        display: flex;
+        justify-content: center;
+        padding: 20px 30px;
+    }
+
+    /* ===== FORM CARD (KEEP IT SIMPLE) ===== */
+    .edit-form {
+        width: 100%;
+        max-width: 520px;
+        background: #fff;
+        padding: 30px;
+
+        border-radius: 16px;
+        border: 1px solid #eee;
+
+        /* LIGHT shadow only */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    /* REMOVE GRAPHIC FOR CLEAN LOOK */
+    .graphic-section {
+        display: none;
+    }
+
+    /* ===== NAME ===== */
+    .current-user-name {
+        text-align: center;
+        font-size: 1.4rem;
+        margin-bottom: 25px;
+    }
+
+    /* ===== INPUTS ===== */
+    .input-group {
+        margin-bottom: 18px;
+    }
+
+    .input-group input {
+        padding: 14px;
+        border-radius: 10px;
+        background: #fafafa;
+        border: 1px solid #ddd;
+        transition: 0.2s;
+    }
+
+    .input-group input:focus {
+        border-color: #99cc33;
+        background: #fff;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn-update {
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 1rem;
+        margin-top: 10px;
+
+        /* subtle shadow */
+        box-shadow: 0 4px 10px rgba(153, 204, 51, 0.2);
+        transition: 0.2s;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-1px);
+    }
+}
