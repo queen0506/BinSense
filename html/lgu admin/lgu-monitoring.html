@@ -70,6 +70,16 @@
                 <h3 class="section-label">Overflow Alerts</h3>
                 <div id="hotspotContainer" class="hotspot-box"></div>
             </div>
+
+            <section class="collection-schedule-section" aria-labelledby="collectionScheduleTitle">
+                <div class="collection-schedule-header">
+                    <h3 class="section-label" id="collectionScheduleTitle">Collection Schedule</h3>
+                    <button type="button" class="schedule-add-btn" id="addCollectionSchedule">Add Schedule</button>
+                </div>
+                <div id="lguScheduleList" class="lgu-schedule-list">
+                    <p class="schedule-empty">Loading collection schedules...</p>
+                </div>
+            </section>
         </main>
 
         <footer class="bottom-nav">
@@ -89,6 +99,51 @@
                 <span class="close-x" onclick="closeModal()">&times;</span>
             </div>
             <div id="binCardsContainer" class="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="collectionScheduleModal" class="modal-overlay schedule-modal">
+        <div class="modal-card schedule-modal-card">
+            <div class="modal-header">
+                <h2 id="scheduleModalTitle">Add Collection Schedule</h2>
+                <button type="button" class="close-x" id="closeScheduleModal" aria-label="Close">&times;</button>
+            </div>
+            <form id="collectionScheduleForm" class="schedule-form">
+                <label for="scheduleBarangay">Collection barangay</label>
+                <select id="scheduleBarangay" required>
+                    <option value="">Select barangay</option>
+                    <option value="Asinan">Asinan</option>
+                    <option value="Banicain">Banicain</option>
+                    <option value="Barretto">Barretto</option>
+                    <option value="East Bajac-Bajac">East Bajac-Bajac</option>
+                    <option value="East Tapinac">East Tapinac</option>
+                    <option value="Gordon Heights">Gordon Heights</option>
+                    <option value="Kalaklan">Kalaklan</option>
+                    <option value="Mabayuan">Mabayuan</option>
+                    <option value="New Banicain">New Banicain</option>
+                    <option value="New Ilalim">New Ilalim</option>
+                    <option value="New Kababae">New Kababae</option>
+                    <option value="New Kalalake">New Kalalake</option>
+                    <option value="Old Cabalan">Old Cabalan</option>
+                    <option value="Pag-asa">Pag-asa</option>
+                    <option value="Santa Rita">Santa Rita</option>
+                    <option value="West Bajac-Bajac">West Bajac-Bajac</option>
+                    <option value="West Tapinac">West Tapinac</option>
+                </select>
+                <label for="scheduleDate">Collection date</label>
+                <input id="scheduleDate" type="date" required>
+                <label for="scheduleTime">Collection time</label>
+                <input id="scheduleTime" type="time" required>
+                <label for="scheduleType">Schedule type</label>
+                <select id="scheduleType" required>
+                    <option value="One-Time">One-Time</option>
+                    <option value="Fixed">Fixed / Permanent</option>
+                </select>
+                <div class="schedule-form-actions">
+                    <button type="button" class="schedule-cancel-btn" id="cancelScheduleEdit">Cancel</button>
+                    <button type="submit" class="schedule-save-btn" id="saveScheduleBtn">Save Schedule</button>
+                </div>
+            </form>
         </div>
     </div>
 

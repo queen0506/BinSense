@@ -158,9 +158,12 @@ body {
     justify-content: space-between; 
     align-items: center; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    cursor: pointer;
+    cursor: default;
     transition: all 0.2s ease;
 }
+
+.schedule-item.schedule-actionable { cursor: pointer; }
+.schedule-item.schedule-actionable:focus-visible { outline: 2px solid #48742C; outline-offset: 3px; }
 
 .schedule-item:hover {
     transform: translateY(-2px);

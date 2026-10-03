@@ -64,6 +64,7 @@ alter table public.notifications add column if not exists date date;
 alter table public.notifications add column if not exists time time;
 alter table public.notifications add column if not exists "scheduleType" text;
 alter table public.notifications add column if not exists status text not null default 'unread';
+alter table public.notifications add column if not exists collection_status text not null default 'Scheduled';
 
 create table if not exists public.active_dispatch (
     id bigint generated always as identity primary key,
@@ -199,6 +200,34 @@ $$;
 
 grant execute on function public.has_any_role(text[]) to authenticated;
 
+create or replace function public.complete_collection_schedule(p_schedule_id bigint)
+returns boolean
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+    updated_count integer;
+begin
+    if not public.has_any_role(array['waste collector']) then
+        raise exception 'Only waste collectors can complete collection schedules.';
+    end if;
+
+        update public.notifications as n
+    set collection_status = 'Done'
+        where n.id = p_schedule_id
+            and n.type = 'collection'
+            and n.collection_status = 'Scheduled'
+            and n.barangay is not null;
+
+    get diagnostics updated_count = row_count;
+    return updated_count = 1;
+end;
+$$;
+
+revoke all on function public.complete_collection_schedule(bigint) from public;
+grant execute on function public.complete_collection_schedule(bigint) to authenticated;
+
 alter table public.users enable row level security;
 alter table public.bins enable row level security;
 alter table public.user_connected_bins enable row level security;
@@ -322,18 +351,19 @@ create policy "Dispatch administrators read reports" on public.reports
 
 drop policy if exists "Authenticated users read notifications" on public.notifications;
 drop policy if exists "Collection staff manage collection notifications" on public.notifications;
+drop policy if exists "LGU administrators manage collection schedules" on public.notifications;
 drop policy if exists "Administrators manage notifications" on public.notifications;
 create policy "Authenticated users read notifications" on public.notifications
     for select to authenticated using (true);
-create policy "Collection staff manage collection notifications" on public.notifications
+create policy "LGU administrators manage collection schedules" on public.notifications
     for all to authenticated
     using (
         type = 'collection'
-        and public.has_any_role(array['waste collector', 'lgu admin', 'system administrator'])
+        and public.has_any_role(array['lgu admin', 'system administrator'])
     )
     with check (
         type = 'collection'
-        and public.has_any_role(array['waste collector', 'lgu admin', 'system administrator'])
+        and public.has_any_role(array['lgu admin', 'system administrator'])
     );
 create policy "Administrators manage notifications" on public.notifications
     for all to authenticated using (public.is_system_administrator()) with check (public.is_system_administrator());
@@ -371,3 +401,5 @@ create policy "Administrators read incident reports" on public.incident_reports
     for select to authenticated using (public.is_system_administrator());
 create policy "Administrators manage incident reports" on public.incident_reports
     for all to authenticated using (public.is_system_administrator()) with check (public.is_system_administrator());
+
+notify pgrst, 'reload schema';
