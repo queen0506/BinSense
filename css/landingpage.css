@@ -1,37 +1,61 @@
-* {
+:root {
+    --primary-green: #8CC63F;
+    --primary-green-dark: #7cb342;
+    --text-dark: #4A4A4A;
+    --text-muted: #888;
+    --card-bg: #FFFFFF;
+    --surface-white: #ffffff;
+    --radius-sm: 12px;
+    --radius-md: 15px;
+    --radius-lg: 25px;
+    --shadow-sm: 0 4px 9px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 10px rgba(140, 198, 63, 0.3);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Reddit Sans', sans-serif;
 }
 
-:root {
-    --primary-green: #8CC63F; 
-    --text-dark: #4A4A4A;
-    --card-bg: #FFFFFF;
-}
-
-html, body {
+html,
+body {
     height: 100%;
     overflow: hidden;
+    font-family: 'Reddit Sans', sans-serif;
+    color: var(--text-dark);
+    overflow-x: hidden;
 }
 
-/* Scroll Snap Container - Invisible Scrollbar */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Scroll-snap container */
 .scroll-container {
     height: 100vh;
+    height: 100dvh;
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .scroll-container::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none;
 }
 
+/* Page sections */
 .page {
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
     width: 100%;
     scroll-snap-align: start;
     position: relative;
@@ -41,64 +65,119 @@ html, body {
     overflow: hidden;
 }
 
-.page-white { background-color: #ffffff; }
-.page-green { background-color: var(--primary-green); }
+.page-white {
+    background-color: var(--surface-white);
+}
 
+.page-green {
+    background-color: var(--primary-green);
+}
+
+/* Content wrapper */
+.content {
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+    z-index: 10;
+    padding: 0;
+    margin: 0;
+}
+
+/* Logo */
 .logo-container {
     display: flex;
     align-items: center;
     margin-bottom: 40px;
+    position: relative;
+    z-index: 10;
 }
 
-.logo-img { 
-    width: 180px; 
-    height: auto; 
+.logo-img {
+    width: 180px;
+    max-width: 60%;
+    height: auto;
 }
 
+/* Typography */
 .headline {
     color: var(--primary-green);
     font-size: 1.8rem;
     font-weight: 800;
     line-height: 1.2;
     margin-bottom: 15px;
+    overflow-wrap: anywhere;
 }
 
-.sub-headline, .section-desc {
-    color: #888;
+.sub-headline,
+.section-desc {
+    color: var(--text-muted);
     font-size: 0.95rem;
     line-height: 1.5;
     margin-bottom: 30px;
+    overflow-wrap: anywhere;
 }
 
-.white-text { color: #ffffff !important; }
-.green-text { color: var(--primary-green); }
-.center-text { text-align: center; }
+.white-text {
+    color: #fff !important;
+}
 
-.section-title { font-weight: 700; }
+.green-text {
+    color: var(--primary-green);
+}
 
+.center-text {
+    text-align: center;
+}
+
+.section-title {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    overflow-wrap: anywhere;
+}
+
+/* Buttons */
 .btn-get-started {
     background-color: var(--primary-green);
-    color: white;
+    color: #fff;
     border: none;
     padding: 12px 30px;
-    border-radius: 25px;
+    border-radius: var(--radius-lg);
+    font-family: inherit;
     font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(140, 198, 63, 0.3);
+    box-shadow: var(--shadow-md);
+    min-height: 44px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
+.btn-get-started:hover,
+.btn-get-started:focus-visible {
+    background-color: var(--primary-green-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(140, 198, 63, 0.4);
+    outline: none;
+}
+
+.btn-get-started:active {
+    transform: scale(0.98);
+}
+
+/* Feature cards */
 .feature-cards {
     display: flex;
     flex-direction: column;
     gap: 18px;
+    width: 100%;
 }
 
 .card {
-    background: white;
+    background: #fff;
     padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 9px rgba(0,0,0,0.05);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    min-width: 0;
 }
 
 .card h3 {
@@ -106,14 +185,17 @@ html, body {
     font-size: 0.9rem;
     font-weight: 700;
     margin-bottom: 5px;
+    overflow-wrap: anywhere;
 }
 
 .card p {
     font-size: 0.75rem;
     color: #777;
     line-height: 1.4;
+    overflow-wrap: anywhere;
 }
 
+/* Hero assets */
 .hero-assets {
     position: absolute;
     bottom: 0;
@@ -122,6 +204,7 @@ html, body {
     height: 100%;
     pointer-events: none;
     overflow: hidden;
+    z-index: 1;
 }
 
 .asset-circles {
@@ -129,6 +212,7 @@ html, body {
     bottom: -40px;
     right: -40px;
     width: 380px;
+    max-width: 80vw;
     z-index: 1;
 }
 
@@ -137,51 +221,78 @@ html, body {
     bottom: 50px;
     right: 10px;
     width: 330px;
+    max-width: 70vw;
     z-index: 2;
 }
 
+/* Phone container */
 .phone-container {
     margin: 20px auto;
     position: relative;
+    text-align: center;
 }
 
-.asset-phone { width: 330px; }
+.asset-phone {
+    width: 330px;
+    max-width: 100%;
+    margin: 0 auto;
+}
 
+/* CTA */
 .cta-heading {
     font-size: 1.5rem;
     font-weight: 700;
     margin-top: 20px;
+    overflow-wrap: anywhere;
 }
 
-/* Modal Styling */
+/* Modal */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0, 0, 0, 0.4);
+    -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px;
+}
+
+.modal-overlay.active,
+.modal-overlay.open,
+.modal-overlay.show,
+.modal-overlay[style*="display: flex"],
+.modal-overlay[style*="display:flex"],
+.modal-overlay[style*="display: block"],
+.modal-overlay[style*="display:block"] {
+    display: flex !important;
 }
 
 .modal-box {
-    background: white;
+    background: #fff;
     width: 85%;
     max-width: 320px;
     padding: 35px 25px;
-    border-radius: 25px;
+    border-radius: var(--radius-lg);
     text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-lg);
     animation: popIn 0.3s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+    min-width: 0;
 }
 
 @keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .modal-title {
@@ -191,7 +302,7 @@ html, body {
 }
 
 .modal-subtitle {
-    color: #888;
+    color: var(--text-muted);
     font-size: 0.9rem;
     margin-bottom: 25px;
 }
@@ -204,17 +315,27 @@ html, body {
 
 .btn-modal {
     background-color: var(--primary-green);
-    color: white;
+    color: #fff;
     border: none;
     padding: 14px;
-    border-radius: 15px;
+    border-radius: var(--radius-md);
+    font-family: inherit;
     font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
-    transition: transform 0.2s;
+    min-height: 44px;
+    transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.btn-modal:active { transform: scale(0.98); }
+.btn-modal:hover,
+.btn-modal:focus-visible {
+    background-color: var(--primary-green-dark);
+    outline: none;
+}
+
+.btn-modal:active {
+    transform: scale(0.98);
+}
 
 .close-modal {
     display: block;
@@ -223,36 +344,110 @@ html, body {
     color: #bbb;
     text-decoration: underline;
     cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    padding: 8px;
+    font-family: inherit;
 }
 
-/* --- DESKTOP SPACE MAXIMIZATION --- */
+.close-modal:hover {
+    color: #888;
+}
 
-@media screen and (min-width: 1024px) {
-    /* Main container alignment for Desktop */
+/* Small phone adjustments */
+@media (max-width: 600px) {
+    .page {
+        padding: 32px 20px;
+    }
+
+    .headline {
+        font-size: 1.6rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .cta-heading {
+        font-size: 1.3rem;
+    }
+
+    .logo-img {
+        width: 160px;
+    }
+}
+
+/* Tablet (601px – 1023px) */
+@media (min-width: 601px) and (max-width: 1023px) {
+    .page {
+        padding: 50px 40px;
+    }
+
+    .headline {
+        font-size: 2.2rem;
+        max-width: 700px;
+    }
+
+    .sub-headline {
+        font-size: 1.05rem;
+        max-width: 700px;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .section-desc {
+        font-size: 1.05rem;
+        max-width: 700px;
+    }
+
+    /* Two-column feature cards */
+    .feature-cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .card {
+        padding: 30px;
+    }
+
+    .card h3 {
+        font-size: 1.1rem;
+    }
+
+    .card p {
+        font-size: 0.9rem;
+    }
+
+    .asset-robot {
+        width: 420px;
+    }
+
+    .asset-circles {
+        width: 420px;
+    }
+
+    .cta-heading {
+        font-size: 1.8rem;
+    }
+}
+
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
+    /* Landing 1 — content layout */
     #landing1 .content {
-        max-width: 1200px; 
+        max-width: 1200px;
         padding-left: 8%;
         margin-top: 10px;
         display: flex;
         flex-direction: column;
-        align-items: flex-start; /* Keeps text left-aligned on desktop */
+        align-items: flex-start;
     }
 
-    /* TARGETED FIX: Centering the "Why It Matters?" section (landing3) */
-    #landing3 .content {
-        align-items: center; /* Centers children horizontally */
-        text-align: center;   /* Centers the text lines */
-        max-width: 1000px;
-        margin: 0 auto;
-    }
-
-    #landing3 .section-desc {
-        text-align: center;   /* Overrides the global left-align for this section */
-        margin-left: auto;
-        margin-right: auto;
-        max-width: 900px;     /* Keeps the text block narrow and centered like the image */
-    }
-
+    /* Landing 2 — green section */
     .page-green .content {
         max-width: 1200px;
         width: 100%;
@@ -265,18 +460,29 @@ html, body {
         padding-right: 30px;
     }
 
+    /* Landing 3 — centered */
+    #landing3 .content {
+        align-items: center;
+        text-align: center;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    #landing3 .section-desc {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 900px;
+    }
+
+    /* Logo */
     .logo-img {
         width: 290px;
+        max-width: none;
         padding-left: 8%;
     }
 
-    /* Section Title alignment */
-    .page-green .section-title {
-        font-size: 3rem;
-        margin-bottom: 10px;
-        text-align: left;
-    }
-
+    /* Typography */
     .headline {
         font-size: 2.8rem;
         margin-bottom: 20px;
@@ -284,14 +490,26 @@ html, body {
         line-height: 1.1;
     }
 
-    /* FIXED: Grey description placement and sizing */
-    .sub-headline, .section-desc {
-        color: #888;
-        font-size: 1.2rem; /* Slightly larger for desktop readability */
+    .section-title {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    .page-green .section-title {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    .sub-headline,
+    .section-desc {
+        color: var(--text-muted);
+        font-size: 1.2rem;
         line-height: 1.6;
-        max-width: 800px; /* Controls text width to prevent stretching across the screen */
+        max-width: 800px;
         margin-bottom: 35px;
-        text-align: left; /* Aligns with the headline for a clean vertical grid */
+        text-align: left;
     }
 
     .page-green .section-desc {
@@ -301,30 +519,34 @@ html, body {
         text-align: left;
     }
 
+    /* Hero assets */
     .asset-robot {
         width: 520px;
+        max-width: none;
         right: 5%;
     }
 
     .asset-circles {
         width: 500px;
+        max-width: none;
     }
 
-    /* Maximize the feature cards area - nested in media query for desktop layout */
+    /* Feature cards — 4-column grid */
     .feature-cards {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 30px;
         width: 100%;
+        align-content: start;
     }
 
-    /* Make cards taller and content more spacious */
     .card {
         padding: 40px 30px;
         min-height: 250px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
+        margin-bottom: 0;
     }
 
     .card h3 {
@@ -338,9 +560,29 @@ html, body {
     }
 }
 
-/* Extra large screens enhancement */
-@media screen and (min-width: 1440px) {
+/* Extra large screens */
+@media (min-width: 1440px) {
     .page-green .content {
         max-width: 1400px;
     }
+}
+
+/* Shared polish */
+.white-card,
+.summary-card,
+.chart-container,
+.chart-container-box,
+.report-card,
+.log-card,
+.bin-card {
+    min-width: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+}
+
+.table-container,
+.table-wrapper,
+.logs-container,
+.data-table-container {
+    max-width: 100%;
+    overflow-x: auto;
 }

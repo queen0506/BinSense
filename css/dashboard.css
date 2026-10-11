@@ -1,48 +1,97 @@
-* {
+:root {
+    --lgu-green: #99cc33;
+    --lgu-green-dark: #88b72e;
+    --lgu-dark-green: #48742C;
+    --lgu-text: #333;
+    --lgu-muted: #777;
+    --lgu-surface: #FFFFFF;
+    --lgu-page: #F0F0F0;
+    --lgu-border: #E2E8F0;
+    --lgu-danger: #ff4444;
+    --lgu-warning: #ff9800;
+    --lgu-success: #4caf50;
+    --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
+    --radius-sm: 12px;
+    --radius-md: 14px;
+    --radius-lg: 25px;
+    --radius-xl: 15px;
+    --radius-2xl: 15px;
+}
+/* Reset */
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--lgu-page);
+    color: var(--lgu-text);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+canvas {
+    max-width: 100%;
+}
+
+table {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Mobile base (0 – 600px) */
 .mobile-container {
     width: 100%;
     max-width: 414px;
     height: 100vh;
-    background-color: white;
+    height: 100dvh;
+    background-color: #fff;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    margin: 0 auto;
 }
 
-/* TOP NAVIGATION */
+/* Header */
 .top-nav {
-    background-color: #99cc33; /* Exact Green from image */
-    padding: 55px 25px 20px 25px; /* Top padding for status bar area */
+    background-color: var(--lgu-green);
+    padding: 30px 20px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-bottom-left-radius: var(--radius-2xl);
+    border-bottom-right-radius: var(--radius-2xl);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
 }
-
 .dashboard-title {
-    color: white;
+    color: #fff;
     font-size: 1.8rem;
     font-weight: 700;
+    line-height: 1.2;
 }
 
-/* NOTIFICATION ICON */
+/* Notification button */
 .notification-icon-container {
     display: flex;
     align-items: center;
@@ -58,7 +107,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 .notification-btn:hover {
@@ -68,18 +117,17 @@ body {
 .notification-icon {
     width: 28px;
     height: 28px;
-    color: white;
+    color: #fff;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
-/* Fixed Badge Style */
 .notification-badge {
     position: absolute;
     top: 2px;
     right: 2px;
-    background-color: #ff4444;
-    color: white;
+    background-color: var(--lgu-danger);
+    color: #fff;
     border-radius: 50%;
     width: 18px;
     height: 18px;
@@ -87,31 +135,24 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 0.7rem;
-    border: 2px solid #99cc33;
+    font-weight: 700;
+    border: 2px solid var(--lgu-green);
     pointer-events: none;
 }
 
-/* UPDATED NOTIFICATION PANEL - FULLSCREEN SLIDE-OUT */
+/* Notification panel */
 .notification-panel {
     position: absolute;
-    /* Move to the exact vertical and horizontal center of the parent */
-    top: 50%; 
+    top: 50%;
     left: 50%;
-    /* Offset the panel by half its own width and height to achieve true centering[cite: 18] */
     transform: translate(-50%, -50%);
-    
-    /* Width matching the margins in your project images[cite: 18] */
-    width: 88%; 
+    width: 88%;
+    max-width: 400px;
     max-height: 500px;
-    background-color: white;
-    
-    /* Highly rounded corners[cite: 18] */
-    border-radius: 20px; 
-    
-    /* Soft shadow for depth[cite: 18] */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); 
-    
-    display: none; /* Toggle handled via JS .active class[cite: 18] */
+    background-color: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: none;
     flex-direction: column;
     z-index: 1500;
     overflow: hidden;
@@ -128,12 +169,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .notification-panel-header h3 {
     font-size: 1.1rem;
-    /* Dark green color matching your dashboard theme[cite: 7] */
-    color: #48742C; 
+    color: var(--lgu-dark-green);
     font-weight: 700;
     margin: 0;
 }
@@ -145,6 +186,7 @@ body {
     cursor: pointer;
     color: #999;
     padding: 0;
+    line-height: 1;
 }
 
 .close-notification-btn:hover {
@@ -154,15 +196,15 @@ body {
 .notification-list {
     flex: 1;
     overflow-y: auto;
-    /* Minimum height to maintain the card shape when empty[cite: 7] */
-    min-height: 300px;
+    -webkit-overflow-scrolling: touch;
+    min-height: 200px;
 }
 
 .notification-item {
     padding: 15px 25px;
     border-bottom: 1px solid #f9f9f9;
     display: flex;
-    align-items: flex-start; /* Align icon to top of text */
+    align-items: flex-start;
     gap: 15px;
     transition: background-color 0.2s ease;
     cursor: pointer;
@@ -173,7 +215,7 @@ body {
 }
 
 .notification-item.unread {
-    background-color: #f6faf2; /* Very subtle green tint for unread */
+    background-color: #f6faf2;
 }
 
 .notification-icon-circle {
@@ -187,15 +229,14 @@ body {
     font-size: 1.3rem;
 }
 
-/* Matched exactly to second image icons */
 .notification-icon-circle.success {
     background-color: #e8f5e9;
-    color: #4caf50;
+    color: var(--lgu-success);
 }
 
 .notification-icon-circle.warning {
     background-color: #fff3e0;
-    color: #ff9800;
+    color: var(--lgu-warning);
 }
 
 .notification-icon-circle.alert {
@@ -208,35 +249,41 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 .notification-title {
     font-weight: 700;
     color: #333;
     font-size: 0.95rem;
+    overflow-wrap: anywhere;
 }
 
 .notification-message {
     font-size: 0.85rem;
     color: #666;
     line-height: 1.4;
+    overflow-wrap: anywhere;
 }
 
 .notification-panel-footer {
     border-top: 1px solid #eee;
     padding: 0;
+    flex-shrink: 0;
 }
 
 .clear-all-btn {
     background: none;
     border: none;
-    color: #48742C; /* Precise green text from Screenshot 2026-04-30 190109_2.png[cite: 7] */
+    color: var(--lgu-dark-green);
     cursor: pointer;
     font-weight: 700;
     font-size: 1.1rem;
+    font-family: inherit;
     width: 100%;
     padding: 15px;
     text-align: center;
+    transition: background-color 0.2s ease;
 }
 
 .clear-all-btn:hover {
@@ -250,24 +297,257 @@ body {
     font-size: 0.9rem;
 }
 
-/* MAIN AREA (Blank) */
+/* Main scrollable area */
 .main-content {
     flex: 1;
-    position: relative; /* Context for absolute panel */
+    min-height: 0;
+    position: relative;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* BOTTOM NAVIGATION */
+/* Bins grid */
+.bins-grid {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Bin card */
+.citizen-bin-card {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    gap: 12px;
+    min-width: 0;
+}
+
+.citizen-bin-card:active {
+    transform: scale(0.98);
+}
+
+.citizen-bin-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--lgu-shadow-lg);
+}
+
+/* Add bin placeholder */
+.add-bin-placeholder {
+    border: 2px dashed var(--lgu-green);
+    border-radius: var(--radius-lg);
+    padding: 25px;
+    text-align: center;
+    color: var(--lgu-green);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    min-width: 0;
+}
+
+.add-bin-placeholder:hover {
+    background-color: #f6faf2;
+    border-color: var(--lgu-green-dark);
+}
+
+.plus-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    display: block;
+    font-weight: 300;
+}
+
+.add-bin-placeholder p {
+    margin-top: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.modal.open,
+.modal.show,
+.modal[style*="display: flex"],
+.modal[style*="display:flex"],
+.modal[style*="display: block"],
+.modal[style*="display:block"] {
+    display: flex !important;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: var(--radius-xl);
+    width: 90%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+.modal-content h3 {
+    color: var(--lgu-dark-green);
+    margin-bottom: 5px;
+    font-weight: 700;
+    text-align: center;
+    font-size: 1.15rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.column-actions {
+    flex-direction: column;
+}
+
+/* Buttons */
+.primary-btn {
+    background: var(--lgu-green);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    width: 100%;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-height: 44px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.primary-btn:hover,
+.primary-btn:focus-visible {
+    background: var(--lgu-green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(153, 204, 51, 0.3);
+    outline: none;
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+.secondary-btn {
+    background: #f0f0f0;
+    color: #555;
+    border: none;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    width: 100%;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background 0.15s ease;
+}
+
+.secondary-btn:hover {
+    background: #e5e5e5;
+}
+
+.danger-outline-btn {
+    background: transparent;
+    border: 1px solid #ff3b30;
+    color: #ff3b30;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-height: 44px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.danger-outline-btn:hover {
+    background: #ff3b30;
+    color: #fff;
+}
+
+/* Bin ID input */
+#binIdInput {
+    width: 100%;
+    padding: 14px 18px;
+    margin: 15px 0;
+    border: 2px solid #eee;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 16px; /* Prevents iOS auto-zoom */
+    color: #333;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    outline: none;
+}
+
+#binIdInput:focus {
+    border-color: var(--lgu-green);
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(153, 204, 51, 0.15);
+}
+
+#binIdInput::placeholder {
+    color: #bbb;
+    font-size: 0.9rem;
+}
+
+#confirmAddBtn:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+#confirmAddBtn:active {
+    transform: translateY(0);
+}
+
+/* Details body */
+#detailsBody p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+/* Bottom nav (mobile bar) */
 .bottom-nav {
-    background-color: #99cc33;
-    border-top-left-radius: 35px;
-    border-top-right-radius: 35px;
-    padding: 20px 35px 35px 35px;
+    background-color: var(--lgu-green);
+    border-radius: 999px;
+    padding: 8px 28px;
+    margin: 0 12px 12px;
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
-
 .nav-icons-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 8px;
+    border-radius: 50%;
 }
 
 .nav-icons-container a {
@@ -275,14 +555,13 @@ body {
     align-items: center;
     justify-content: center;
     padding: 8px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border-radius: var(--radius-sm);
+    transition: background 0.3s ease, transform 0.3s ease;
     position: relative;
 }
 
 .nav-icons-container a:hover {
     background-color: rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
 }
 
 .nav-icons-container a.active {
@@ -294,177 +573,70 @@ body {
     filter: brightness(1.2);
 }
 
-/* UNIVERSAL ICON SIZE */
 .icon-30 {
     width: 30px;
     height: 30px;
+    object-fit: contain;
 }
 
-/* Modal Styling - must be higher than panel */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
+/* Small phone adjustments */
+@media (max-width: 600px) {
+    .dashboard-title {
+        font-size: 1.6rem;
+    }
+
+    .main-content {
+        padding: 0;
+    }
+
+    .bins-grid {
+        padding: 16px;
+    }
 }
 
-/* ... Keep rest of the modal and bins CSS below ... */
+/* Tablet (601px – 1023px) */
+@media (min-width: 601px) and (max-width: 1023px) {
+    body {
+        background-color: #f4f7f2;
+        align-items: flex-start;
+        padding: 20px;
+    }
 
-/* Container for Bin Cards */
-.bins-grid {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    .mobile-container {
+        max-width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0;
+    }
+
+    .top-nav {
+        padding: 42px 40px 24px;
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+    }
+
+    /* Two-column bin grid */
+    .bins-grid {
+        padding: 24px 40px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .notification-panel {
+        max-width: 480px;
+        max-height: 600px;
+    }
+
+    .modal-content {
+        max-width: 480px;
+        padding: 30px;
+    }
 }
 
-/* Bin Card Style */
-.citizen-bin-card {
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.citizen-bin-card:active {
-    transform: scale(0.98);
-}
-
-/* Add Bin Placeholder Styling */
-.add-bin-placeholder {
-    border: 2px dashed #99cc33;
-    border-radius: 20px;
-    padding: 25px;
-    text-align: center;
-    color: #99cc33;
-    cursor: pointer;
-}
-
-.plus-icon {
-    font-size: 2.5rem;
-    line-height: 1;
-}
-
-.modal-content {
-    background: white;
-    padding: 25px;
-    border-radius: 25px;
-    width: 90%;
-    max-width: 360px;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.column-actions {
-    flex-direction: column;
-}
-
-/* Button Variants */
-.primary-btn {
-    background: #99cc33;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    width: 100%;
-    font-weight: bold;
-}
-
-.secondary-btn {
-    background: #f0f0f0;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    width: 100%;
-}
-
-.danger-outline-btn {
-    background: transparent;
-    border: 1px solid #ff3b30;
-    color: #ff3b30;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: bold;
-}
-
-/* Details Text Styling */
-#detailsBody p {
-    margin: 8px 0;
-    font-size: 0.95rem;
-    color: #444;
-}
-
-/* --- CONNECT BIN INPUT UI IMPROVEMENTS --- */
-
-/* Target the specific input field */
-#binIdInput {
-    width: 100%;
-    padding: 14px 18px;
-    margin: 15px 0;
-    border: 2px solid #eee;
-    border-radius: 14px;
-    font-family: 'Reddit Sans', sans-serif;
-    font-size: 1rem;
-    color: #333;
-    background-color: #f9f9f9;
-    transition: all 0.3s ease;
-    outline: none;
-}
-
-/* Subtle elevation and color shift on focus */
-#binIdInput:focus {
-    border-color: #99cc33;
-    background-color: #fff;
-    box-shadow: 0 4px 12px rgba(153, 204, 51, 0.15);
-}
-
-/* Styling the placeholder text */
-#binIdInput::placeholder {
-    color: #bbb;
-    font-size: 0.9rem;
-}
-
-/* Enhancing the Modal Actions alignment */
-.modal-content h3 {
-    color: #48742C;
-    margin-bottom: 5px;
-    font-weight: 700;
-    text-align: center;
-}
-
-.modal-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 10px;
-}
-
-/* Adding a hover state to the Connect button */
-#confirmAddBtn:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
-}
-
-#confirmAddBtn:active {
-    transform: translateY(0);
-}
-
-/* --- FINAL REFINED DESKTOP DESIGN --- */
+/* Desktop (1024px+) */
 @media (min-width: 1024px) {
     body {
         background-color: #f4f7f2;
@@ -476,25 +648,26 @@ body {
         max-width: 100%;
         height: 100vh;
         display: grid;
-        grid-template-columns: 140px 1fr;
-        grid-template-rows: auto 1fr;
+        grid-template-columns: 140px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
         background-color: transparent;
+        overflow: visible;
     }
 
-    /* --- SIDEBAR & NAV ACTIVE STATE --- */
+    /* Sidebar pill */
     .bottom-nav {
         grid-column: 1 / 2;
         grid-row: 1 / 3;
         position: relative;
         height: calc(100vh - 80px);
         width: 85px;
-        background: #99cc33; /* Solid green theme[cite: 4, 6] */
+        background: var(--lgu-green);
         margin: 40px auto;
+        padding: 0;
         border-radius: 100px;
-        padding: 40px 0;
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Lowered icons to center */
+        justify-content: center;
         align-items: center;
         box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
     }
@@ -505,9 +678,17 @@ body {
         align-items: center;
     }
 
-    /* Active indicator: White Circle */
+    .nav-icons-container a {
+        transition: transform 0.2s ease;
+    }
+
+    .nav-icons-container a:hover {
+        background-color: transparent;
+        transform: translateX(-2px);
+    }
+
     .nav-icons-container a.active {
-        background-color: white !important;
+        background-color: #fff !important;
         border-radius: 50%;
         width: 55px;
         height: 55px;
@@ -518,24 +699,22 @@ body {
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
 
-    /* Green Icon inside the White Circle */
     .nav-icons-container a.active .icon-30,
     .nav-icons-container a.active img {
         filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
     }
 
-    /* Non-active icons remain white for contrast against green[cite: 4] */
     .nav-icons-container a:not(.active) img,
     .nav-icons-container a:not(.active) .icon-30 {
         filter: brightness(0) invert(1);
     }
 
-    /* --- TOP NAV & NOTIFICATION FIX --- */
+    /* Header */
     .top-nav {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
         background-color: transparent;
-        padding: 50px 60px 20px 0;
+        padding: 50px 60px 20px 40px;
         border-radius: 0;
         box-shadow: none;
         display: flex;
@@ -545,73 +724,78 @@ body {
 
     .dashboard-title {
         color: #1a1a1a;
-        font-size: 2.2rem;
+        font-size: 2.5rem;
     }
 
-    /* Green Notification Button for high visibility */
+    /* Notification button on desktop */
     .notification-btn {
-        background: #99cc33 !important; /* Green background[cite: 6] */
+        background: var(--lgu-green);
         padding: 12px;
-        border-radius: 15px;
+        border-radius: var(--radius-md);
         box-shadow: 0 4px 15px rgba(153, 204, 51, 0.3);
-        border: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
     }
 
-    /* White bell inside green button[cite: 6] */
-    .notification-icon { 
-        color: white !important; 
+    .notification-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .notification-icon {
+        color: #fff !important;
         width: 28px;
         height: 28px;
     }
 
     .notification-badge {
-        background-color: #ff4444;
-        color: white;
-        border: 2px solid #99cc33; /* Matches button[cite: 6] */
+        border: 2px solid var(--lgu-green);
     }
 
-    /* --- MAIN CONTENT AREA --- */
+    /* Main content */
     .main-content {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
-        padding: 10px 60px 60px 0;
+        padding: 10px 60px 60px 40px;
         overflow-y: auto;
+        min-height: 0;
     }
 
+    /* Bin grid — auto-fit */
     .bins-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 30px;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
         padding: 0;
     }
+
+    /* Notification panel — centered in viewport */
+    .notification-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: min(90vw, 480px);
+        max-height: 80vh;
+    }
 }
 
-/* Shared dashboard polish */
-.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card {
+/* Shared polish */
+.white-card,
+.summary-card,
+.chart-container,
+.chart-container-box,
+.report-card,
+.log-card,
+.bin-card {
     min-width: 0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+    box-shadow: var(--lgu-shadow-lg);
 }
 
-table { width: 100%; max-width: 100%; }
-canvas { max-width: 100%; }
-
-@media (min-width: 1024px) {
-    .main-content, .content-area {
-        min-width: 0;
-        width: 100%;
-        gap: 1.5rem;
-    }
-
-    .chart-container, .chart-container-box, .report-card, .white-card {
-        max-width: 100%;
-    }
-
-    .table-container, .table-wrapper, .logs-container, .data-table-container {
-        max-width: 100%;
-        overflow-x: auto;
-    }
+.table-container,
+.table-wrapper,
+.logs-container,
+.data-table-container {
+    max-width: 100%;
+    overflow-x: auto;
 }

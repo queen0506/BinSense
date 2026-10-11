@@ -13,12 +13,11 @@
     <div class="mobile-container">
         <header class="top-nav">
             <h1 class="dashboard-title">City Monitoring</h1>
-            
         </header>
 
         <main class="main-content">
             <div class="filter-section">
-                <select id="brgySelector" class="custom-select">
+                <select id="brgySelector" class="custom-select-native" tabindex="-1" aria-hidden="true">
                     <option value="all">All Barangays (Olongapo City)</option>
                     <option value="Asinan">Asinan</option>
                     <option value="Banicain">Banicain</option>
@@ -38,6 +37,31 @@
                     <option value="West Bajac-Bajac">West Bajac-Bajac</option>
                     <option value="West Tapinac">West Tapinac</option>
                 </select>
+
+                <button type="button" class="custom-select" id="brgyTrigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="selected-label">All Barangays (Olongapo City)</span>
+                </button>
+
+                <ul class="custom-select-list" id="brgyList" role="listbox">
+                    <li data-value="all" class="is-selected">All Barangays (Olongapo City)</li>
+                    <li data-value="Asinan">Asinan</li>
+                    <li data-value="Banicain">Banicain</li>
+                    <li data-value="Barretto">Barretto</li>
+                    <li data-value="East Bajac-Bajac">East Bajac-Bajac</li>
+                    <li data-value="East Tapinac">East Tapinac</li>
+                    <li data-value="Gordon Heights">Gordon Heights</li>
+                    <li data-value="Kalaklan">Kalaklan</li>
+                    <li data-value="Mabayuan">Mabayuan</li>
+                    <li data-value="New Banicain">New Banicain</li>
+                    <li data-value="New Ilalim">New Ilalim</li>
+                    <li data-value="New Kababae">New Kababae</li>
+                    <li data-value="New Kalalake">New Kalalake</li>
+                    <li data-value="Old Cabalan">Old Cabalan</li>
+                    <li data-value="Pag-asa">Pag-asa</li>
+                    <li data-value="Santa Rita">Santa Rita</li>
+                    <li data-value="West Bajac-Bajac">West Bajac-Bajac</li>
+                    <li data-value="West Tapinac">West Tapinac</li>
+                </ul>
             </div>
 
             <div class="status-cards-container">
@@ -109,8 +133,9 @@
                 <button type="button" class="close-x" id="closeScheduleModal" aria-label="Close">&times;</button>
             </div>
             <form id="collectionScheduleForm" class="schedule-form">
-                <label for="scheduleBarangay">Collection barangay</label>
-                <select id="scheduleBarangay" required>
+                <label>Collection barangay</label>
+
+                <select id="scheduleBarangay" class="custom-select-native" tabindex="-1" aria-hidden="true" required>
                     <option value="">Select barangay</option>
                     <option value="Asinan">Asinan</option>
                     <option value="Banicain">Banicain</option>
@@ -130,15 +155,46 @@
                     <option value="West Bajac-Bajac">West Bajac-Bajac</option>
                     <option value="West Tapinac">West Tapinac</option>
                 </select>
+
+                <div class="schedule-barangay-wrapper">
+                    <button type="button" class="custom-select" id="scheduleBarangayTrigger" aria-haspopup="listbox" aria-expanded="false">
+                        <span class="selected-label">Select barangay</span>
+                    </button>
+
+                    <ul class="custom-select-list" id="scheduleBarangayList" role="listbox">
+                        <li data-value="">Select barangay</li>
+                        <li data-value="Asinan">Asinan</li>
+                        <li data-value="Banicain">Banicain</li>
+                        <li data-value="Barretto">Barretto</li>
+                        <li data-value="East Bajac-Bajac">East Bajac-Bajac</li>
+                        <li data-value="East Tapinac">East Tapinac</li>
+                        <li data-value="Gordon Heights">Gordon Heights</li>
+                        <li data-value="Kalaklan">Kalaklan</li>
+                        <li data-value="Mabayuan">Mabayuan</li>
+                        <li data-value="New Banicain">New Banicain</li>
+                        <li data-value="New Ilalim">New Ilalim</li>
+                        <li data-value="New Kababae">New Kababae</li>
+                        <li data-value="New Kalalake">New Kalalake</li>
+                        <li data-value="Old Cabalan">Old Cabalan</li>
+                        <li data-value="Pag-asa">Pag-asa</li>
+                        <li data-value="Santa Rita">Santa Rita</li>
+                        <li data-value="West Bajac-Bajac">West Bajac-Bajac</li>
+                        <li data-value="West Tapinac">West Tapinac</li>
+                    </ul>
+                </div>
+
                 <label for="scheduleDate">Collection date</label>
                 <input id="scheduleDate" type="date" required>
+
                 <label for="scheduleTime">Collection time</label>
                 <input id="scheduleTime" type="time" required>
+
                 <label for="scheduleType">Schedule type</label>
                 <select id="scheduleType" required>
                     <option value="One-Time">One-Time</option>
                     <option value="Fixed">Fixed / Permanent</option>
                 </select>
+
                 <div class="schedule-form-actions">
                     <button type="button" class="schedule-cancel-btn" id="cancelScheduleEdit">Cancel</button>
                     <button type="submit" class="schedule-save-btn" id="saveScheduleBtn">Save Schedule</button>
@@ -148,5 +204,66 @@
     </div>
 
     <script type="module" src="../../js/lgu admin/lgu-monitoring.js"></script>
+
+    <script>
+    (function () {
+        function setupDropdown(triggerId, listId, hiddenId) {
+            const trigger = document.getElementById(triggerId);
+            const list    = document.getElementById(listId);
+            const hidden  = document.getElementById(hiddenId);
+            if (!trigger || !list || !hidden) return;
+
+            trigger.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const isOpen = list.classList.toggle('open');
+                trigger.classList.toggle('open', isOpen);
+                trigger.setAttribute('aria-expanded', String(isOpen));
+            });
+
+            document.addEventListener('click', function () {
+                list.classList.remove('open');
+                trigger.classList.remove('open');
+                trigger.setAttribute('aria-expanded', 'false');
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    list.classList.remove('open');
+                    trigger.classList.remove('open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
+            });
+
+            list.querySelectorAll('li').forEach(function (li) {
+                li.addEventListener('click', function () {
+                    const value = li.dataset.value;
+                    const label = li.textContent.trim();
+
+                    trigger.querySelector('.selected-label').textContent = label;
+                    list.querySelectorAll('li').forEach(x => x.classList.remove('is-selected'));
+                    li.classList.add('is-selected');
+
+                    hidden.value = value;
+                    hidden.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    list.classList.remove('open');
+                    trigger.classList.remove('open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
+        function init() {
+            setupDropdown('brgyTrigger', 'brgyList', 'brgySelector');
+            setupDropdown('scheduleBarangayTrigger', 'scheduleBarangayList', 'scheduleBarangay');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
 </body>
 </html>
