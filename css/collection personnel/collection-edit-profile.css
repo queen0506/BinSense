@@ -27,10 +27,13 @@ body {
 
 /* --- TOP NAVIGATION --- */
 .top-nav {
-    background-color: #99cc33; /* The primary green from BinSense */
-    padding: 55px 25px 30px 25px; /* Spacing for status bar and title */
+    background-color: #99cc33; 
+    padding: 55px 25px 30px 25px; 
     border-bottom-left-radius: 35px;
     border-bottom-right-radius: 35px;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .header-content {
@@ -50,7 +53,7 @@ body {
 
 .page-title {
     color: white;
-    font-size: 1.2rem; /* Matched to design */
+    font-size: 1.2rem; 
     font-weight: 700;
     flex: 1;
     text-align: center;
@@ -72,19 +75,24 @@ body {
 /* --- MAIN CONTENT & GRAPHIC --- */
 .main-content {
     flex: 1;
-    padding: 30px;
+    padding: 60px 30px 30px 30px; 
     background-color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    margin-top: -35px;
+    z-index: 1;
+    overflow-y: auto; 
+    min-height: 0; 
 }
 
 .graphic-section {
-    padding: 40px 0;
+    padding: 20px 0; 
 }
 
 .center-graphic {
-    width: 130px; /* Sizing based on design */
+    width: 130px; 
     height: auto;
     object-fit: contain;
 }
@@ -103,16 +111,16 @@ body {
 .input-group label {
     display: block;
     font-size: 0.95rem;
-    font-weight: 700; /* reddit sans bold */
-    color: #48742C; /* The dark label green */
-    margin-bottom: 8px; /* matched to design spacing */
+    font-weight: 700; 
+    color: #48742C; 
+    margin-bottom: 8px; 
 }
 
 .input-group input {
     width: 100%;
-    padding: 18px; /* matched to design height */
-    border-radius: 12px; /* soft rounded look */
-    border: 1px solid #C4C4C4; /* light gray border */
+    padding: 18px; 
+    border-radius: 12px; 
+    border: 1px solid #C4C4C4; 
     background-color: white;
     font-family: 'Reddit Sans', sans-serif;
     font-size: 1rem;
@@ -121,17 +129,17 @@ body {
 }
 
 .input-group input:focus {
-    border-color: #99cc33; /* subtle active green border */
+    border-color: #99cc33; 
 }
 
 /* --- BUTTON STYLING (Matched to image_16.png) --- */
 .btn-update {
     width: 100%;
-    background-color: #99cc33; /* matched to button green */
+    background-color: #99cc33; 
     color: white;
     border: none;
     padding: 18px;
-    border-radius: 15px; /* slightly more rounded than inputs */
+    border-radius: 15px; 
     font-family: 'Reddit Sans', sans-serif;
     font-size: 1.1rem;
     font-weight: 700;
@@ -144,67 +152,30 @@ body {
     opacity: 0.9;
 }
 
-/* CONSISTENT RESPONSIVE BASE */
-@media (min-width: 768px) {
-    body { align-items: center; padding: 20px; }
-    .mobile-container { width: min(100%, 860px); max-width: 860px; min-height: 90vh; border-radius: 20px; box-shadow: 0 14px 35px rgba(0,0,0,0.15); }
-    .top-nav { padding: 45px 30px 28px 30px; }
-    .main-content { padding: 30px; }
-    .bottom-nav { padding: 14px 25px; min-height: 70px; height: 70px; }
-}
-
-@media (min-width: 1200px) {
-    .mobile-container { width: min(100%, 1040px); max-width: 1040px; }
-    .main-content { padding: 36px; }
-}
-
 /* --- EDIT PROFILE DESKTOP REFINEMENT --- */
-@media (min-width: 1024px) {
-    /* ... Copy Sidebar & Grid styles from Section 1 ... */
+@media (min-width: 900px) {
+    body {
+        background-color: #f8faf8;
+        padding: 40px 20px;
+        align-items: center;
+    }
+
+    .mobile-container {
+        width: 100%;
+        max-width: 700px; 
+        height: auto;
+        min-height: 60vh;
+        border-radius: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+    }
 
     .top-nav {
         background-color: transparent;
-        padding: 40px 40px 0 10px;
-    }
-
-    .back-btn { color: #99cc33; position: static; margin-right: 20px; }
-    .page-title { color: #2d3436; font-size: 1.8rem; text-align: left; }
-
-    .main-content {
-        max-width: 600px; /* Constrain form width for desktop */
-        margin-left: 0;
-    }
-
-    .edit-form {
-        background: white;
-        padding: 40px;
-        border-radius: 30px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-}
-
-@media (min-width: 1024px) {
-
-    /* ===== CLEAN BACKGROUND ===== */
-    body {
-        background: #f5f7f6;
-        align-items: flex-start;
-        padding: 40px 20px;
-    }
-
-    /* ===== CONTAINER (KEEP STRUCTURE, FIX WIDTH) ===== */
-    .mobile-container {
-        width: 100%;
-        max-width: 1000px;
-        height: auto;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        overflow: hidden;
-    }
-
-    /* ===== HEADER (SIMPLE & CLEAN) ===== */
-    .top-nav {
-        padding: 20px 30px;
+        padding: 40px 40px 20px 40px;
+        box-shadow: none;
         border-bottom: 1px solid #eee;
         border-radius: 0;
     }
@@ -216,78 +187,38 @@ body {
     .back-btn {
         position: static;
         color: #99cc33;
-        margin-right: 10px;
+        margin-right: 20px;
+        font-size: 28px;
     }
 
     .page-title {
         color: #2d3436;
-        font-size: 1.4rem;
+        font-size: 1.8rem;
+        text-align: left;
     }
 
-    /* ===== MAIN CONTENT ===== */
     .main-content {
-        display: flex;
+        margin-top: 0; 
+        padding: 40px;
         justify-content: center;
-        padding: 20px 30px;
     }
 
-    /* ===== FORM CARD (KEEP IT SIMPLE) ===== */
-    .edit-form {
-        width: 100%;
-        max-width: 520px;
-        background: #fff;
-        padding: 30px;
-
-        border-radius: 16px;
-        border: 1px solid #eee;
-
-        /* LIGHT shadow only */
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    /* REMOVE GRAPHIC FOR CLEAN LOOK */
     .graphic-section {
-        display: none;
+        display: none; 
     }
 
-    /* ===== NAME ===== */
     .current-user-name {
-        text-align: center;
-        font-size: 1.4rem;
-        margin-bottom: 25px;
+        font-size: 1.6rem;
+        margin-bottom: 30px;
     }
 
-    /* ===== INPUTS ===== */
-    .input-group {
-        margin-bottom: 18px;
+    .edit-form {
+        max-width: 500px;
+        width: 100%;
+        margin: 0 auto;
     }
-
+    
     .input-group input {
-        padding: 14px;
-        border-radius: 10px;
-        background: #fafafa;
-        border: 1px solid #ddd;
-        transition: 0.2s;
-    }
-
-    .input-group input:focus {
-        border-color: #99cc33;
-        background: #fff;
-    }
-
-    /* ===== BUTTON ===== */
-    .btn-update {
-        padding: 14px;
-        border-radius: 10px;
-        font-size: 1rem;
-        margin-top: 10px;
-
-        /* subtle shadow */
-        box-shadow: 0 4px 10px rgba(153, 204, 51, 0.2);
-        transition: 0.2s;
-    }
-
-    .btn-update:hover {
-        transform: translateY(-1px);
+        background: #f9f9f9;
     }
 }

@@ -27,11 +27,14 @@ body {
 .top-nav {
     background-color: #99cc33;
     padding: 55px 25px 20px 25px;
-    display: flex; 
+    display: flex;
     justify-content: space-between; 
     align-items: center;
-    border-bottom-left-radius: 35px; 
+    border-bottom-left-radius: 35px;
     border-bottom-right-radius: 35px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: relative;
+    z-index: 10;
 }
 
 .dashboard-title { 
@@ -180,15 +183,44 @@ body {
 /* Bottom Navigation */
 .bottom-nav {
     background-color: #99cc33;
-    border-top-left-radius: 35px;
-    border-top-right-radius: 35px;
-    padding: 20px 35px 35px 35px;
+    border-radius: 999px; 
+    padding: 8px 28px; 
+    margin: auto 12px 12px 12px; 
+    width: calc(100% - 24px); 
     position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.nav-icons-container { display: flex; justify-content: space-between; align-items: center; }
-.nav-link.active { background-color: rgba(255, 255, 255, 0.3); padding: 8px; border-radius: 12px; }
-.icon-30 { width: 30px; height: 30px; object-fit: contain; }
+.nav-icons-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.icon-30 {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
 .home-indicator { width: 130px; height: 5px; background-color: #000; border-radius: 10px; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); }
 
 /* --- Modal Overlays & Content --- */
@@ -290,14 +322,14 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .main-content {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;  
+    scrollbar-width: none;  
 }
 
 /* --- COLLECTION SCHEDULE DESKTOP REFINEMENT --- */
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
     body {
-        background-color: #f8faf8; /* Clean off-white background */
+        background-color: #f8faf8; 
         display: block;
         overflow: hidden;
     }
@@ -306,8 +338,8 @@ body {
         max-width: 100%;
         height: 100vh;
         display: grid;
-        grid-template-columns: 120px 1fr; /* Fixed sidebar | Flexible workspace */
-        grid-template-rows: auto 1fr;
+        grid-template-columns: 100px 1fr; 
+        grid-template-rows: 80px 1fr;
         background-color: transparent;
     }
 
@@ -316,17 +348,19 @@ body {
         grid-column: 1 / 2;
         grid-row: 1 / 3;
         position: relative; 
-        height: calc(100vh - 60px); 
-        width: 80px;
+        height: calc(100vh - 40px); 
+        width: 75px;
         background-color: #99cc33; 
-        margin: 30px auto; 
-        border-radius: 50px; 
+        margin: 20px auto; 
+        border-radius: 40px; 
         padding: 20px 0; 
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Centers icons vertically */
+        justify-content: center; 
         align-items: center;
-        box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
     }
 
     .nav-icons-container {
@@ -372,17 +406,17 @@ body {
     .main-content {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
-        padding: 0 40px 40px 10px; /* Reduced top padding to pull cards up */
+        padding: 0 40px 40px 10px; 
         display: grid;
-        grid-template-columns: 1.2fr 1fr; /* Calendar takes slightly more space */
+        grid-template-columns: 1.2fr 1fr; 
         gap: 30px; 
-        align-items: stretch; /* Forces both cards to have equal height if desired */
+        align-items: stretch; 
         overflow-y: auto;
     }
 
     /* Hide the mobile title "Collection Schedule" since we have the header[cite: 3] */
     .calendar-main-title {
-        grid-column: 1 / 3; /* Keep it at the top or hide it */
+        grid-column: 1 / 3; 
         margin-bottom: 5px;
     }
 
@@ -394,16 +428,16 @@ body {
         flex-direction: column;
         justify-content: space-between;
         padding: 30px;
-        margin-top: -100px; /* Pulls the calendar up to align with the schedule card */
+        margin-top: -100px; 
     }
 
     /* Schedule Section Adjustments[cite: 3] */
 .schedule-section {
         background: white;
-        padding: 30px; /* Matches Calendar card padding[cite: 3] */
+        padding: 30px; 
         border-radius: 30px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        height: 100%; /* Matches height with calendar[cite: 3] */
+        height: 100%; 
         display: flex;
         flex-direction: column;
         margin-top: -100px ;
@@ -413,12 +447,12 @@ body {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px; /* Clean spacing below header[cite: 3] */
-        padding-top: 5px; /* Aligns "Today's Schedule" text horizontally with "May 2026" */
+        margin-bottom: 25px; 
+        padding-top: 5px; 
     }
 
     .schedule-title {
-        font-size: 1.3rem; /* Slightly larger for desktop prominence[cite: 3] */
+        font-size: 1.3rem; 
         color: #48742C;
     }
 
@@ -429,7 +463,7 @@ body {
     }
 
     .empty-pill {
-        margin-top: 10px; /* Refined placement of the empty state[cite: 3] */
+        margin-top: 10px; 
     }
 
     .home-indicator {
@@ -477,4 +511,11 @@ table { width: 100%; max-width: 100%; }
 @media (min-width: 1024px) {
     .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
     .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+}
+/* WIDE DESKTOP SCREENS (>1400px): Max width control */
+@media (min-width: 1400px) {
+    .main-content {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
 }
