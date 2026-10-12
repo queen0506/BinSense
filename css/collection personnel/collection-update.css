@@ -63,36 +63,68 @@ body {
 .inline-input { border: none; border-bottom: 1px solid #ddd; width: 60px; outline: none; }
 
 .update-submit-btn {
-    width: 70%; padding: 15px; background: #99cc33; color: white;
-    border: none; border-radius: 15px; font-weight: 700; font-size: 1.1rem; cursor: pointer;
+    display: block;
+    width: 70%; 
+    max-width: 350px;
+    padding: 15px; 
+    background: #99cc33; 
+    color: white;
+    border: none; 
+    border-radius: 15px; 
+    font-weight: 700; 
+    font-size: 1.1rem; 
+    cursor: pointer;
+    margin: 20px auto;
 }
 
 .bottom-nav {
     background-color: #99cc33;
-    padding: 20px 40px 30px 40px;
-    border-top-left-radius: 35px; border-top-right-radius: 35px;
+    border-radius: 999px; 
+    padding: 8px 28px; 
+    margin: auto 12px 12px 12px; 
+    width: calc(100% - 24px); 
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.nav-icons-container { display: flex; justify-content: space-between; align-items: center; }
-.nav-icons-container a { display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 12px; }
-.nav-icons-container a.active { background-color: rgba(255, 255, 255, 0.3); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
-.icon-30 { width: 30px; height: 30px; object-fit: contain; }
+.nav-icons-container { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+.nav-icons-container a { 
+    display: flex; align-items: center; 
+    justify-content: center; padding: 8px; 
+    border-radius: 50%; 
+}
+.nav-icons-container a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.nav-icons-container a.active { 
+    background-color: rgba(255, 255, 255, 0.3); 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); }
+.icon-30 { 
+    width: 30px; 
+    height: 30px; 
+    object-fit: contain; }
 
 /* --- UNIFIED DESKTOP DASHBOARD LAYOUT --- */
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
     body {
-        background-color: #f8faf8; /* Clean off-white background */
+        background-color: #f8faf8; 
         display: block;
         overflow: hidden;
     }
 
-    /* Grid layout to separate sidebar from content[cite: 3] */
+    /* Grid layout to separate sidebar from content */
     .mobile-container {
         max-width: 100%;
         height: 100vh;
         display: grid;
-        grid-template-columns: 120px 1fr; /* Sidebar width | Content area[cite: 3] */
-        grid-template-rows: auto 1fr;
+        grid-template-columns: 100px 1fr; 
+        grid-template-rows: 80px 1fr;
         background-color: transparent;
     }
 
@@ -100,18 +132,20 @@ body {
     .bottom-nav {
         grid-column: 1 / 2;
         grid-row: 1 / 3;
-        position: relative; /* Overrides mobile absolute positioning[cite: 3] */
-        height: calc(100vh - 60px); /* Vertical floating effect[cite: 3] */
-        width: 80px;
-        background-color: #99cc33; /* Eco-green theme */
-        margin: 30px auto; /* Centers the pill[cite: 3] */
-        border-radius: 50px; /* Fully rounded pill shape */
+        position: relative; 
+        height: calc(100vh - 40px); 
+        width: 75px;
+        background-color: #99cc33; 
+        margin: 20px auto; 
+        border-radius: 40px; 
         padding: 20px 0; 
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Lowers icons to vertical center */
+        justify-content: center; 
         align-items: center;
-        box-shadow: 4px 10px 25px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border-top-left-radius: 40px;
+        border-top-right-radius: 40px;
     }
 
     .nav-icons-container {
@@ -124,7 +158,7 @@ body {
 
     /* Active indicator: White circle with green icon[cite: 3, 4] */
     .nav-link.active {
-        background-color: white; /* White circle background[cite: 3, 4] */
+        background-color: white; 
         border-radius: 50%;
         width: 50px;
         height: 50px;
@@ -151,21 +185,35 @@ body {
     }
 
     .dashboard-title {
-        color: #2d3436; /* Professional dark text[cite: 3] */
+        color: #2d3436; 
         font-size: 1.8rem;
     }
 
     .main-content {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
-        padding: 10px 60px 40px 0; /* Spacing for desktop balance[cite: 3] */
-        max-width: 1200px; /* Prevents content from over-stretching */
+        padding: 0 30px 25px 10px; 
+        max-width: 1200px; 
+        margin-top: 0; 
     }
 
     /* --- COMPONENT SPECIFIC TWEAKS --- */
+    #binSelectionView, #binDetailView {
+        max-width: 800px;
+        margin: 0 auto; 
+        width: 100%;
+    }
+
     .calendar-card, .status-card, .report-card {
-        max-width: 800px; /* Keeps cards readable on wide screens[cite: 3, 4] */
-        margin-left: 0;
+        max-width: 100%; 
+        margin: 0;
+    }
+
+    .update-submit-btn {
+        display: block;
+        margin: 30px auto 10px auto; 
+        width: 100%;
+        max-width: 350px; 
     }
 
     /* Hide the mobile home indicator on desktop[cite: 3] */
@@ -179,4 +227,11 @@ body {
 @media (min-width: 1024px) {
     .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
     .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+}
+/* WIDE DESKTOP SCREENS (>1400px): Max width control */
+@media (min-width: 1400px) {
+    .main-content {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
 }
