@@ -9,8 +9,8 @@
     --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
     --radius-sm: 12px;
     --radius-md: 20px;
-    --radius-lg: 15px;
-    --radius-xl: 15px;
+    --radius-lg: 35px;
+    --radius-xl: 35px;
 }
 
 /* Reset */
@@ -61,7 +61,7 @@ img {
 /* Header */
 .top-nav {
     background-color: var(--lgu-green);
-    padding: 30px 20px 20px;
+    padding: 55px 25px 20px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -13,8 +13,8 @@
     --radius-sm: 12px;
     --radius-md: 16px;
     --radius-lg: 20px;
-    --radius-xl: 15px;
-    --radius-2xl: 15px;
+    --radius-xl: 35px;
+    --radius-2xl: 35px;
     --lgu-green: #99cc33;
 }
 
@@ -66,7 +66,7 @@ img {
 /* Header */
 .top-nav {
     background-color: var(--admin-green);
-    padding: 30px 20px 20px;
+    padding: 55px 25px 20px 25px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
