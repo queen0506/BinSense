@@ -1,112 +1,272 @@
-/* --- BASE RESET --- */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    --lgu-green: #99cc33;
+    --lgu-green-dark: #88b72e;
+    --lgu-dark-green: #48742C;
+    --lgu-text: #333;
+    --lgu-muted: #777;
+    --lgu-surface: #FFFFFF;
+    --lgu-page: #F0F0F0;
+    --lgu-border: #E2E8F0;
+    --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
+    --radius-sm: 12px;
+    --radius-md: 14px;
+    --radius-lg: 25px;
+    --radius-xl: 35px;
+    --radius-2xl: 35px;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
 
 body {
     font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--lgu-page);
+    color: var(--lgu-text);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Mobile base (0 – 600px) */
 .mobile-container {
     width: 100%;
     max-width: 414px;
     height: 100vh;
-    background-color: white;
+    height: 100dvh;
+    background-color: #fff;
     display: flex;
     flex-direction: column;
     position: relative;
-    overflow: hidden; 
+    overflow: hidden;
+    margin: 0 auto;
 }
 
-/* --- HEADER FIXES --- */
+/* Header */
 .top-nav {
-    background-color: #99cc33;
+    background-color: var(--lgu-green);
     padding: 55px 25px 20px 25px;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
+    border-bottom-left-radius: var(--radius-xl);
+    border-bottom-right-radius: var(--radius-xl);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* FIX: Allow the notification panel to pop out of the header */
     overflow: visible !important;
     position: relative;
     z-index: 1000;
+    flex-shrink: 0;
 }
 
-.dashboard-title { color: white; font-size: 2rem; font-weight: 700; }
+.dashboard-title {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
 
-/* --- MAIN CONTENT --- */
-.main-content { 
-    flex: 1; 
-    padding: 25px; 
-    overflow-y: scroll;
+/* Main scrollable area */
+.main-content {
+    flex: 1;
+    min-height: 0;
+    padding: 25px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
 
-.main-content::-webkit-scrollbar { display: none; }
+.main-content::-webkit-scrollbar {
+    display: none;
+}
 
-.guide-headline { color: #48742C; font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
-.guide-subtitle { color: #666; font-size: 0.9rem; line-height: 1.4; margin-bottom: 25px; }
+/* Guide headings */
+.guide-headline {
+    color: var(--lgu-dark-green);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
 
-.activity-list { display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px; }
+.guide-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 25px;
+}
 
+/* Guide list */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 20px;
+}
+
+/* Guide buttons */
 .guide-btn {
-    background-color: #99CC33;
+    background-color: var(--lgu-green);
     border: none;
     padding: 20px;
-    border-radius: 25px;
+    border-radius: var(--radius-lg);
     text-align: left;
     box-shadow: 0 4px 12px rgba(153, 204, 51, 0.3);
     cursor: pointer;
-    transition: transform 0.1s;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    font-family: inherit;
+    color: #fff;
+    width: 100%;
+    min-width: 0;
 }
 
-.guide-btn:active { transform: scale(0.98); }
-.guide-btn h3 { color: white; font-size: 1.1rem; margin-bottom: 5px; }
-.guide-btn p { color: rgba(255, 255, 255, 0.9); font-size: 0.8rem; line-height: 1.3; }
+.guide-btn:hover,
+.guide-btn:focus-visible {
+    transform: translateY(-2px);
+    background-color: var(--lgu-green-dark);
+    box-shadow: 0 8px 20px rgba(153, 204, 51, 0.4);
+    outline: none;
+}
 
-/* --- NAVIGATION --- */
+.guide-btn:active {
+    transform: scale(0.98);
+}
+
+.guide-btn-content {
+    min-width: 0;
+}
+
+.guide-btn h3 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.guide-btn p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.8rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+/* Bottom nav (mobile bar) */
 .bottom-nav {
-    background-color: #99cc33;
-    border-top-left-radius: 35px;
-    border-top-right-radius: 35px;
-    padding: 20px 35px 35px 35px; /* Bottom padding for the black line */
+    background-color: var(--lgu-green);
+    border-radius: 999px;
+    padding: 8px 28px;
+    margin: 0 12px 12px;
     position: relative;
-    z-index: 10; /* Keep above panel when sliding */
+    z-index: 10;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
-
 .nav-icons-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.nav-link.active { background-color: rgba(255, 255, 255, 0.3); padding: 8px; border-radius: 12px; }
-.icon-30 { width: 30px; height: 30px; }
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 8px;
+    border-radius:50%;
+}
 
-/* --- MODAL FIXES --- */
+.icon-30 {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+/* Modal */
 .guide-modal-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    inset: 0;
     background: rgba(0, 0, 0, 0.4);
-    display: none; justify-content: center; align-items: center;
-    /* FIX: Ensure modals stay below the notification panel */
-    z-index: 1500; 
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1500;
+    padding: 20px;
+}
+
+.guide-modal-overlay.active,
+.guide-modal-overlay.open,
+.guide-modal-overlay.show,
+.guide-modal-overlay[style*="display: flex"],
+.guide-modal-overlay[style*="display:flex"],
+.guide-modal-overlay[style*="display: block"],
+.guide-modal-overlay[style*="display:block"] {
+    display: flex !important;
 }
 
 .guide-modal-box {
-    background: white; width: 85%; padding: 40px 25px 30px 25px;
-    border-radius: 40px; position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    background: #fff;
+    width: 85%;
+    max-width: 420px;
+    padding: 40px 25px 30px;
+    border-radius: var(--radius-2xl);
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-height: 90vh;
+    overflow-y: auto;
+    min-width: 0;
 }
 
-.modal-h2 { color: #48742C; font-size: 1.2rem; margin-bottom: 5px; }
-.modal-desc { color: #888; font-size: 0.9rem; margin-bottom: 15px; }
-.modal-ol { padding-left: 20px; color: #555; font-size: 0.9rem; line-height: 1.6; }
+.modal-body-content {
+    min-width: 0;
+}
+
+.modal-h2 {
+    color: var(--lgu-dark-green);
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.modal-desc {
+    color: var(--lgu-muted);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+.modal-ol {
+    padding-left: 20px;
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.modal-ol li {
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
+}
+
+.modal-ol li:last-child {
+    margin-bottom: 0;
+}
 
 .modal-footer {
     display: flex;
@@ -115,112 +275,103 @@ body {
 }
 
 .modal-okay-btn {
-    background-color: #99CC33;
-    color: white;
+    background-color: var(--lgu-green);
+    color: #fff;
     border: none;
     padding: 12px 0;
     width: 140px;
-    border-radius: 25px;
+    border-radius: var(--radius-lg);
+    font-family: inherit;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(153, 204, 51, 0.3);
+    min-height: 44px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
-.modal-okay-btn:active { transform: scale(0.96); }
+.modal-okay-btn:hover,
+.modal-okay-btn:focus-visible {
+    background-color: var(--lgu-green-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(153, 204, 51, 0.4);
+    outline: none;
+}
 
-/* --- CONSISTENT RESPONSIVE BASE --- */
-@media (min-width: 768px) {
-    body { 
-        align-items: center; 
-        padding: 0; /* Full-width alignment */
+.modal-okay-btn:active {
+    transform: scale(0.96);
+}
+
+/* Small phone adjustments */
+@media (max-width: 600px) {
+    .dashboard-title {
+        font-size: 1.8rem;
     }
-    
-    .mobile-container { 
-        width: 100vw; 
-        max-width: none; 
-        height: 100vh; 
-        border-radius: 0; 
-        box-shadow: none; 
-        display: flex;
-        flex-direction: column;
+
+    .main-content {
+        padding: 20px;
     }
-    
-    /* Header: Expanded with rounded bottom corners */
-    .top-nav { 
-        padding: 40px 8% 30px 8%; 
-        border-bottom-left-radius: 40px;
-        border-bottom-right-radius: 40px;
-        width: 100%;
+
+    .guide-headline {
+        font-size: 1.3rem;
+    }
+}
+
+/* Tablet (601px – 1023px) */
+@media (min-width: 601px) and (max-width: 1023px) {
+    body {
+        background-color: #f4f7f2;
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .mobile-container {
+        max-width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        border-radius: 0;
+    }
+
+    .top-nav {
+        padding: 42px 40px 24px;
     }
 
     .dashboard-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
     }
-    
-    /* Main Content: Centered Layout */
-    .main-content { 
-        padding: 40px 15%; /* Extra side padding for readability */
-        flex: 1;
-        overflow-y: auto;
-    } 
+
+    .main-content {
+        padding: 40px;
+    }
 
     .guide-headline {
         font-size: 1.8rem;
     }
 
-    /* Activity List Grid (Optional: side-by-side buttons on desktop) */
+    .guide-subtitle {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    /* Two-column guide grid */
     .activity-list {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px;
         padding-bottom: 40px;
     }
-    
-    /* Bottom Navigation: Full-width green bar */
-    .bottom-nav { 
-        background-color: #99cc33;
-        padding: 20px 15%; 
-        height: 100px;
-        border-top-left-radius: 40px;
-        border-top-right-radius: 40px;
-        position: relative;
+
+    .guide-btn {
+        padding: 24px;
     }
 
-    .nav-icons-container {
-        justify-content: space-around;
-    }
-
-    .icon-30 {
-        width: 45px;
-        height: 45px;
-    }
-
-    /* Modal Alignment for Desktop */
     .guide-modal-box {
         max-width: 500px;
     }
 }
 
-/* --- FULL DESKTOP TRANSFORMATION (1024px+) --- */
-@media screen and (min-width: 1024px) {
-    /* Notification Panel: Positioned like the Analytics page */
-    .notification-panel {
-        right: 8%; 
-        left: auto;
-        transform: none;
-        width: 400px;
-        top: 110px;
-        border-radius: 25px;
-    }
-
-    .main-content {
-        padding: 60px 20%;
-    }
-}
-
-/* --- CONSOLIDATED PROFESSIONAL DESKTOP DESIGN (1024px+) --- */
-@media screen and (min-width: 1024px) {
+/* Desktop (1024px+) */
+@media (min-width: 1024px) {
     body {
         background-color: #f4f7f2;
         display: block;
@@ -231,43 +382,40 @@ body {
         max-width: 100%;
         height: 100vh;
         display: grid;
-        grid-template-columns: 140px 1fr; /* Standardized sidebar width[cite: 4] */
-        grid-template-rows: auto 1fr;
+        grid-template-columns: 140px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
         background-color: transparent;
+        overflow: visible;
     }
 
-    /* --- SIDEBAR PILL[cite: 4] --- */
+    /* Sidebar pill */
     .bottom-nav {
         grid-column: 1 / 2;
         grid-row: 1 / 3;
         position: relative;
         height: calc(100vh - 80px);
         width: 85px;
-        background: #99cc33; 
+        background: var(--lgu-green);
         margin: 40px auto;
+        padding: 0;
         border-radius: 100px;
-        padding: 40px 0;
         display: flex;
         flex-direction: column;
-        justify-content: center; /* Vertically centered icons[cite: 4] */
+        justify-content: center;
         align-items: center;
         box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
-        border-top-left-radius: 100px; 
-        border-top-right-radius: 100px;
     }
 
     .nav-icons-container {
         flex-direction: column;
         gap: 35px;
-        width: 100%;
         align-items: center;
     }
 
-    /* Standardized Active Circle[cite: 4, 7] */
     .nav-link.active {
-        background-color: white !important;
+        background-color: #fff !important;
         border-radius: 50%;
-        width: 55px;  /* Matches Dashboard & Analytics[cite: 4] */
+        width: 55px;
         height: 55px;
         display: flex;
         justify-content: center;
@@ -276,32 +424,29 @@ body {
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
 
-    /* Standardized Icon Size (30px)[cite: 7] */
     .icon-30 {
-        width: 30px !important; 
+        width: 30px !important;
         height: 30px !important;
     }
 
-    /* Green Icon filter for active state[cite: 4] */
     .nav-link.active .icon-30 {
         filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
     }
 
-    /* White icons for inactive state against green sidebar[cite: 4] */
     .nav-icons-container a:not(.active) .icon-30 {
         filter: brightness(0) invert(1);
     }
 
-    /* --- TOP NAV (NOTIFICATION REMOVED) --- */
+    /* Header */
     .top-nav {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
         background-color: transparent;
-        padding: 50px 60px 10px 20px; /* Aligned with content area[cite: 7] */
+        padding: 50px 60px 10px 20px;
         border-radius: 0;
         box-shadow: none;
         display: flex;
-        justify-content: flex-start; /* Title aligned to left */
+        justify-content: flex-start;
         align-items: center;
     }
 
@@ -310,56 +455,81 @@ body {
         font-size: 2.5rem;
     }
 
-    /* Hide notification elements specifically for History[cite: 7] */
-    .notification-icon-container,
-    .notification-btn,
-    .notification-panel {
-        display: none !important;
-    }
-
-    /* --- MAIN CONTENT AREA[cite: 7] --- */
+    /* Main content */
     .main-content {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
         padding: 0 60px 40px 20px;
         overflow-y: auto;
+        min-height: 0;
     }
 
-    .guide-headline { font-size: 1.8rem; }
-    .guide-subtitle { font-size: 1.1rem; margin-bottom: 35px; }
+    .guide-headline {
+        font-size: 1.8rem;
+    }
 
-    /* Responsive Grid for Guide Buttons[cite: 7] */
+    .guide-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 35px;
+    }
+
+    /* Responsive guide grid */
     .activity-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-        gap: 25px;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 24px;
         padding-bottom: 40px;
     }
 
     .guide-btn {
         padding: 30px;
         border-radius: 30px;
-        height: 100%; /* Ensures cards are equal height in grid[cite: 7] */
+        height: 100%;
     }
 
-    /* Desktop Modal Centering[cite: 7] */
+    .guide-btn h3 {
+        font-size: 1.2rem;
+    }
+
+    .guide-btn p {
+        font-size: 0.9rem;
+    }
+
+    /* Modal */
     .guide-modal-box {
         max-width: 500px;
         padding: 50px;
     }
+
+    .modal-h2 {
+        font-size: 1.4rem;
+    }
+
+    .modal-desc {
+        font-size: 1rem;
+    }
+
+    .modal-ol {
+        font-size: 1rem;
+    }
 }
 
-/* Shared dashboard polish */
-.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card {
+/* Shared polish */
+.white-card,
+.summary-card,
+.chart-container,
+.chart-container-box,
+.report-card,
+.log-card,
+.bin-card {
     min-width: 0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+    box-shadow: var(--lgu-shadow-lg);
 }
 
-table { width: 100%; max-width: 100%; }
-canvas { max-width: 100%; }
-
-@media (min-width: 1024px) {
-    .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
-    .chart-container, .chart-container-box, .report-card, .white-card { max-width: 100%; }
-    .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
+.table-container,
+.table-wrapper,
+.logs-container,
+.data-table-container {
+    max-width: 100%;
+    overflow-x: auto;
 }
