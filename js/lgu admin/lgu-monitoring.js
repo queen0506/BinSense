@@ -72,9 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadCollectionSchedules = async () => {
         const { data, error } = await supabase.from('notifications')
             .select('*')
-            .eq('type', 'collection')
-            .order('date', { ascending: true })
-            .order('time', { ascending: true });
+            .eq('type', 'collection');
 
         if (error) {
             console.error('Collection schedule load failed:', error);
@@ -88,7 +86,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        data.forEach(schedule => {
+        const scheduledTimestamp = schedule => {
+            const timestamp = Date.parse(`${schedule.date || ''}T${schedule.time || '00:00:00'}Z`);
+            return Number.isNaN(timestamp) ? null : timestamp;
+        };
+        [...data].sort((a, b) => {
+            const aTimestamp = scheduledTimestamp(a);
+            const bTimestamp = scheduledTimestamp(b);
+            if (aTimestamp === null) return bTimestamp === null ? 0 : 1;
+            if (bTimestamp === null) return -1;
+            return bTimestamp - aTimestamp;
+        }).forEach(schedule => {
             const item = document.createElement('article');
             item.className = 'lgu-schedule-item';
             const details = document.createElement('div');
@@ -122,13 +130,24 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', async () => {
                 if (!window.confirm(`Delete the collection schedule for ${schedule.barangay}?`)) return;
-                const { error: deleteError } = await supabase.from('notifications').delete().eq('id', schedule.id);
-                if (deleteError) {
+                try {
+                    const { data: deletedSchedule, error: deleteError } = await supabase.from('notifications')
+                        .delete()
+                        .eq('id', schedule.id)
+                        .eq('type', 'collection')
+                        .select('id')
+                        .maybeSingle();
+                    if (deleteError) throw deleteError;
+                    if (!deletedSchedule) {
+                        console.error('Collection schedule delete failed: no matching schedule was deleted.', schedule.id);
+                        window.alert('Unable to delete this schedule. Please try again.');
+                        return;
+                    }
+                    await loadCollectionSchedules();
+                } catch (deleteError) {
                     console.error('Collection schedule delete failed:', deleteError);
                     window.alert('Unable to delete this schedule. Please try again.');
-                    return;
                 }
-                await loadCollectionSchedules();
             });
             actions.append(editButton, deleteButton);
             item.append(details, type, status, actions);
