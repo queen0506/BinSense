@@ -70,6 +70,35 @@ body {
     padding: 20px;
 }
 
+/* Keep Leaflet controls and attribution legible over the dashboard map. */
+.leaflet-container {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    font-family: 'Reddit Sans', sans-serif;
+    background: #e5e5e5;
+}
+
+.leaflet-control-zoom a {
+    color: #2d3436;
+}
+
+.leaflet-control-attribution {
+    font-size: 10px;
+}
+
+.truck-marker-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 2px solid #99cc33;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 23px;
+    line-height: 1;
+}
+
 /* BOTTOM NAVIGATION */
 .bottom-nav {
     background-color: #99cc33;

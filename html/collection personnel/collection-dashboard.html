@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BinSense - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="../../css/collection personnel/collection-dashboard.css">
 </head>
 <body>
@@ -54,11 +55,11 @@
 </div>
 
     <!-- include authentication helpers (firebase) -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- include authentication helpers -->
     <script type="module" src="../../js/auth.js"></script>
     <!-- dashboard navigation logic -->
     <script type="module" src="../../js/collection personnel/collection-dashboard.js"></script>
-
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZ0Bmue-DH2c2bjWsrnVJkRx9piYm8X6s&callback=initMap&loading=async" async defer></script>
 
 </body>
 </html>
