@@ -62,7 +62,7 @@ img {
 
 /* Header */
 .top-nav {
-    background-color: var(--lgu-green);
+    background-color: #ffffff;
     padding: 30px 20px 20px;
     border-bottom-left-radius: var(--radius-xl);
     border-bottom-right-radius: var(--radius-xl);
@@ -73,7 +73,7 @@ img {
 }
 
 .back-btn {
-    color: #fff;
+    color: #000000;
     font-size: 24px;
     cursor: pointer;
     font-weight: bold;
@@ -92,7 +92,7 @@ img {
 }
 
 .page-title {
-    color: #fff;
+    color: #000000;
     font-size: 1.25rem;
     font-weight: 700;
     text-align: center;
