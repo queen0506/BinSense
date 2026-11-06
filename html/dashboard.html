@@ -11,10 +11,18 @@
 
     <div class="mobile-container">
         <header class="top-nav">
-            <h1 class="dashboard-title">Dashboard</h1>
-            <button class="notification-btn" id="notificationBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" width="24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            </button>
+            <div class="user-greeting">
+                <p class="greeting-text">Good Day!</p>
+                <h1 class="dashboard-title" id="userNameDisplay">Loading... Name</h1>
+            </div>
+            <div class="notification-icon-container">
+                <button class="notification-btn" id="notificationBtn">
+                    <svg class="notification-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
         </header>
 
         <main class="main-content">
@@ -31,12 +39,58 @@
                 </div>
             </div>
 
-            <div id="citizen-bins-container" class="bins-grid">
-                <div class="add-bin-placeholder" id="openModalBtn">
-                    <div class="add-card">
-                        <span class="plus-icon">+</span>
-                        <p>Add Bin</p>
+            <!-- WASTE REMINDER CARD -->
+            <div class="waste-reminder-card">
+                <p>Practice proper waste segregation and dispose of your trash on time to help keep your community clean.</p>
+            </div>
+
+            <!-- SMART BIN SECTION HEADER -->
+            <div class="section-header">
+                <h2>Smart Bin</h2>
+                <button class="add-icon-btn" id="openModalBtn">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </button>
+            </div>
+
+                <div id="citizen-bins-container" class="bins-carousel">
+                <button class="carousel-arrow">&lt;</button>
+                <div class="bin-card-wrapper">
+                    <div class="citizen-bin-card empty-card">
+                        <!-- Dito papasok yung details ng bin -->
                     </div>
+                </div>
+                <button class="carousel-arrow">&gt;</button>
+            </div>
+
+            <!-- WASTE COLLECTION SCHEDULE -->
+            <div class="section-header">
+                <h2>Waste Collection Schedule</h2>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button class="cal-nav" id="calPrevBtn">&lt;</button>
+                    <div class="cal-dropdowns">
+                        <select class="cal-select" id="calMonthSelect">
+                            <option value="0">Jan</option><option value="1">Feb</option>
+                            <option value="2">Mar</option><option value="3">Apr</option>
+                            <option value="4">May</option><option value="5">Jun</option>
+                            <option value="6">Jul</option><option value="7">Aug</option>
+                            <option value="8">Sep</option><option value="9">Oct</option>
+                            <option value="10">Nov</option><option value="11">Dec</option>
+                        </select>
+                        <select class="cal-select" id="calYearSelect">
+                            <!-- Years will be populated by JS -->
+                        </select>
+                    </div>
+                    <button class="cal-nav" id="calNextBtn">&gt;</button>
+                </div>
+                <div class="calendar-body">
+                    <div class="cal-days">
+                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                    </div>
+
+                    <div class="cal-dates" id="calDates"></div>
                 </div>
             </div>
 
@@ -60,6 +114,7 @@
                     </div>
                 </div>
             </div>
+
         </main>
 
         <footer class="bottom-nav">
@@ -71,18 +126,6 @@
             </div>
         </footer>
     </div>
-
-        <!-- DAILY SEGREGATION REMINDER MODAL -->
-<div id="dailyReminderModal" class="modal">
-    <div class="modal-content reminder-content">
-       
-        <h3>Daily Reminder</h3>
-        <p id="reminderMessage">Reminder: Practice proper waste segregation and dispose of your trash on time to help keep your community clean.</p>
-        <div class="modal-actions">
-            <button id="closeReminderBtn" class="primary-btn">Got it</button>
-        </div>
-    </div>
-</div>
 
     <script type="module" src="../js/dashboard.js"></script>
 </body>

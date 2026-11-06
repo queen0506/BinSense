@@ -151,7 +151,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
-        initNotifications(user); 
+        loadUserProfile(user); 
+        initNotifications(user);
+        initCalendar(user);
         
         // Only load bins if container exists (Dashboard page)
         const binContainer = document.getElementById('citizen-bins-container');
@@ -291,6 +293,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+/* ============================
+   LOAD USER PROFILE (Name)
+============================ */
+async function loadUserProfile(user) {
+    const nameDisplay = document.getElementById('userNameDisplay');
+    if (!nameDisplay) return;
+
+    try {
+        const { data: profile, error } = await supabase
+            .from('users')
+            .select('name')
+            .eq('id', user.id)
+            .maybeSingle();
+
+        if (error) throw error;
+
+        if (profile && profile.name) {
+
+            const firstName = profile.name.split(' ')[0]; 
+            nameDisplay.innerText = firstName;
+        } else {
+            const emailName = user.email.split('@')[0];
+            nameDisplay.innerText = emailName;
+        }
+    } catch (error) {
+        console.error("Error loading profile:", error);
+        nameDisplay.innerText = "User"; // Fallback
+    }
+}
+
 function getDeviceOnlineStatus(lastSyncTimestamp, rawStatus) {
     if (String(rawStatus).toLowerCase() === "offline") return 'OFFLINE';
     if (!lastSyncTimestamp) return 'OFFLINE';
@@ -308,9 +340,15 @@ function getDeviceOnlineStatus(lastSyncTimestamp, rawStatus) {
 }
 
 async function addBinCardToUI(id) {
-    const container = document.getElementById('citizen-bins-container');
-    const trigger = document.getElementById('openModalBtn');
-    if (!container) return; 
+    // 1. Targetin ang wrapper imbis na ang buong carousel container
+    const wrapper = document.querySelector('.bin-card-wrapper');
+    if (!wrapper) return; 
+
+    // 2. Hanapin at tanggalin ang "empty-card" kapag may na-add na bin
+    const emptyCard = wrapper.querySelector('.empty-card');
+    if (emptyCard) {
+        emptyCard.remove();
+    }
 
     const card = document.createElement('div');
     card.className = 'citizen-bin-card';
@@ -348,11 +386,8 @@ async function addBinCardToUI(id) {
 
     card.onclick = () => showDetails(id);
     
-    if (trigger && trigger.parentNode === container) {
-        container.insertBefore(card, trigger);
-    } else {
-        container.appendChild(card);
-    }
+    // 3. I-append ang bagong card diretso sa loob ng wrapper
+    wrapper.appendChild(card);
 }
 
 function updateCardUI(cardElement, id, data) {
@@ -446,3 +481,201 @@ window.removeBin = async function(id) {
         }
     }
 };
+
+/* ============================
+   WASTE COLLECTION CALENDAR
+============================ */
+let userSchedules = [];
+let calendarCurrentDate = new Date();
+let currentUserBarangay = 'Global';
+
+async function initCalendar(user) {
+    const { data: userData } = await supabase
+        .from('users')
+        .select('barangay')
+        .eq('id', user.id)
+        .maybeSingle();
+        
+    currentUserBarangay = userData?.barangay || 'Global';
+
+    // 2. Setup Dropdowns
+    const yearSelect = document.getElementById('calYearSelect');
+    const monthSelect = document.getElementById('calMonthSelect');
+    const thisYear = new Date().getFullYear();
+    
+    if (yearSelect) {
+        yearSelect.innerHTML = '';
+        [thisYear - 1, thisYear, thisYear + 1, thisYear + 2].forEach(y => {
+            const opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            if (y === thisYear) opt.selected = true;
+            yearSelect.appendChild(opt);
+        });
+        yearSelect.onchange = (e) => {
+            calendarCurrentDate.setFullYear(parseInt(e.target.value));
+            renderCalendar();
+        };
+    }
+
+    if (monthSelect) {
+        monthSelect.value = calendarCurrentDate.getMonth();
+        monthSelect.onchange = (e) => {
+            calendarCurrentDate.setMonth(parseInt(e.target.value));
+            renderCalendar();
+        };
+    }
+
+    // 3. Navigation Buttons (< / >)
+    const prevBtn = document.getElementById('calPrevBtn');
+    const nextBtn = document.getElementById('calNextBtn');
+
+    if (prevBtn) {
+        prevBtn.onclick = () => {
+            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() - 1);
+            if (monthSelect) monthSelect.value = calendarCurrentDate.getMonth();
+            if (yearSelect) yearSelect.value = calendarCurrentDate.getFullYear();
+            renderCalendar();
+        };
+    }
+    if (nextBtn) {
+        nextBtn.onclick = () => {
+            calendarCurrentDate.setMonth(calendarCurrentDate.getMonth() + 1);
+            if (monthSelect) monthSelect.value = calendarCurrentDate.getMonth();
+            if (yearSelect) yearSelect.value = calendarCurrentDate.getFullYear();
+            renderCalendar();
+        };
+    }
+
+    // 4. Fetch Data and Initial Render
+    await fetchSchedules(currentUserBarangay);
+    renderCalendar();
+
+    // 5. Realtime Updates 
+    supabase.channel('calendar-updates')
+        .on('postgres_changes', { 
+            event: '*', 
+            schema: 'public', 
+            table: 'notifications',
+            filter: 'type=eq.collection'
+        }, async () => {
+            console.log("Bagong schedule na-detect! Nag-a-update ng calendar...");
+            await fetchSchedules(currentUserBarangay);
+            renderCalendar();
+        })
+        .subscribe();
+}
+
+async function fetchSchedules(userBarangay) {
+    const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('type', 'collection');
+
+    if (error) {
+        console.error("Error fetching schedules:", error);
+        return;
+    }
+
+    const cleanUserBrgy = (userBarangay || '').toLowerCase().replace(/brgy\.?|barangay/g, '').trim();
+
+    userSchedules = (data || []).filter(n => {
+        if (!n.barangay || n.barangay === 'Global') return true;
+        if (!cleanUserBrgy || cleanUserBrgy === 'global') return true;
+        
+        const cleanSchedBrgy = n.barangay.toLowerCase().replace(/brgy\.?|barangay/g, '').trim();
+        return cleanSchedBrgy.includes(cleanUserBrgy) || cleanUserBrgy.includes(cleanSchedBrgy);
+    });
+}
+
+function renderCalendar() {
+    const datesContainer = document.getElementById('calDates');
+    if (!datesContainer) return;
+
+    const year = calendarCurrentDate.getFullYear();
+    const month = calendarCurrentDate.getMonth();
+    
+    datesContainer.innerHTML = ''; 
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    for (let i = 0; i < firstDay; i++) {
+        const blank = document.createElement('span');
+        blank.className = 'cal-date cal-empty';
+        datesContainer.appendChild(blank);
+    }
+
+    // Generate days
+    for (let i = 1; i <= daysInMonth; i++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        
+        const schedulesForDay = userSchedules.filter(s => {
+            if (!s.date) return false;
+            return String(s.date).trim() === dateStr;
+        });
+
+        const hasSchedule = schedulesForDay.length > 0;
+        
+        const span = document.createElement('span');
+        span.className = 'cal-date';
+        span.innerText = i;
+
+        if (hasSchedule) {
+            span.classList.add('has-schedule');
+            span.onclick = () => showScheduleDetails(dateStr, schedulesForDay);
+        }
+
+        if (dateStr === todayStr) {
+            span.classList.add('active');
+        }
+        
+        datesContainer.appendChild(span);
+    }
+}
+
+function showScheduleDetails(date, schedules) {
+    const detailsBody = document.getElementById('detailsBody');
+    const detailsModal = document.getElementById('detailsModal');
+    
+    if (!detailsBody || !detailsModal) return;
+
+    const title = detailsModal.querySelector('h3');
+    if(title) title.innerText = `Collection Schedule`;
+
+    const dateParts = date.split('-');
+    const displayDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]).toLocaleDateString(undefined, {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    let html = `<p style="text-align:center; font-weight:bold; margin-bottom:15px;">${displayDate}</p>`;
+    
+    schedules.forEach(s => {
+        const statusColor = s.collection_status === 'Done' ? '#4caf50' : (s.collection_status === 'Cancelled' ? '#f44336' : '#ff9800');
+        
+        let timeDisplay = 'TBA';
+        if (s.time) {
+            const timeParts = s.time.split(':');
+            const hour = parseInt(timeParts[0]);
+            const minute = timeParts[1];
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            timeDisplay = `${displayHour}:${minute} ${ampm}`;
+        }
+
+        html += `
+            <div style="background:#f6faf2; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #e8f5e9; text-align: left;">
+                <p style="margin: 0 0 5px 0;"><strong>Barangay:</strong> ${s.barangay}</p>
+                <p style="margin: 0 0 5px 0;"><strong>Time:</strong> ${timeDisplay}</p>
+                <p style="margin: 0 0 5px 0;"><strong>Type:</strong> ${s.scheduleType || 'General'}</p>
+                <p style="margin: 0;"><strong>Status:</strong> <span style="color: ${statusColor}; font-weight:bold;">${s.collection_status || 'Scheduled'}</span></p>
+            </div>
+        `;
+    });
+
+    detailsBody.innerHTML = html;
+    detailsModal.style.display = "flex";
+}

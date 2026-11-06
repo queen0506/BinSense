@@ -14,9 +14,34 @@
         
         <header class="top-nav">
             <h1 class="dashboard-title">Statistics</h1>
+            
+            <div class="notification-icon-container">
+                <button class="notification-btn" id="notificationBtn">
+                    <svg class="notification-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
         </header>
 
         <main class="main-content">
+            <!-- ADDED NOTIFICATION PANEL HERE -->
+            <div id="notificationPanel" class="notification-panel">
+                <div class="notification-panel-header">
+                    <h3>Notifications</h3>
+                    <button class="close-notification-btn" id="closeNotificationBtn">&times;</button>
+                </div>
+                <div id="notificationList" class="notification-list">
+                    <p class="empty-notification-message">No new notifications</p>
+                </div>
+                <div class="notification-panel-footer">
+                    <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+                </div>
+            </div>
+            <!-- END OF NOTIFICATION PANEL -->
+
             <h2 class="section-title">Waste Overview</h2>
             
             <div class="chart-container">
@@ -24,7 +49,6 @@
             </div>
 
             <div class="status-performance-card">
-                <!-- Removed: status-icon-circle block[cite: 18] -->
                 <div class="status-text">
                     <h3>You're doing great!</h3>
                     <p>Today's average usage is 0%. Keep collecting responsibly!</p>

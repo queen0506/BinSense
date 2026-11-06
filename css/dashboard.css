@@ -74,19 +74,22 @@ table {
 
 /* Header */
 .top-nav {
-    background-color: var(--lgu-green);
-    padding: 55px 25px 20px 25px;
+    background-color: var(--lgu-green); 
+    padding: 35px 20px 15px 20px;
+    border-bottom-left-radius: var(--radius-xl);
+    border-bottom-right-radius: var(--radius-xl);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom-left-radius: var(--radius-2xl);
-    border-bottom-right-radius: var(--radius-2xl);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: visible !important;
+    position: relative;
+    z-index: 1000;
     flex-shrink: 0;
 }
+
 .dashboard-title {
-    color: #fff;
-    font-size: 1.8rem;
+    color: #ffffff;
+    font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
 }
@@ -99,34 +102,40 @@ table {
 }
 
 .notification-btn {
-    background: none;
+    background-color: transparent; 
     border: none;
     cursor: pointer;
-    padding: 8px;
+    padding: 0;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 48px;  
+    height: 48px; 
+    border-radius: 50%; 
+    box-shadow: none; 
     transition: transform 0.3s ease;
 }
 
 .notification-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.1); 
 }
 
 .notification-icon {
-    width: 28px;
+    width: 28px; 
     height: 28px;
-    color: #fff;
+    color: #080808; 
+    stroke: #080808; 
+    stroke-width: 2; 
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
 .notification-badge {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    background-color: var(--lgu-danger);
+    top: 4px;
+    right: 4px;
+    background-color: var(--lgu-danger, #f44336);
     color: #fff;
     border-radius: 50%;
     width: 18px;
@@ -136,11 +145,10 @@ table {
     justify-content: center;
     font-size: 0.7rem;
     font-weight: 700;
-    border: 2px solid var(--lgu-green);
+    border: 2px solid var(--lgu-green); 
     pointer-events: none;
 }
 
-/* Notification panel */
 .notification-panel {
     position: absolute;
     top: 50%;
@@ -150,7 +158,7 @@ table {
     max-width: 400px;
     max-height: 500px;
     background-color: #fff;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-lg, 12px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     display: none;
     flex-direction: column;
@@ -174,7 +182,7 @@ table {
 
 .notification-panel-header h3 {
     font-size: 1.1rem;
-    color: var(--lgu-dark-green);
+    color: var(--lgu-dark-green, #1b5e20);
     font-weight: 700;
     margin: 0;
 }
@@ -231,12 +239,12 @@ table {
 
 .notification-icon-circle.success {
     background-color: #e8f5e9;
-    color: var(--lgu-success);
+    color: var(--lgu-success, #4caf50);
 }
 
 .notification-icon-circle.warning {
     background-color: #fff3e0;
-    color: var(--lgu-warning);
+    color: var(--lgu-warning, #ff9800);
 }
 
 .notification-icon-circle.alert {
@@ -550,29 +558,6 @@ table {
     border-radius: 50%;
 }
 
-.nav-icons-container a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px;
-    border-radius: var(--radius-sm);
-    transition: background 0.3s ease, transform 0.3s ease;
-    position: relative;
-}
-
-.nav-icons-container a:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.nav-icons-container a.active {
-    background-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.nav-icons-container a.active img {
-    filter: brightness(1.2);
-}
-
 .icon-30 {
     width: 30px;
     height: 30px;
@@ -689,7 +674,7 @@ table {
 
     .nav-icons-container a.active {
         background-color: #fff !important;
-        border-radius: 50%;
+        border-radius: 50% !important;
         width: 55px;
         height: 55px;
         display: flex;
@@ -727,38 +712,85 @@ table {
         font-size: 2.5rem;
     }
 
-    /* Notification button on desktop */
     .notification-btn {
-        background: var(--lgu-green);
-        padding: 12px;
-        border-radius: var(--radius-md);
-        box-shadow: 0 4px 15px rgba(153, 204, 51, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .notification-btn:hover {
-        transform: translateY(-2px);
+
+    .waste-reminder-card {
+        grid-area: reminder;
+        margin-bottom: 20px;
+        padding: 30px;
+        font-size: 1.1rem;
     }
 
-    .notification-icon {
-        color: #fff !important;
-        width: 28px;
-        height: 28px;
+    /* Positioning Headers */
+    .section-header:nth-of-type(1) { 
+        grid-area: header1; 
+        margin-top: 10px; 
+    }
+    .section-header:nth-of-type(2) { 
+        grid-area: header2; 
+        margin-top: 10px; 
     }
 
-    .notification-badge {
-        border: 2px solid var(--lgu-green);
+    /* Smart Bin Section */
+    .bins-carousel {
+        grid-area: bin;
+        justify-content: flex-start;
+        margin-bottom: 0;
+        width: 100%;
     }
+
+    .bin-card-wrapper {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .citizen-bin-card {
+        min-height: 220px;
+    }
+
+    /* Calendar Section */
+    .calendar-container {
+        grid-area: cal;
+        max-width: 900px; /* Para hindi lumagpas ang stretch */
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+
+    .cal-date {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto;
+        font-size: 1.1rem;
+    }
+
+    .cal-days span {
+        font-size: 1rem;
+    }
+
 
     /* Main content */
     .main-content {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
-        padding: 10px 60px 60px 40px;
+        padding: 20px 60px 60px 40px;
         overflow-y: auto;
         min-height: 0;
+        /* BAGONG DASHBOARD GRID LAYOUT */
+        display: grid;
+        grid-template-columns: minmax(300px, 400px) 1fr; /* 2 Columns */
+        grid-template-areas:
+            "reminder reminder"
+            "header1  header2"
+            "bin      cal";
+        column-gap: 50px;
+        align-content: start;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
     }
 
     /* Bin grid — auto-fit */
@@ -799,3 +831,232 @@ table {
     max-width: 100%;
     overflow-x: auto;
 }
+
+/* NEW DASHBOARD UI UPDATES */
+.user-greeting {
+    display: flex;
+    flex-direction: column;
+}
+.greeting-text {
+    font-size: 0.9rem;
+    color: #111010;
+    margin-bottom: 2px;
+}
+
+.main-content {
+    padding: 0 25px 120px 25px; /* Added padding for mobile sides */
+}
+
+/* Reminder Card */
+.waste-reminder-card {
+    background-color: var(--lgu-green);
+    border-radius: var(--radius-lg);
+    padding: 25px 20px;
+    margin-top: 10px;
+    color: white;
+    text-align: center;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    box-shadow: 0 4px 15px rgba(153, 204, 51, 0.25);
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 25px 0 15px 0;
+}
+.section-header h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #000;
+}
+.add-icon-btn {
+    background: none;
+    border: none;
+    color: #000;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bin Carousel */
+.bins-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    gap: 15px; 
+    margin-bottom: 25px; 
+}
+
+.carousel-arrow {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #333;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bin-card-wrapper {
+    flex: 1;
+    max-width: 280px; 
+}
+
+.citizen-bin-card {
+    background: #fff;
+    border-radius: 24px; 
+    min-height: 150px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); 
+    width: 100%;
+}
+
+/* Calendar Container */
+.calendar-container {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.cal-nav {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.cal-dropdowns {
+    display: flex;
+    gap: 5px; /* Binawasan mula 10px para hindi sumikip */
+    align-items: center;
+}
+
+.cal-select {
+    border: 1px solid #eee;
+    border-radius: var(--radius-sm);
+    padding: 4px 6px; /* Pinaliit ang padding para mas compact */
+    font-family: inherit;
+    font-size: 0.85rem; /* Bahagyang pinaliit ang font size */
+    outline: none;
+    background: #fff;
+    max-width: 90px; /* Nilimitahan ang lapad para hindi tumulak sa arrows */
+    text-overflow: ellipsis;
+}
+.cal-days, .cal-dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    gap: 5px;
+}
+.cal-days span {
+    font-size: 0.75rem;
+    color: #999;
+    margin-bottom: 10px;
+}
+.cal-date {
+    font-size: 0.9rem;
+    color: #333;
+    padding: 8px 0;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cal-date.active {
+    background-color: var(--lgu-green);
+    color: white;
+    font-weight: 700;
+}
+
+/* Calendar - Dynamic Markers */
+.cal-date {
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+}
+.cal-date.cal-empty {
+    cursor: default;
+    background: transparent;
+}
+.cal-date:hover:not(.cal-empty) {
+    background-color: #f0f0f0;
+}
+
+/* Kung may schedule (Green highlight) */
+.cal-date.has-schedule {
+    background-color: #e8f5e9;
+    color: var(--lgu-dark-green);
+    font-weight: 700;
+    border: 1px solid var(--lgu-green);
+}
+.cal-date.has-schedule::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    width: 5px; 
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--lgu-green);
+}
+
+/* Kung araw ngayon (Solid Green) */
+.cal-date.active {
+    background-color: var(--lgu-green) !important;
+    color: white !important;
+    font-weight: 700;
+    border: none;
+}
+.cal-date.active::after {
+    background-color: #fff !important;
+}
+
+/* Calendar - Dynamic Markers */
+.cal-date {
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+}
+.cal-date.cal-empty {
+    cursor: default;
+    background: transparent;
+}
+.cal-date:hover:not(.cal-empty) {
+    background-color: #f0f0f0;
+}
+.cal-date.has-schedule {
+    background-color: #e8f5e9;
+    color: var(--lgu-dark-green);
+    font-weight: 700;
+    border: 1px solid var(--lgu-green);
+}
+.cal-date.has-schedule::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    width: 5px; 
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--lgu-green);
+}
+.cal-date.active {
+    background-color: var(--lgu-green) !important;
+    color: white !important;
+    font-weight: 700;
+    border: none;
+}
+.cal-date.active::after {
+    background-color: #fff !important;
+}
+

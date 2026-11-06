@@ -7,6 +7,9 @@
     --lgu-surface: #FFFFFF;
     --lgu-page: #F0F0F0;
     --lgu-border: #E2E8F0;
+    --lgu-danger: #ff4444;
+    --lgu-warning: #ff9800;
+    --lgu-success: #4caf50;
     --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
     --radius-sm: 12px;
@@ -61,10 +64,10 @@ img {
     margin: 0 auto;
 }
 
-/* Header */
+/* Header (Kept Green as original) */
 .top-nav {
-    background-color: var(--lgu-green);
-    padding: 55px 25px 20px 25px;
+    background-color: var(--lgu-green); 
+    padding: 35px 20px 15px 20px;
     border-bottom-left-radius: var(--radius-xl);
     border-bottom-right-radius: var(--radius-xl);
     display: flex;
@@ -77,11 +80,229 @@ img {
 }
 
 .dashboard-title {
-    color: #fff;
+    color: #ffffff;
     font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
 }
+
+/* =========================================
+   NOTIFICATION STYLES (Mobile)
+   ========================================= */
+.notification-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Transparent button for mobile with white bell */
+.notification-btn {
+    background-color: transparent; 
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;  
+    height: 48px; 
+    border-radius: 50%; 
+    box-shadow: none; 
+    transition: transform 0.3s ease;
+}
+
+.notification-btn:hover {
+    transform: scale(1.1);
+}
+
+/* White Bell Icon for mobile */
+.notification-icon {
+    width: 28px; 
+    height: 28px;
+    color: #ffffff; 
+    stroke: #ffffff; 
+    stroke-width: 2; 
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: var(--lgu-danger, #f44336);
+    color: #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border: 2px solid var(--lgu-green); 
+    pointer-events: none;
+}
+
+.notification-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 88%;
+    max-width: 400px;
+    max-height: 500px;
+    background-color: #fff;
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    z-index: 1500;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.notification-panel.active {
+    display: flex;
+}
+
+.notification-panel-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.notification-panel-header h3 {
+    font-size: 1.1rem;
+    color: var(--lgu-dark-green, #1b5e20);
+    font-weight: 700;
+    margin: 0;
+}
+
+.close-notification-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    line-height: 1;
+}
+
+.close-notification-btn:hover {
+    color: #333;
+}
+
+.notification-list {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    min-height: 200px;
+}
+
+.notification-item {
+    padding: 15px 25px;
+    border-bottom: 1px solid #f9f9f9;
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background-color: #f9f9f9;
+}
+
+.notification-item.unread {
+    background-color: #f6faf2;
+}
+
+.notification-icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.3rem;
+}
+
+.notification-icon-circle.success {
+    background-color: #e8f5e9;
+    color: var(--lgu-success, #4caf50);
+}
+
+.notification-icon-circle.warning {
+    background-color: #fff3e0;
+    color: var(--lgu-warning, #ff9800);
+}
+
+.notification-icon-circle.alert {
+    background-color: #ffebee;
+    color: #f44336;
+}
+
+.notification-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.notification-title {
+    font-weight: 700;
+    color: #333;
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+}
+
+.notification-message {
+    font-size: 0.85rem;
+    color: #666;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.notification-panel-footer {
+    border-top: 1px solid #eee;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.clear-all-btn {
+    background: none;
+    border: none;
+    color: var(--lgu-dark-green);
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: inherit;
+    width: 100%;
+    padding: 15px;
+    text-align: center;
+    transition: background-color 0.2s ease;
+}
+
+.clear-all-btn:hover {
+    background-color: #f9f9f9;
+}
+
+.empty-notification-message {
+    padding: 60px 25px;
+    text-align: center;
+    color: #999;
+    font-size: 0.9rem;
+}
+/* =========================================
+   END OF NOTIFICATION STYLES
+   ========================================= */
 
 /* Main scrollable area */
 .main-content {
@@ -446,13 +667,31 @@ img {
         border-radius: 0;
         box-shadow: none;
         display: flex;
-        justify-content: flex-start;
+        flex-direction: row; 
+        justify-content: space-between; 
         align-items: center;
     }
 
     .dashboard-title {
         color: #1a1a1a;
         font-size: 2.5rem;
+    }
+
+    /* Desktop Notification Bell overrides */
+    .notification-btn {
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification-icon {
+        color: #000000;
+        stroke: #000000;
+        width: 24px;
+        height: 24px;
+    }
+
+    .notification-badge {
+        border: 2px solid #ffffff;
     }
 
     /* Main content */
@@ -511,6 +750,16 @@ img {
 
     .modal-ol {
         font-size: 1rem;
+    }
+
+    /* Notification panel — centered in viewport */
+    .notification-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: min(90vw, 480px);
+        max-height: 80vh;
     }
 }
 
