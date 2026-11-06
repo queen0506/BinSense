@@ -1,4 +1,21 @@
-/* BinSense Styling Base */
+:root {
+    --lgu-green: #99cc33;
+    --lgu-green-dark: #88b72e;
+    --lgu-dark-green: #48742C;
+    --lgu-text: #333;
+    --lgu-muted: #888;
+    --lgu-surface: #FFFFFF;
+    --lgu-page: #F0F0F0;
+    --lgu-border: #E2E8F0;
+    --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 25px;
+    --radius-xl: 35px;
+    --radius-2xl: 35px;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -8,63 +25,76 @@
 body {
     font-family: 'Reddit Sans', sans-serif;
     background-color: #f0f0f0;
+    color: var(--lgu-text);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
 }
 
 .mobile-container {
     width: 100%;
     max-width: 414px;
     height: 100vh;
+    height: 100dvh;
     background-color: white;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
+    margin: 0 auto;
 }
 
 /* --- TOP NAVIGATION --- */
 .top-nav {
-    background-color: #99cc33;
-    padding: 55px 25px 20px 25px;
-    border-bottom-left-radius: 35px;
-    border-bottom-right-radius: 35px;
+    background-color: var(--lgu-green);
+    padding: 55px 25px 20px 25px; 
+    border-bottom-left-radius: var(--radius-xl);
+    border-bottom-right-radius: var(--radius-xl);
+    flex-shrink: 0;
 }
 
 .header-content {
     display: flex;
     align-items: center;
-    justify-content: center;
+    /* Spreads the items so the arrow is left and title is centered */
+    justify-content: space-between; 
     position: relative;
 }
 
 .back-btn {
-    position: absolute;
-    left: 0;
-    color: white;
-    font-size: 22px;
+    color: #ffffff;
+    font-size: 24px;
     cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .page-title {
-    color: white;
-    font-size: 1.2rem;
+    color: #ffffff;
+    font-size: 1.15rem;
     font-weight: 700;
     flex: 1;
     text-align: center;
+    margin: 0;
+    /* Pulls the title slightly left to perfectly center it visually next to the arrow */
+    margin-left: -32px; 
 }
 
-.current-user-name {
-    margin: 10px 0 20px 0;
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #48742C;
-    text-align: center;
-}
-
-/* --- MAIN CONTENT & GRAPHIC --- */
+/* --- MAIN CONTENT --- */
 .main-content {
     flex: 1;
     padding: 20px 30px;
@@ -72,16 +102,29 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: auto;
 }
 
+/* Graphic */
 .graphic-section {
     padding: 20px 0;
+    display: flex;
+    justify-content: center;
 }
 
 .center-graphic {
     width: 110px;
     height: auto;
     object-fit: contain;
+}
+
+/* Current User Name */
+.current-user-name {
+    margin: 10px 0 20px 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--lgu-dark-green);
+    text-align: center;
 }
 
 /* --- FORM STYLING --- */
@@ -99,16 +142,16 @@ body {
     display: block;
     font-size: 0.9rem;
     font-weight: 700;
-    color: #48742C;
+    color: var(--lgu-dark-green);
     margin-bottom: 6px;
 }
 
-/* Mobile Friendly Inputs & Dropdowns */
-.input-group input, .select-input {
+/* Inputs */
+.input-group input {
     width: 100%;
-    height: 48px; /* Fixed height for better mobile touch targeting */
-    padding: 0 15px; /* Compact padding */
-    border-radius: 12px;
+    height: 48px; 
+    padding: 0 15px; 
+    border-radius: var(--radius-sm);
     border: 1px solid #C4C4C4;
     background-color: white;
     font-family: 'Reddit Sans', sans-serif;
@@ -117,33 +160,29 @@ body {
     transition: border-color 0.2s;
 }
 
-/* Specific styling for the select dropdown */
-.select-input {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2348742C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    background-size: 14px;
-    cursor: pointer;
+.input-group input:focus {
+    border-color: var(--lgu-green);
 }
 
-.input-group input:focus, .select-input:focus {
-    border-color: #99cc33;
-}
-
+/* Button */
 .btn-update {
     width: 100%;
-    background-color: #99cc33;
+    background-color: var(--lgu-green);
     color: white;
     border: none;
     padding: 16px;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     font-family: 'Reddit Sans', sans-serif;
     font-size: 1.05rem;
     font-weight: 700;
     margin-top: 15px;
     cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 4px 10px rgba(153, 204, 51, 0.2);
+}
+
+.btn-update:hover {
+    background-color: var(--lgu-green-dark);
 }
 
 /* Toast styling */
@@ -171,142 +210,177 @@ body {
 @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
 @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
-/* RESPONSIVE BASE */
-@media (min-width: 768px) {
-    body { align-items: center; padding: 20px; }
-    .mobile-container { width: min(100%, 860px); max-width: 860px; min-height: 90vh; border-radius: 20px; box-shadow: 0 14px 35px rgba(0,0,0,0.15); }
-}
-
-/* --- EDIT PROFILE DESKTOP REFINEMENT --- */
-@media (min-width: 1024px) {
-    /* ... Copy Sidebar & Grid styles from Section 1 ... */
-
-    .top-nav {
-        background-color: transparent;
-        padding: 40px 40px 0 10px;
+/* =========================================
+   TABLET (601px – 1023px)
+   ========================================= */
+@media (min-width: 601px) and (max-width: 1023px) {
+    body { 
+        align-items: center; 
+        padding: 20px; 
     }
-
-    .back-btn { color: #99cc33; position: static; margin-right: 20px; }
-    .page-title { color: #2d3436; font-size: 1.8rem; text-align: left; }
-
+    .mobile-container { 
+        width: min(100%, 860px); 
+        max-width: 860px; 
+        min-height: 90vh; 
+        border-radius: var(--radius-md); 
+        box-shadow: 0 14px 35px rgba(0,0,0,0.15); 
+    }
     .main-content {
-        max-width: 600px; /* Constrain form width for desktop */
-        margin-left: 0;
-    }
-
-    .edit-form {
-        background: white;
-        padding: 40px;
-        border-radius: 30px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        padding: 30px 40px;
     }
 }
 
+/* =========================================
+   DESKTOP (1024px+)
+   ========================================= */
 @media (min-width: 1024px) {
-
-    /* ===== CLEAN BACKGROUND ===== */
     body {
-        background: #f5f7f6;
-        align-items: flex-start;
-        padding: 40px 20px;
-    }
-
-    /* ===== CONTAINER (KEEP STRUCTURE, FIX WIDTH) ===== */
-    .mobile-container {
-        width: 100%;
-        max-width: 1000px;
-        height: auto;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        background-color: #f8faf8;
+        display: block;
+        margin: 0;
+        padding: 0;
         overflow: hidden;
     }
 
-    /* ===== HEADER (SIMPLE & CLEAN) ===== */
-    .top-nav {
-        padding: 20px 30px;
-        border-bottom: 1px solid #eee;
+    .mobile-container {
+        max-width: 100% !important;
+        width: 100vw;
+        height: 100vh;
         border-radius: 0;
+        box-shadow: none;
+        background-color: transparent;
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: visible;
     }
 
-    .header-content {
-        justify-content: flex-start;
+    /* Sidebar pill */
+    .bottom-nav {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3;
+        position: relative;
+        height: calc(100vh - 80px);
+        width: 85px;
+        background: var(--lgu-green);
+        margin: 40px auto;
+        padding: 0;
+        border-radius: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
     }
 
-    .back-btn {
-        position: static;
-        color: #99cc33;
-        margin-right: 10px;
+    .nav-icons-container {
+        display: flex;
+        flex-direction: column;
+        gap: 35px;
+        align-items: center;
     }
 
-    .page-title {
-        color: #2d3436;
-        font-size: 1.4rem;
-    }
-
-    /* ===== MAIN CONTENT ===== */
-    .main-content {
+    .nav-link.active {
+        background-color: #fff !important;
+        border-radius: 50%;
+        width: 55px;
+        height: 55px;
         display: flex;
         justify-content: center;
-        padding: 20px 30px;
+        align-items: center;
+        padding: 0;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
     }
 
-    /* ===== FORM CARD (KEEP IT SIMPLE) ===== */
+    .icon-30 {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .nav-link.active .icon-30 {
+        filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
+    }
+
+    .nav-icons-container a:not(.active) .icon-30 {
+        filter: brightness(0) invert(1);
+    }
+
+    /* Header - Hidden on desktop */
+    .top-nav {
+        display: none; 
+    }
+
+    /* Main Content */
+    .main-content {
+        grid-column: 2 / 3;
+        grid-row: 1 / 3; 
+        padding: 40px 60px;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh;
+        background: transparent;
+    }
+
+    /* Form Card */
     .edit-form {
         width: 100%;
-        max-width: 520px;
+        max-width: 480px; 
         background: #fff;
-        padding: 30px;
-
-        border-radius: 16px;
-        border: 1px solid #eee;
-
-        /* LIGHT shadow only */
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
     }
 
-    /* REMOVE GRAPHIC FOR CLEAN LOOK */
+    /* Show graphic on desktop */
     .graphic-section {
-        display: none;
+        display: flex;
+        padding: 0 0 10px 0;
     }
 
-    /* ===== NAME ===== */
+    .center-graphic {
+        width: 90px;
+    }
+
     .current-user-name {
-        text-align: center;
         font-size: 1.4rem;
         margin-bottom: 25px;
     }
 
-    /* ===== INPUTS ===== */
+    /* Inputs */
     .input-group {
-        margin-bottom: 18px;
+        margin-bottom: 20px;
     }
 
     .input-group input {
-        padding: 14px;
-        border-radius: 10px;
+        height: 50px;
+        padding: 0 18px;
+        border-radius: var(--radius-sm);
         background: #fafafa;
         border: 1px solid #ddd;
         transition: 0.2s;
     }
 
     .input-group input:focus {
-        border-color: #99cc33;
+        border-color: var(--lgu-green);
         background: #fff;
+        box-shadow: 0 0 0 3px rgba(153, 204, 51, 0.1);
     }
 
-    /* ===== BUTTON ===== */
+    /* Button */
     .btn-update {
-        padding: 14px;
-        border-radius: 10px;
+        padding: 16px;
+        border-radius: var(--radius-sm);
         font-size: 1rem;
-        margin-top: 10px;
-
-        /* subtle shadow */
-        box-shadow: 0 4px 10px rgba(153, 204, 51, 0.2);
+        margin-top: 15px;
+        box-shadow: 0 4px 15px rgba(153, 204, 51, 0.3);
         transition: 0.2s;
     }
 
     .btn-update:hover {
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(153, 204, 51, 0.4);
     }
 }

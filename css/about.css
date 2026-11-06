@@ -11,9 +11,9 @@
     --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
     --radius-sm: 12px;
     --radius-md: 20px;
-    --radius-lg: 15px;
-    --radius-xl: 15px;
-    --radius-2xl: 10px;
+    --radius-lg: 25px;
+    --radius-xl: 35px;
+    --radius-2xl: 35px;
 }
 
 /* Reset */
@@ -60,20 +60,35 @@ img {
     margin: 0 auto;
 }
 
-/* Header */
+/* Header - Matched to Image */
 .top-nav {
-    background-color: #ffffff;
-    padding: 30px 20px 20px;
+    background-color: var(--lgu-green); 
+    padding: 55px 25px 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-bottom-left-radius: var(--radius-xl);
     border-bottom-right-radius: var(--radius-xl);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    position: relative;
+    z-index: 1000;
     flex-shrink: 0;
 }
 
+/* Forces the back button and title to spread perfectly */
+.top-nav > * {
+    flex: 1;
+}
+
+.top-nav > *:first-child {
+    text-align: left;
+}
+
+.top-nav > *:last-child {
+    text-align: right;
+}
+
 .back-btn {
-    color: #000000;
+    color: #ffffff;
     font-size: 24px;
     cursor: pointer;
     font-weight: bold;
@@ -83,6 +98,7 @@ img {
     padding: 4px 8px;
     border-radius: 8px;
     transition: background 0.15s ease;
+    display: inline-block;
 }
 
 .back-btn:hover,
@@ -92,10 +108,11 @@ img {
 }
 
 .page-title {
-    color: #000000;
-    font-size: 1.25rem;
-    font-weight: 700;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 600;
     text-align: center;
+    margin: 0;
 }
 
 /* Main scrollable area */
@@ -109,12 +126,12 @@ img {
 
 /* Graphic */
 .graphic-section {
-    padding: 40px 0 20px;
+    padding: 30px 0 20px;
     text-align: center;
 }
 
 .center-graphic {
-    width: 250px;
+    width: 180px; 
     max-width: 100%;
     height: auto;
     margin: 0 auto;
@@ -132,10 +149,10 @@ img {
 }
 
 .description-box p {
-    font-size: 0.95rem;
-    color: #555;
+    font-size: 0.85rem; 
+    color: #777; 
     line-height: 1.6;
-    text-align: justify;
+    text-align: left; 
 }
 
 .description-box strong {
@@ -238,11 +255,11 @@ img {
     }
 
     .graphic-section {
-        padding: 30px 0 10px;
+        padding: 20px 0 10px;
     }
 
     .center-graphic {
-        width: 200px;
+        width: 160px;
     }
 }
 
@@ -263,13 +280,13 @@ img {
         border-radius: var(--radius-md);
         box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
         overflow: hidden;
+        background-color: #fff;
     }
 
     .top-nav {
         padding: 32px 40px 24px;
     }
 
-    /* Two-column layout */
     .main-content {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
@@ -396,6 +413,11 @@ img {
         align-items: center;
         gap: 15px;
         border-radius: 0;
+    }
+
+    /* Reset the flex spread for desktop */
+    .top-nav > * {
+        flex: none;
     }
 
     .back-btn {
