@@ -26,6 +26,23 @@
         </header>
 
         <main class="main-content">
+            <!-- ADDED NOTIFICATION PANEL HERE -->
+            <div id="notificationPanel" class="notification-panel">
+                <div class="notification-panel-header">
+                    <h3>Notifications</h3>
+                    <button class="close-notification-btn" id="closeNotificationBtn">&times;</button>
+                </div>
+                <div id="notificationList" class="notification-list">
+                    <p class="empty-notification-message">No new notifications</p>
+                </div>
+                <div class="notification-panel-footer">
+                    <!-- Note: Your JS looks for 'clearAllBtn' but your screenshot HTML had 'clearNotifications'. 
+                         I used 'clearAllBtn' here to match the JS you provided. -->
+                    <button class="clear-all-btn" id="clearAllBtn">Clear All</button>
+                </div>
+            </div>
+            <!-- END OF NOTIFICATION PANEL -->
+
             <h2 class="guide-headline">Waste Segregation Guide</h2>
             <p class="guide-subtitle">Follow these instructions to sort your trash properly. Click each button to know what to put in each waste bin.</p>
             
