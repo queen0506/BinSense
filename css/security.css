@@ -63,7 +63,7 @@ img {
 /* Header */
 .top-nav {
     background-color: var(--lgu-green); 
-    padding: 55px 25px 20px 25px;
+    padding: 35px 20px 15px 20px;
     border-bottom-left-radius: var(--radius-xl);
     border-bottom-right-radius: var(--radius-xl);
     display: flex;

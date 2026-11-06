@@ -50,7 +50,7 @@ body {
 /* --- TOP NAVIGATION --- */
 .top-nav {
     background-color: var(--lgu-green);
-    padding: 55px 25px 20px 25px; 
+    padding: 35px 20px 15px 20px; 
     border-bottom-left-radius: var(--radius-xl);
     border-bottom-right-radius: var(--radius-xl);
     flex-shrink: 0;
@@ -59,7 +59,6 @@ body {
 .header-content {
     display: flex;
     align-items: center;
-    /* Spreads the items so the arrow is left and title is centered */
     justify-content: space-between; 
     position: relative;
 }
@@ -90,7 +89,6 @@ body {
     flex: 1;
     text-align: center;
     margin: 0;
-    /* Pulls the title slightly left to perfectly center it visually next to the arrow */
     margin-left: -32px; 
 }
 
@@ -146,8 +144,8 @@ body {
     margin-bottom: 6px;
 }
 
-/* Inputs */
-.input-group input {
+/* Inputs and Select Input */
+.input-group input, .select-input {
     width: 100%;
     height: 48px; 
     padding: 0 15px; 
@@ -160,8 +158,37 @@ body {
     transition: border-color 0.2s;
 }
 
-.input-group input:focus {
+/* Specific styling for the select dropdown */
+.select-input {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2348742C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 14px;
+    cursor: pointer;
+}
+
+.input-group input:focus, .select-input:focus {
     border-color: var(--lgu-green);
+}
+
+/* Style the dropdown options to look cleaner */
+.select-input option {
+    background-color: #ffffff;
+    color: #333;
+    font-family: 'Reddit Sans', sans-serif;
+    font-size: 15px;
+    padding: 12px 15px;
+}
+
+/* Highlight the hovered option */
+.select-input option:hover,
+.select-input option:focus,
+.select-input option:checked {
+    background-color: #f0f7e6;
+    color: #48742C;
+    font-weight: 600;
 }
 
 /* Button */
@@ -354,7 +381,7 @@ body {
         margin-bottom: 20px;
     }
 
-    .input-group input {
+    .input-group input, .select-input {
         height: 50px;
         padding: 0 18px;
         border-radius: var(--radius-sm);
@@ -363,7 +390,7 @@ body {
         transition: 0.2s;
     }
 
-    .input-group input:focus {
+    .input-group input:focus, .select-input:focus {
         border-color: var(--lgu-green);
         background: #fff;
         box-shadow: 0 0 0 3px rgba(153, 204, 51, 0.1);
