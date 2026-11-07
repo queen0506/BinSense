@@ -25,7 +25,7 @@ async function writeLog(action, message) {
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Professional Map (CartoDB Voyager)
     const map = L.map('map', { zoomControl: false }).setView([14.8350, 120.2840], 14);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '©OpenStreetMap'
     }).addTo(map);
 
