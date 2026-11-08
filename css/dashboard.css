@@ -718,11 +718,9 @@ table {
     }
 
 
-    .waste-reminder-card {
+    .waste-reminder-image {
         grid-area: reminder;
         margin-bottom: 20px;
-        padding: 30px;
-        font-size: 1.1rem;
     }
 
     /* Positioning Headers */
@@ -847,17 +845,13 @@ table {
     padding: 0 25px 120px 25px; /* Added padding for mobile sides */
 }
 
-/* Reminder Card */
-.waste-reminder-card {
-    background-color: var(--lgu-green);
-    border-radius: var(--radius-lg);
-    padding: 25px 20px;
-    margin-top: 10px;
-    color: white;
-    text-align: center;
-    font-size: 0.85rem;
-    line-height: 1.4;
-    box-shadow: 0 4px 15px rgba(153, 204, 51, 0.25);
+/* Responsive reminder artwork */
+.waste-reminder-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    margin: 10px auto 0;
 }
 
 /* Section Headers */
