@@ -608,12 +608,23 @@ CREATE POLICY "Dispatch administrators read collection logs" ON public.collectio
 -- Reports Policies
 DROP POLICY IF EXISTS "Collectors add reports" ON public.reports;
 DROP POLICY IF EXISTS "Dispatch administrators read reports" ON public.reports;
+DROP POLICY IF EXISTS "Report owners and administrators read reports" ON public.reports;
 
 CREATE POLICY "Collectors add reports" ON public.reports
-    FOR INSERT TO authenticated WITH CHECK (public.has_any_role(ARRAY['waste collector']));
+    FOR INSERT TO authenticated WITH CHECK (
+        public.has_any_role(ARRAY['waste collector'])
+        AND LOWER(collector) = LOWER(COALESCE(auth.jwt() ->> 'email', ''))
+    );
 
-CREATE POLICY "Dispatch administrators read reports" ON public.reports
-    FOR SELECT TO authenticated USING (public.has_any_role(ARRAY['waste collector', 'lgu admin', 'system administrator']));
+CREATE POLICY "Report owners and administrators read reports" ON public.reports
+    FOR SELECT TO authenticated
+    USING (
+        (
+            public.has_any_role(ARRAY['waste collector'])
+            AND LOWER(collector) = LOWER(COALESCE(auth.jwt() ->> 'email', ''))
+        )
+        OR public.has_any_role(ARRAY['lgu admin', 'system administrator'])
+    );
 
 DROP POLICY IF EXISTS "LGU administrators update report status" ON public.reports;
 CREATE POLICY "LGU administrators update report status" ON public.reports
@@ -734,6 +745,7 @@ BEGIN
             'system_logs',
             'notifications',
             'lgu_admin_notifications',
+            'reports',
             'active_dispatch'
         ]
         LOOP

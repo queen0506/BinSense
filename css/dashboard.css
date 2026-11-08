@@ -124,8 +124,8 @@ table {
 .notification-icon {
     width: 28px; 
     height: 28px;
-    color: #080808; 
-    stroke: #080808; 
+    color: #fff;
+    stroke: #fff;
     stroke-width: 2; 
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -839,7 +839,7 @@ table {
 }
 .greeting-text {
     font-size: 0.9rem;
-    color: #111010;
+    color: #fff;
     margin-bottom: 2px;
 }
 

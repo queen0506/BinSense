@@ -28,17 +28,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const binContainer = document.getElementById('binContainer');
     const binSearch = document.getElementById('binSearch');
     const submitUpdateBtn = document.getElementById('submitUpdate');
+    const incidentReportsContainer = document.getElementById('myIncidentReports');
 
     let allBins = {}; 
     let unsubscribeDetail = null; 
+    let activeCollectorEmail = null;
+    let incidentReportRequest = 0;
 
     /**
      * 1. TRAFFIC-LIGHT COLOR LOGIC
      */
     function getStatusColor(bin) {
-        if (bin.status === "full" || bin.level >= 90) {
+        const status = String(bin.status || '').toLowerCase();
+        const fillLevel = bin.level ?? bin.volume ?? 0;
+        if (status === "full" || fillLevel >= 90) {
             return "#ff4444"; // Red
-        } else if (bin.level >= 50 || bin.status === "filling") {
+        } else if (fillLevel >= 50 || status === "filling") {
             return "#ffbb33"; // Yellow
         }
         return "#99cc33"; // Green
@@ -49,14 +54,19 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const loadBins = async () => {
         const { data, error } = await supabase.from('bins').select('*');
-        if (error) { console.error(error); return; }
-        if (!data) {
-            binContainer.innerHTML = '<p style="text-align:center; padding:20px; color:#aaa;">No bins found.</p>';
+        if (error) {
+            console.error('Unable to load bins:', error);
+            binContainer.innerHTML = '<p class="section-message error-message">Unable to load bins. Please try again.</p>';
+            return;
+        }
+        if (!data?.length) {
+            binContainer.innerHTML = '<p class="section-message">No bins found.</p>';
             allBins = {};
             return;
         }
         allBins = Object.fromEntries(data.map(bin => [bin.id, bin]));
         renderBins(allBins, binSearch.value);
+        if (activeCollectorEmail) loadIncidentReports();
     };
     loadBins();
 
@@ -65,24 +75,153 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.keys(bins).forEach(id => {
             const bin = bins[id];
             const binDisplayId = id.replace('bin_', '#');
-            if (binDisplayId.toLowerCase().includes(filter.toLowerCase())) {
+            const searchText = `${binDisplayId} ${bin.barangay || ''}`.toLowerCase();
+            if (searchText.includes(filter.trim().toLowerCase())) {
                 const statusColor = getStatusColor(bin);
-                const card = document.createElement('div');
+                const card = document.createElement('button');
                 card.className = 'bin-card clickable-bin';
-                card.innerHTML = `
-                    <div class="bin-card-content">
-                        <span>BIN ${binDisplayId}</span>
-                        <small class="sample-label" style="color: ${statusColor}; font-weight: bold;">
-                            ${bin.status.toUpperCase()}
-                        </small>
-                    </div>
-                    <span class="chevron" style="color: ${statusColor}">›</span>
-                `;
-                card.onclick = () => showDetail(id);
+                card.type = 'button';
+                card.setAttribute('aria-label', `View bin ${binDisplayId}, ${bin.status || 'Unknown'}`);
+
+                const content = document.createElement('span');
+                content.className = 'bin-card-content';
+                const name = document.createElement('span');
+                name.className = 'bin-name';
+                name.textContent = `BIN ${binDisplayId}`;
+                const meta = document.createElement('span');
+                meta.className = 'bin-card-meta';
+                const fillValue = bin.level ?? bin.volume;
+                if (fillValue !== null && fillValue !== undefined) {
+                    const fillLevel = document.createElement('span');
+                    fillLevel.textContent = `${fillValue}% full`;
+                    meta.appendChild(fillLevel);
+                }
+                const status = document.createElement('span');
+                status.className = 'sample-label';
+                status.style.color = statusColor;
+                status.textContent = String(bin.status || 'Unknown').toUpperCase();
+                meta.appendChild(status);
+                content.append(name, meta);
+
+                const indicator = document.createElement('span');
+                indicator.className = 'bin-status-indicator';
+                indicator.style.backgroundColor = statusColor;
+                indicator.setAttribute('aria-hidden', 'true');
+                const chevron = document.createElement('span');
+                chevron.className = 'chevron';
+                chevron.textContent = '›';
+                card.append(content, indicator, chevron);
+                card.addEventListener('click', () => showDetail(id));
                 binContainer.appendChild(card);
             }
         });
+        if (!binContainer.children.length) {
+            binContainer.innerHTML = '<p class="section-message">No bins match your search.</p>';
+        }
     }
+
+    const loadIncidentReports = async () => {
+        if (!activeCollectorEmail) {
+            incidentReportsContainer.innerHTML = '<p class="section-message error-message">Sign in to view your incident reports.</p>';
+            return;
+        }
+
+        const requestId = ++incidentReportRequest;
+        const { data: reports, error } = await supabase.from('reports')
+            .select('id, bin_id, issue, timestamp, collector, status')
+            .eq('collector', activeCollectorEmail)
+            .order('timestamp', { ascending: false })
+            .limit(100);
+
+        if (requestId !== incidentReportRequest) return;
+        if (error) {
+            console.error('Unable to load your incident reports:', error);
+            incidentReportsContainer.innerHTML = '<p class="section-message error-message">Unable to load your reports. Please try again.</p>';
+            return;
+        }
+
+        const activeReports = (reports || []).filter(report =>
+            String(report.status || 'Pending').toLowerCase() !== 'resolved'
+        );
+        if (!activeReports.length) {
+            incidentReportsContainer.innerHTML = '<p class="section-message">No active incident reports.</p>';
+            return;
+        }
+
+        incidentReportsContainer.replaceChildren();
+        activeReports.forEach(report => {
+            const statusText = report.status || 'Pending';
+            const normalizedStatus = statusText.toLowerCase().replace(/\s+/g, '-');
+            const bin = allBins[report.bin_id];
+            const card = document.createElement('article');
+            card.className = 'incident-report-card';
+
+            const header = document.createElement('div');
+            header.className = 'incident-report-header';
+            const binName = document.createElement('h3');
+            binName.textContent = report.bin_id ? report.bin_id.replace(/^bin_/, 'BIN ') : 'Bin not specified';
+            const status = document.createElement('span');
+            status.className = `incident-status status-${normalizedStatus}`;
+            status.textContent = statusText;
+            header.append(binName, status);
+
+            const issue = document.createElement('p');
+            issue.className = 'incident-report-issue';
+            issue.textContent = report.issue || 'Reported issue';
+            const location = document.createElement('p');
+            location.className = 'incident-report-location';
+            location.textContent = bin?.barangay ? `Area: ${bin.barangay}` : 'Area not available';
+            const timestamp = document.createElement('time');
+            timestamp.className = 'incident-report-time';
+            timestamp.dateTime = report.timestamp || '';
+            timestamp.textContent = formatReportDate(report.timestamp);
+
+            card.append(header, issue, location, timestamp);
+            incidentReportsContainer.appendChild(card);
+        });
+    };
+
+    const formatReportDate = value => {
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? 'Date unavailable'
+            : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+    };
+
+    const initializeIncidentReports = async () => {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+            console.error('Unable to verify collection personnel session:', error);
+            incidentReportsContainer.innerHTML = '<p class="section-message error-message">Unable to verify your account.</p>';
+            return;
+        }
+        if (!user?.email) {
+            incidentReportsContainer.innerHTML = '<p class="section-message error-message">Sign in to view your incident reports.</p>';
+            return;
+        }
+
+        activeCollectorEmail = user.email;
+        await loadIncidentReports();
+
+        const reportChannel = supabase.channel(`collector-reports-${user.id}`)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'reports',
+                filter: `collector=eq.${user.email}`
+            }, loadIncidentReports)
+            .subscribe(status => {
+                if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    console.error(`Incident report realtime subscription failed: ${status}`);
+                }
+            });
+
+        window.addEventListener('pagehide', () => {
+            supabase.removeChannel(reportChannel);
+        }, { once: true });
+    };
+
+    initializeIncidentReports();
 
     /**
      * 3. SHOW DETAIL VIEW (WITH LIVE LISTENER)
@@ -127,6 +266,10 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     submitUpdateBtn.addEventListener('click', async () => {
         const selected = document.querySelector('input[name="issue"]:checked');
+        if (!selected) {
+            alert('Please select an incident type before submitting.');
+            return;
+        }
         const binKey = displayBinID.innerText.replace('BIN #', 'bin_');
         let issueText = selected ? selected.value : "Routine Checkup";
         if (issueText === "Others") {
@@ -135,6 +278,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError) throw userError;
+            if (!user?.email) throw new Error('You must be signed in to submit an incident report.');
+
             // Fetch bin data to get the barangay
             const { data: binData, error: binError } = await supabase.from('bins').select('barangay').eq('id', binKey).single();
             if (binError) console.error("Unable to load reported bin location:", binError);
@@ -145,9 +292,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 bin_id: binKey,
                 issue: issueText,
                 timestamp: new Date().toISOString(),
-                collector: (await supabase.auth.getUser()).data.user?.email || "Personnel_01" 
+                collector: user.email
             });
             if (reportError) throw reportError;
+            await loadIncidentReports();
 
             // 2. TRIGGER CITIZEN NOTIFICATION
             let customMessage = `Collector reported "${issueText}" for ${binKey.replace('bin_', 'Bin #')}`;
