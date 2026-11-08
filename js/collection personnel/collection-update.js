@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         incidentReportsSection.style.display = 'none';
         // Display the bin details page
         binDetailView.style.display = 'block';
+        backBtn.style.display = 'block';
     }
 
     /**
@@ -353,6 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     binSelectionView.style.display = 'block';
     // Restore Incident Reports
     incidentReportsSection.style.display = 'block';
+    backBtn.style.display = 'none';
     // Reset form inputs
     document.querySelectorAll('input[name="issue"]').forEach(el => el.checked = false);
 
