@@ -136,16 +136,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Fetch bin data to get the barangay
-            const { data: binData } = await supabase.from('bins').select('*').eq('id', binKey).single();
+            const { data: binData, error: binError } = await supabase.from('bins').select('barangay').eq('id', binKey).single();
+            if (binError) console.error("Unable to load reported bin location:", binError);
             const binBarangay = binData ? binData.barangay : "Global";
 
             // 1. Submit detailed report[cite: 8]
-            await supabase.from('reports').insert({
-                binId: binKey,
+            const { error: reportError } = await supabase.from('reports').insert({
+                bin_id: binKey,
                 issue: issueText,
                 timestamp: new Date().toISOString(),
                 collector: (await supabase.auth.getUser()).data.user?.email || "Personnel_01" 
             });
+            if (reportError) throw reportError;
 
             // 2. TRIGGER CITIZEN NOTIFICATION
             let customMessage = `Collector reported "${issueText}" for ${binKey.replace('bin_', 'Bin #')}`;
@@ -159,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 notifType = "cancellation"; 
             }
 
-            await supabase.from('notifications').insert({
+            const { error: citizenNotificationError } = await supabase.from('notifications').insert({
                 title: "Bin Management Alert",
                 message: customMessage,
                 barangay: binBarangay, 
@@ -167,6 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 status: "unread",
                 created_at: new Date().toISOString()
             });
+            if (citizenNotificationError) {
+                console.error("Bin report filed, but citizen notification could not be created:", citizenNotificationError);
+                await writeLog("Bin Reported", `Collection report filed for ${binKey}; citizen notification failed for Brgy. ${binBarangay}.`, "logs");
+                alert(`Report filed successfully, but the citizen notification could not be sent.`);
+                closeDetailView();
+                return;
+            }
 
             // 3. Log the system action[cite: 8]
             await writeLog("Bin Reported", `Citizen notification sent to Brgy. ${binBarangay} for ${binKey}`, "logs");

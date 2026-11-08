@@ -1,0 +1,359 @@
+.top-nav {
+    position: relative;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: visible;
+}
+
+.lgu-notification-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+.lgu-notification-button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.lgu-notification-button:hover {
+    transform: scale(1.08);
+}
+
+.lgu-notification-button:focus-visible,
+.lgu-notification-panel button:focus-visible,
+.lgu-report-detail button:focus-visible,
+.lgu-report-detail select:focus-visible {
+    outline: 3px solid #48742c;
+    outline-offset: 2px;
+}
+
+.lgu-notification-button svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.lgu-notification-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 4px;
+    border: 2px solid #99cc33;
+    border-radius: 999px;
+    background: #f44336;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.lgu-notification-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1800;
+    display: flex;
+    flex-direction: column;
+    width: min(380px, calc(100vw - 40px));
+    max-height: min(70dvh, 520px);
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.lgu-notification-panel[hidden],
+.lgu-report-detail-layer[hidden] {
+    display: none;
+}
+
+.lgu-notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.lgu-notification-header h2 {
+    color: #48742c;
+    font-size: 1.05rem;
+}
+
+.lgu-notification-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.lgu-notification-panel button,
+.lgu-report-detail button {
+    font: inherit;
+}
+
+.lgu-mark-all-button,
+.lgu-mark-read-button {
+    padding: 5px 0;
+    border: 0;
+    background: transparent;
+    color: #48742c;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.lgu-mark-all-button:disabled {
+    color: #999;
+    cursor: default;
+}
+
+.lgu-notification-close,
+.lgu-report-detail-close {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #777;
+    cursor: pointer;
+    font-size: 1.5rem !important;
+    line-height: 1;
+}
+
+.lgu-notification-list {
+    min-height: 100px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.lgu-notification-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.lgu-notification-item.is-unread {
+    background: #f6faf2;
+}
+
+.lgu-notification-open {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
+.lgu-notification-title {
+    overflow-wrap: anywhere;
+    color: #333;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.lgu-notification-message {
+    overflow-wrap: anywhere;
+    color: #666;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.lgu-notification-time,
+.lgu-read-label {
+    color: #888;
+    font-size: 0.72rem;
+}
+
+.lgu-notification-status {
+    align-self: flex-start;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #edf4e5;
+    color: #48742c;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.lgu-read-label {
+    flex: 0 0 auto;
+}
+
+.lgu-notification-empty {
+    padding: 30px 18px;
+    color: #777;
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+.lgu-report-detail-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.42);
+}
+
+.lgu-report-detail {
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 480px);
+    max-height: min(86dvh, 720px);
+    overflow: hidden;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+}
+
+.lgu-report-detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.lgu-report-detail-header h2 {
+    overflow-wrap: anywhere;
+    color: #48742c;
+    font-size: 1.1rem;
+}
+
+.lgu-report-detail-body {
+    display: grid;
+    gap: 14px;
+    padding: 18px 20px;
+    overflow-y: auto;
+}
+
+.lgu-report-detail-field {
+    display: grid;
+    gap: 4px;
+}
+
+.lgu-report-detail-label {
+    color: #777;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.lgu-report-detail-field p,
+.lgu-report-detail-error {
+    color: #333;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.lgu-report-detail-error {
+    color: #b42318;
+}
+
+.lgu-report-detail-footer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 20px 18px;
+    border-top: 1px solid #eee;
+}
+
+.lgu-report-detail-footer label {
+    grid-column: 1 / -1;
+    color: #555;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.lgu-report-detail-footer select {
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #d5d9de;
+    border-radius: 9px;
+    background: #fff;
+    font: inherit;
+}
+
+.lgu-report-status-save {
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 9px;
+    background: #99cc33;
+    color: #21310a;
+    cursor: pointer;
+    font-weight: 700 !important;
+}
+
+.lgu-report-status-save:disabled {
+    cursor: wait;
+    opacity: 0.6;
+}
+
+.lgu-report-status-message {
+    grid-column: 1 / -1;
+    min-height: 1em;
+    color: #48742c;
+    font-size: 0.78rem;
+}
+
+@media (max-width: 360px) {
+    .lgu-notification-header {
+        padding-right: 10px;
+        padding-left: 12px;
+    }
+
+    .lgu-notification-header-actions {
+        gap: 7px;
+    }
+
+    .lgu-mark-all-button {
+        font-size: 0.72rem;
+    }
+
+    .lgu-notification-item {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .lgu-mark-read-button,
+    .lgu-read-label {
+        margin-left: auto;
+    }
+}

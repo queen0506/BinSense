@@ -99,7 +99,8 @@ CREATE TABLE IF NOT EXISTS public.reports (
     bin_id TEXT REFERENCES public.bins(id) ON DELETE SET NULL,
     issue TEXT NOT NULL,
     timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    collector TEXT
+    collector TEXT,
+    status TEXT NOT NULL DEFAULT 'Pending'
 );
 
 CREATE TABLE IF NOT EXISTS public.feedbacks (
@@ -119,6 +120,42 @@ CREATE TABLE IF NOT EXISTS public.incident_reports (
     timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT incident_reports_severity_check CHECK (severity IN ('Low', 'Medium', 'High', 'Critical'))
 );
+
+ALTER TABLE public.reports ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'Pending';
+ALTER TABLE public.incident_reports ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'Pending';
+ALTER TABLE public.incident_reports ADD COLUMN IF NOT EXISTS bin_id TEXT REFERENCES public.bins(id) ON DELETE SET NULL;
+ALTER TABLE public.incident_reports ADD COLUMN IF NOT EXISTS location TEXT;
+GRANT UPDATE (status) ON public.reports, public.incident_reports TO authenticated;
+
+CREATE TABLE IF NOT EXISTS public.lgu_admin_notifications (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    report_id BIGINT REFERENCES public.reports(id) ON DELETE CASCADE,
+    incident_report_id BIGINT REFERENCES public.incident_reports(id) ON DELETE CASCADE,
+    recipient_role TEXT NOT NULL DEFAULT 'lgu admin' CHECK (recipient_role = 'lgu admin'),
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    submitter_name TEXT NOT NULL,
+    bin_id TEXT,
+    location TEXT,
+    incident_status TEXT NOT NULL DEFAULT 'Pending',
+    is_read BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT lgu_admin_notifications_single_report_check
+        CHECK ((report_id IS NOT NULL) <> (incident_report_id IS NOT NULL))
+);
+
+ALTER TABLE public.lgu_admin_notifications
+    ADD COLUMN IF NOT EXISTS incident_status TEXT NOT NULL DEFAULT 'Pending';
+
+CREATE UNIQUE INDEX IF NOT EXISTS lgu_admin_notifications_report_id_idx
+    ON public.lgu_admin_notifications (report_id) WHERE report_id IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS lgu_admin_notifications_incident_report_id_idx
+    ON public.lgu_admin_notifications (incident_report_id) WHERE incident_report_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS lgu_admin_notifications_unread_idx
+    ON public.lgu_admin_notifications (created_at DESC) WHERE is_read = false;
+REVOKE ALL ON public.lgu_admin_notifications FROM anon, authenticated;
+GRANT SELECT ON public.lgu_admin_notifications TO authenticated;
+GRANT UPDATE (is_read) ON public.lgu_admin_notifications TO authenticated;
 
 -- Performance Indexes
 CREATE INDEX IF NOT EXISTS feedbacks_email_timestamp_idx ON public.feedbacks (email, timestamp DESC);
@@ -212,6 +249,169 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.has_any_role(TEXT[]) TO authenticated;
 
+CREATE OR REPLACE FUNCTION public.notify_lgu_admin_of_collection_report()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    reporter_name TEXT;
+    reporter_email TEXT;
+    report_location TEXT;
+BEGIN
+    SELECT name, email
+    INTO reporter_name, reporter_email
+    FROM public.users
+    WHERE id = auth.uid()
+      AND role = 'waste collector';
+
+    IF NOT FOUND THEN
+        RETURN NEW;
+    END IF;
+
+    SELECT barangay
+    INTO report_location
+    FROM public.bins
+    WHERE id = NEW.bin_id;
+
+    INSERT INTO public.lgu_admin_notifications (
+        report_id, title, message, submitter_name, bin_id, location, incident_status, created_at
+    )
+    VALUES (
+        NEW.id,
+        'Collection issue reported',
+        format(
+            '%s · Reported by %s (%s)%s%s',
+            NEW.issue,
+            COALESCE(NULLIF(reporter_name, ''), 'Collection personnel'),
+            COALESCE(reporter_email, NEW.collector, 'unknown'),
+            CASE WHEN NEW.bin_id IS NOT NULL THEN ' · Bin ' || NEW.bin_id ELSE '' END,
+            CASE WHEN report_location IS NOT NULL THEN ' · ' || report_location ELSE '' END
+        ),
+        COALESCE(NULLIF(reporter_name, ''), 'Collection personnel'),
+        NEW.bin_id,
+        report_location,
+        NEW.status,
+        NEW.timestamp
+    )
+    ON CONFLICT DO NOTHING;
+
+    RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'Could not create LGU notification for collection report %: %', NEW.id, SQLERRM;
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.notify_lgu_admin_of_incident_report()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+    reporter_name TEXT;
+    report_location TEXT;
+BEGIN
+    SELECT name
+    INTO reporter_name
+    FROM public.users
+    WHERE id = auth.uid()
+      AND role = 'waste collector';
+
+    IF NOT FOUND THEN
+        RETURN NEW;
+    END IF;
+
+    report_location := NEW.location;
+    IF report_location IS NULL AND NEW.bin_id IS NOT NULL THEN
+        SELECT barangay
+        INTO report_location
+        FROM public.bins
+        WHERE id = NEW.bin_id;
+    END IF;
+
+    INSERT INTO public.lgu_admin_notifications (
+        incident_report_id, title, message, submitter_name, bin_id, location, incident_status, created_at
+    )
+    VALUES (
+        NEW.id,
+        NEW.title,
+        format(
+            '%s · Reported by %s%s%s',
+            LEFT(COALESCE(NULLIF(NEW.description, ''), 'No description provided'), 180),
+            COALESCE(NULLIF(reporter_name, ''), NEW.email),
+            CASE WHEN NEW.bin_id IS NOT NULL THEN ' · Bin ' || NEW.bin_id ELSE '' END,
+            CASE WHEN report_location IS NOT NULL THEN ' · ' || report_location ELSE '' END
+        ),
+        COALESCE(NULLIF(reporter_name, ''), NEW.email),
+        NEW.bin_id,
+        report_location,
+        NEW.status,
+        NEW.timestamp
+    )
+    ON CONFLICT DO NOTHING;
+
+    RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'Could not create LGU notification for incident report %: %', NEW.id, SQLERRM;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS collection_report_lgu_notification ON public.reports;
+CREATE TRIGGER collection_report_lgu_notification
+    AFTER INSERT ON public.reports
+    FOR EACH ROW EXECUTE FUNCTION public.notify_lgu_admin_of_collection_report();
+
+DROP TRIGGER IF EXISTS incident_report_lgu_notification ON public.incident_reports;
+CREATE TRIGGER incident_report_lgu_notification
+    AFTER INSERT ON public.incident_reports
+    FOR EACH ROW EXECUTE FUNCTION public.notify_lgu_admin_of_incident_report();
+
+CREATE OR REPLACE FUNCTION public.sync_lgu_collection_report_notification_status()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+    IF NEW.status IS DISTINCT FROM OLD.status THEN
+        UPDATE public.lgu_admin_notifications
+        SET incident_status = NEW.status
+        WHERE report_id = NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.sync_lgu_incident_report_notification_status()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+    IF NEW.status IS DISTINCT FROM OLD.status THEN
+        UPDATE public.lgu_admin_notifications
+        SET incident_status = NEW.status
+        WHERE incident_report_id = NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS collection_report_notification_status_sync ON public.reports;
+CREATE TRIGGER collection_report_notification_status_sync
+    AFTER UPDATE OF status ON public.reports
+    FOR EACH ROW EXECUTE FUNCTION public.sync_lgu_collection_report_notification_status();
+
+DROP TRIGGER IF EXISTS incident_report_notification_status_sync ON public.incident_reports;
+CREATE TRIGGER incident_report_notification_status_sync
+    AFTER UPDATE OF status ON public.incident_reports
+    FOR EACH ROW EXECUTE FUNCTION public.sync_lgu_incident_report_notification_status();
+
 CREATE OR REPLACE FUNCTION public.complete_collection_schedule(p_schedule_id BIGINT)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
@@ -249,6 +449,7 @@ ALTER TABLE public.user_connected_bins ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bin_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.system_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.lgu_admin_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.incident_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.active_dispatch ENABLE ROW LEVEL SECURITY;
@@ -414,6 +615,12 @@ CREATE POLICY "Collectors add reports" ON public.reports
 CREATE POLICY "Dispatch administrators read reports" ON public.reports
     FOR SELECT TO authenticated USING (public.has_any_role(ARRAY['waste collector', 'lgu admin', 'system administrator']));
 
+DROP POLICY IF EXISTS "LGU administrators update report status" ON public.reports;
+CREATE POLICY "LGU administrators update report status" ON public.reports
+    FOR UPDATE TO authenticated
+    USING (public.has_any_role(ARRAY['lgu admin']))
+    WITH CHECK (public.has_any_role(ARRAY['lgu admin']));
+
 -- Notifications Policies
 DROP POLICY IF EXISTS "Authenticated users read notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Collection staff manage collection notifications" ON public.notifications;
@@ -435,6 +642,28 @@ CREATE POLICY "Collection staff manage collection notifications" ON public.notif
 
 CREATE POLICY "Administrators manage notifications" ON public.notifications
     FOR ALL TO authenticated USING (public.is_system_administrator()) WITH CHECK (public.is_system_administrator());
+
+-- LGU incident notifications share read state across LGU modules.
+DROP POLICY IF EXISTS "LGU administrators read incident notifications" ON public.lgu_admin_notifications;
+DROP POLICY IF EXISTS "LGU administrators update incident notification read state" ON public.lgu_admin_notifications;
+
+CREATE POLICY "LGU administrators read incident notifications" ON public.lgu_admin_notifications
+    FOR SELECT TO authenticated
+    USING (
+        recipient_role = 'lgu admin'
+        AND public.has_any_role(ARRAY['lgu admin'])
+    );
+
+CREATE POLICY "LGU administrators update incident notification read state" ON public.lgu_admin_notifications
+    FOR UPDATE TO authenticated
+    USING (
+        recipient_role = 'lgu admin'
+        AND public.has_any_role(ARRAY['lgu admin'])
+    )
+    WITH CHECK (
+        recipient_role = 'lgu admin'
+        AND public.has_any_role(ARRAY['lgu admin'])
+    );
 
 -- Feedbacks Policies
 DROP POLICY IF EXISTS "Users insert own feedback" ON public.feedbacks;
@@ -463,6 +692,8 @@ DROP POLICY IF EXISTS "Users insert own incident reports" ON public.incident_rep
 DROP POLICY IF EXISTS "Users read own incident reports" ON public.incident_reports;
 DROP POLICY IF EXISTS "Administrators read incident reports" ON public.incident_reports;
 DROP POLICY IF EXISTS "Administrators manage incident reports" ON public.incident_reports;
+DROP POLICY IF EXISTS "LGU administrators read incident reports" ON public.incident_reports;
+DROP POLICY IF EXISTS "LGU administrators update incident report status" ON public.incident_reports;
 
 CREATE POLICY "Users insert own incident reports" ON public.incident_reports
     FOR INSERT TO authenticated WITH CHECK (
@@ -476,6 +707,14 @@ CREATE POLICY "Users read own incident reports" ON public.incident_reports
 
 CREATE POLICY "Administrators read incident reports" ON public.incident_reports
     FOR SELECT TO authenticated USING (public.is_system_administrator());
+
+CREATE POLICY "LGU administrators read incident reports" ON public.incident_reports
+    FOR SELECT TO authenticated USING (public.has_any_role(ARRAY['lgu admin']));
+
+CREATE POLICY "LGU administrators update incident report status" ON public.incident_reports
+    FOR UPDATE TO authenticated
+    USING (public.has_any_role(ARRAY['lgu admin']))
+    WITH CHECK (public.has_any_role(ARRAY['lgu admin']));
 
 CREATE POLICY "Administrators manage incident reports" ON public.incident_reports
     FOR ALL TO authenticated USING (public.is_system_administrator()) WITH CHECK (public.is_system_administrator());
@@ -494,6 +733,7 @@ BEGIN
             'bin_history',
             'system_logs',
             'notifications',
+            'lgu_admin_notifications',
             'active_dispatch'
         ]
         LOOP

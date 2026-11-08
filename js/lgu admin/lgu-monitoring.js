@@ -1,8 +1,12 @@
 import { supabase } from '../supabase-init.js';
+import { initializeLguNotifications } from './lgu-notifications.js';
 
 let allBins = [];
 
 // Removed: initNotificationListener function[cite: 11]
+initializeLguNotifications(supabase).catch(error => {
+    console.error('Unable to initialize LGU notifications:', error);
+});
 
 async function writeLog(action, message) {
     const { data: { user } } = await supabase.auth.getUser();

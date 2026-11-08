@@ -1,7 +1,12 @@
 import { supabase } from '../supabase-init.js';
+import { initializeLguNotifications } from './lgu-notifications.js';
 
 let wasteChart;
 const ctx = document.getElementById('wasteChart').getContext('2d');
+
+initializeLguNotifications(supabase).catch(error => {
+    console.error('Unable to initialize LGU notifications:', error);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     initTrendChart();

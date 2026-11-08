@@ -1,8 +1,13 @@
 import { supabase } from '../supabase-init.js';
+import { initializeLguNotifications } from './lgu-notifications.js';
 
 // Global state to keep dispatch data accessible to the button
 let currentOptimizedPath = [];
 let currentComplianceScore = 0;
+
+initializeLguNotifications(supabase).catch(error => {
+    console.error('Unable to initialize LGU notifications:', error);
+});
 
 /**
  * Helper for System Logs
