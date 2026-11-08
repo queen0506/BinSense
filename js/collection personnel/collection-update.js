@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('backToList');
     const binContainer = document.getElementById('binContainer');
     const binSearch = document.getElementById('binSearch');
+    const incidentReportsSection = document.querySelector('.incident-reports-section');
     const submitUpdateBtn = document.getElementById('submitUpdate');
     const incidentReportsContainer = document.getElementById('myIncidentReports');
 
@@ -250,7 +251,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         loadBin();
 
+        // Hide the bin selection page
         binSelectionView.style.display = 'none';
+        // Hide incident reports section
+        incidentReportsSection.style.display = 'none';
+        // Display the bin details page
         binDetailView.style.display = 'block';
     }
 
@@ -340,15 +345,20 @@ document.addEventListener('DOMContentLoaded', () => {
      * 6. NAVIGATION HELPERS
      */
     function closeDetailView() {
-        if (unsubscribeDetail) unsubscribeDetail(); 
-        
-        binDetailView.style.display = 'none';
-        binSelectionView.style.display = 'block';
-        
-        document.querySelectorAll('input[name="issue"]').forEach(el => el.checked = false);
-        const otherInput = document.getElementById('otherIssueInput');
-        if (otherInput) otherInput.value = "";
-    }
+    if (unsubscribeDetail) unsubscribeDetail();
+
+    // Hide the Bin Details page
+    binDetailView.style.display = 'none';
+    // Return to the Bin Selection page
+    binSelectionView.style.display = 'block';
+    // Restore Incident Reports
+    incidentReportsSection.style.display = 'block';
+    // Reset form inputs
+    document.querySelectorAll('input[name="issue"]').forEach(el => el.checked = false);
+
+    const otherInput = document.getElementById('otherIssueInput');
+    if (otherInput) otherInput.value = "";
+}
 
     backBtn.addEventListener('click', closeDetailView);
 });

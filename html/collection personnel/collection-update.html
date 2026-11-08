@@ -11,6 +11,7 @@
 
     <div class="mobile-container">
         <header class="top-nav">
+            <button id="backToList" class="back-link">‹</button>
             <h1 class="dashboard-title">Bin Update & Reports</h1>
             
         </header>
@@ -28,42 +29,36 @@
                         <p class="section-message">Loading bins...</p>
                     </div>
                 </div>
-
-                <div id="binDetailView" style="display: none;">
-                    <button id="backToList" class="back-link">‹ Back to list</button>
-
-                    <section class="info-section">
-                        <h3 class="section-label">Bin Information</h3>
-                        <div class="status-card">
-                            <h2 id="displayBinID">---</h2>
-                            <div class="status-indicator">
-                                <span class="status-dot"></span>
-                                <span id="displayStatus">---</span>
-                                <span class="status-dot"></span>
+                
+                <div>
+                    <div id="binDetailView" style="display: none;">
+                        <section class="info-section">
+                            <h3 class="section-label">Bin Information</h3>
+                            <div class="status-card">
+                                <h2 id="displayBinID">---</h2>
+                                <div class="status-indicator">
+                                    <span id="displayStatus">---</span>
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
 
-                    <section class="report-section">
-                        <h3 class="section-label">Incident Report</h3>
-                        <div class="report-card">
-                            <p class="report-prompt">Report Issue:</p>
-                            <label class="radio-option">
-                                <input type="radio" name="issue" value="Overflowing">
-                                <span class="radio-custom"></span> Overflowing Trash
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="issue" value="Damaged">
-                                <span class="radio-custom"></span> Damaged Bin
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="issue" value="Others">
-                                <span class="radio-custom"></span> Others: <input type="text" id="otherIssueInput" class="inline-input" placeholder="...">
-                            </label>
-                        </div>
-                    </section>
+                        <section class="report-section">
+                            <h3 class="section-label">Incident Report</h3>
+                            <div class="report-card">
+                                <p class="report-prompt">Report Issue:</p>
+                                <label class="radio-option">
+                                    <input type="radio" name="issue" value="Damaged">
+                                    <span></span> Damaged Bin
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="issue" value="Others">
+                                    <span class="radio-custom"></span> Others: <input type="text" id="otherIssueInput" class="inline-input" placeholder="...">
+                                </label>
+                            </div>
+                        </section>
 
-                    <button class="update-submit-btn" id="submitUpdate">Update</button>
+                        <button class="update-submit-btn" id="submitUpdate">Update</button>
+                    </div>
                 </div>
             </section>
 
