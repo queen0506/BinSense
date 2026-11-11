@@ -87,7 +87,7 @@ img {
 .main-content {
     flex: 1;
     min-height: 0;
-    padding: 10px 0 20px 0;
+    padding: 57px 0 20px 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     display: flex;
@@ -101,7 +101,7 @@ img {
 }
 
 .menu-section-title {
-    font-size: 0.95rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: #333;
     margin: 0 0 10px 5px;
