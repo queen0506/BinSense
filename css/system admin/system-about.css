@@ -11,9 +11,9 @@
     --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
     --radius-sm: 12px;
     --radius-md: 20px;
-    --radius-lg: 15px;
+    --radius-lg: 25px;
     --radius-xl: 35px;
-    --radius-2xl: 30px;
+    --radius-2xl: 35px;
 }
 
 /* Reset */
@@ -62,18 +62,32 @@ img {
 
 /* Header */
 .top-nav {
-    background-color: var(--lgu-green);
-    padding: 55px 25px 20px 25px;
+    background-color: var(--lgu-green); 
+    padding: 35px 20px 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-bottom-left-radius: var(--radius-xl);
     border-bottom-right-radius: var(--radius-xl);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    position: relative;
+    z-index: 1000;
     flex-shrink: 0;
 }
 
+.top-nav > * {
+    flex: 1;
+}
+
+.top-nav > *:first-child {
+    text-align: left;
+}
+
+.top-nav > *:last-child {
+    text-align: right;
+}
+
 .back-btn {
-    color: #fff;
+    color: #ffffff;
     font-size: 24px;
     cursor: pointer;
     font-weight: bold;
@@ -83,6 +97,7 @@ img {
     padding: 4px 8px;
     border-radius: 8px;
     transition: background 0.15s ease;
+    display: inline-block;
 }
 
 .back-btn:hover,
@@ -92,10 +107,11 @@ img {
 }
 
 .page-title {
-    color: #fff;
-    font-size: 1.25rem;
-    font-weight: 700;
+    color: #ffffff;
+    font-size: 1.25rem; /* Increased */
+    font-weight: 600;
     text-align: center;
+    margin: 0;
 }
 
 /* Main scrollable area */
@@ -109,12 +125,13 @@ img {
 
 /* Graphic */
 .graphic-section {
-    padding: 40px 0 20px;
+    padding: 20px 0;
     text-align: center;
+    margin-top: 40px; 
 }
 
 .center-graphic {
-    width: 250px;
+    width: 180px; 
     max-width: 100%;
     height: auto;
     margin: 0 auto;
@@ -132,10 +149,10 @@ img {
 }
 
 .description-box p {
-    font-size: 0.95rem;
-    color: #555;
+    font-size: 0.95rem; /* Increased */
+    color: #777; 
     line-height: 1.6;
-    text-align: justify;
+    text-align: justify; 
 }
 
 .description-box strong {
@@ -150,13 +167,13 @@ img {
 
 .section-title {
     color: var(--lgu-dark-green);
-    font-size: 1.2rem;
+    font-size: 1.35rem; /* Increased */
     font-weight: 700;
     margin-bottom: 5px;
 }
 
 .section-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.9rem; /* Increased */
     color: var(--lgu-muted);
     margin-bottom: 15px;
     line-height: 1.5;
@@ -183,7 +200,7 @@ img {
 }
 
 .info-label {
-    font-size: 0.8rem;
+    font-size: 0.9rem; /* Increased */
     font-weight: 700;
     color: #6a7b8a;
     text-transform: uppercase;
@@ -191,7 +208,7 @@ img {
 }
 
 .info-value {
-    font-size: 0.9rem;
+    font-size: 1rem; /* Increased */
     color: #333;
     text-align: right;
     overflow-wrap: anywhere;
@@ -213,7 +230,7 @@ img {
     border-radius: var(--radius-sm);
     text-decoration: none;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.1rem; /* Increased */
     text-align: center;
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     box-shadow: 0 4px 12px rgba(153, 204, 51, 0.2);
@@ -238,11 +255,11 @@ img {
     }
 
     .graphic-section {
-        padding: 30px 0 10px;
+        margin-top: 30px; 
     }
 
     .center-graphic {
-        width: 200px;
+        width: 160px;
     }
 }
 
@@ -263,19 +280,19 @@ img {
         border-radius: var(--radius-md);
         box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
         overflow: hidden;
+        background-color: #fff;
     }
 
     .top-nav {
         padding: 32px 40px 24px;
     }
 
-    /* Two-column layout */
     .main-content {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
         gap: 32px;
         align-items: start;
-        padding: 30px 40px;
+        padding: 40px;
         overflow-y: visible;
     }
 
@@ -288,6 +305,7 @@ img {
         align-items: center;
         justify-content: center;
         min-height: 320px;
+        margin-top: 0; 
     }
 
     .center-graphic {
@@ -300,11 +318,11 @@ img {
     }
 
     .description-box p {
-        font-size: 1rem;
+        font-size: 1.1rem; /* Increased for tablet */
     }
 
     .page-title {
-        font-size: 1.5rem;
+        font-size: 1.6rem; /* Increased for tablet */
     }
 }
 
@@ -398,6 +416,10 @@ img {
         border-radius: 0;
     }
 
+    .top-nav > * {
+        flex: none;
+    }
+
     .back-btn {
         color: #333;
         font-size: 24px;
@@ -405,7 +427,7 @@ img {
 
     .page-title {
         color: #2d3436;
-        font-size: 2.2rem;
+        font-size: 2.4rem; /* Increased for desktop */
         font-weight: 800;
         margin: 0;
         text-align: left;
@@ -418,7 +440,7 @@ img {
         display: grid;
         grid-template-columns: 380px minmax(0, 1fr);
         gap: 60px;
-        padding: 0 80px 40px 40px;
+        padding: 40px 80px 40px 40px; 
         overflow-y: auto;
         align-items: start;
         min-height: 0;
@@ -434,11 +456,12 @@ img {
         align-items: center;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
         border: 1px solid #f0f0f0;
-        height: calc(100vh - 200px);
+        height: calc(100vh - 240px); 
         min-height: 400px;
         max-height: 600px;
         position: sticky;
         top: 0;
+        margin-top: 0; 
     }
 
     .center-graphic {
@@ -448,7 +471,7 @@ img {
 
     /* Text column (right) */
     .about-card {
-        padding-top: 10px;
+        padding-top: 20px;
         min-width: 0;
     }
 
@@ -457,7 +480,7 @@ img {
     }
 
     .description-box p {
-        font-size: 1.15rem;
+        font-size: 1.25rem; /* Increased for desktop */
         color: #555;
         line-height: 1.8;
         margin-bottom: 30px;
@@ -474,7 +497,7 @@ img {
     }
 
     .contact-info-row {
-        padding: 10px 0;
+        padding: 12px 0; /* Slightly more padding */
         border-bottom: 1px solid #f9f9f9;
         margin-bottom: 0;
     }
@@ -484,11 +507,12 @@ img {
     }
 
     .info-label {
-        font-size: 0.85rem;
+        font-size: 0.95rem; /* Increased for desktop */
     }
 
     .info-value {
         font-weight: 500;
+        font-size: 1.05rem; /* Increased for desktop */
         color: #2d3436;
     }
 
@@ -502,6 +526,7 @@ img {
         min-width: 240px;
         padding: 18px 40px;
         transition: all 0.3s ease;
+        font-size: 1.1rem; /* Increased for desktop */
     }
 
     .btn-primary:hover {

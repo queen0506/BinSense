@@ -2,7 +2,7 @@
     --lgu-green: #99cc33;
     --lgu-green-dark: #88b72e;
     --lgu-dark-green: #48742C;
-    --lgu-text: #333;
+    --lgu-text: #4B4343;
     --lgu-muted: #80817E;
     --lgu-surface: #FFFFFF;
     --lgu-page: #F0F0F0;
@@ -57,7 +57,6 @@ img {
     margin: 0 auto;
 }
 
-/* Green Header */
 .top-nav {
     background-color: var(--lgu-green); 
     padding: 40px 25px 24px 25px;
@@ -79,7 +78,6 @@ img {
     line-height: 1.2;
 }
 
-/* Hide the welcome text by default (mobile) */
 .menu-user-name {
     display: none;
 }
@@ -103,7 +101,7 @@ img {
 .menu-section-title {
     font-size: 1.4rem;
     font-weight: 700;
-    color: #333;
+    color: var(--lgu-text);
     margin: 0 0 10px 5px;
     text-transform: capitalize; 
 }
@@ -122,7 +120,7 @@ img {
     align-items: center;
     padding: 16px 5px;
     text-decoration: none;
-    color: #333;
+    color: var(--lgu-text);
     border-bottom: 1px solid #f0f0f0;
     transition: background 0.2s;
     gap: 12px;
@@ -146,7 +144,7 @@ img {
 .menu-left span {
     font-size: 1rem;
     font-weight: 600; 
-    color: #333; 
+    color: var(--lgu-text);
     overflow-wrap: anywhere;
 }
 
@@ -154,18 +152,17 @@ img {
     width: 20px;
     height: 20px;
     flex-shrink: 0;
-    filter: grayscale(100%) brightness(20%); 
+    filter: brightness(0) saturate(100%) invert(27%) sepia(5%) saturate(544%) hue-rotate(314deg) brightness(95%) contrast(88%);
 }
 
 .arrow-icon {
     width: 16px;
     height: 16px;
-    opacity: 0.2; 
+    opacity: 0.4;
     flex-shrink: 0;
-    filter: brightness(0); 
+    filter: brightness(0) saturate(100%) invert(27%) sepia(5%) saturate(544%) hue-rotate(314deg) brightness(95%) contrast(88%);
 }
 
-/* Bottom Nav */
 .bottom-nav {
     background-color: var(--lgu-green);
     border-radius: 999px;
@@ -199,7 +196,6 @@ img {
     display: none !important;
 }
 
-/* Modals */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -279,7 +275,7 @@ img {
     margin: 10px 0 5px;
     text-align: left;
     font-weight: 600;
-    color: var(--lgu-dark-green);
+    color: var(--lgu-text);
 }
 
 textarea,
@@ -293,7 +289,7 @@ textarea,
     font-size: 16px;
     resize: none;
     background: #fff;
-    color: #333;
+    color: var(--lgu-text);
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -318,12 +314,12 @@ textarea:focus,
     border: 1px solid #ccc;
     font-family: inherit;
     font-size: 16px;
-    color: #333;
+    color: var(--lgu-text);
     outline: none;
     -webkit-appearance: none; 
     -moz-appearance: none;
     appearance: none; 
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23444" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%234B4343" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 20px;
@@ -341,7 +337,7 @@ textarea:focus,
     padding: 10px;
     font-size: 16px;
     background-color: #fff;
-    color: #333;
+    color: var(--lgu-text);
 }
 
 .modal-buttons {
@@ -385,14 +381,12 @@ textarea:focus,
     transform: translateY(-1px);
 }
 
-/* Mobile */
 @media (max-width: 600px) {
     .dashboard-title {
         font-size: 1.8rem;
     }
 }
 
-/* Tablet */
 @media (min-width: 601px) and (max-width: 1023px) {
     body {
         background-color: #f4f7f2;
@@ -436,7 +430,6 @@ textarea:focus,
     }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
     body {
         background-color: #f4f7f2;
@@ -459,7 +452,6 @@ textarea:focus,
         overflow: visible;
     }
 
-    /* Sidebar pill */
     .bottom-nav {
         grid-column: 1 / 2;
         grid-row: 1 / 3;
@@ -508,7 +500,6 @@ textarea:focus,
         filter: brightness(0) invert(1);
     }
 
-    /* Header */
     .top-nav {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
@@ -528,12 +519,10 @@ textarea:focus,
         margin: 0;
     }
 
-    /* THIS IS THE FIX: Hides "Hi, Name" on desktop */
     .menu-user-name {
         display: none; 
     }
 
-    /* Main content */
     .main-content {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
@@ -545,57 +534,49 @@ textarea:focus,
         align-items: flex-start;
     }
 
-    /* The Large White Card */
     .menu-list {
         background: #fff;
         padding: 60px;
         border-radius: var(--radius-2xl);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px 80px; 
-        
         width: 100%;
         max-width: 1000px; 
         margin: 0; 
     }
 
-    /* Place "General" */
     .menu-list > .menu-section-title:nth-of-type(1) {
         grid-column: 1 / 2;
         grid-row: 1 / 2;
         font-size: 1.5rem;
         font-weight: 700;
-        color: #2d3436;
+        color: var(--lgu-text);
         margin: 0 0 20px 0;
         padding: 0;
     }
 
-    /* Place "Feedback" */
     .menu-list > .menu-section-title:nth-of-type(2) {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
         font-size: 1.5rem;
         font-weight: 700;
-        color: #2d3436;
+        color: var(--lgu-text);
         margin: 0 0 20px 0;
         padding: 0;
     }
 
-    /* Place General Links */
     .menu-list > .menu-section:nth-of-type(1) {
         grid-column: 1 / 2;
         grid-row: 2 / 3;
     }
 
-    /* Place Feedback Links */
     .menu-list > .menu-section:nth-of-type(2) {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
     }
 
-    /* Reset card styles inside the grid */
     .menu-section {
         background: transparent;
         padding: 0;
@@ -619,11 +600,10 @@ textarea:focus,
     .menu-left span {
         font-size: 1.05rem;
         font-weight: 500;
-        color: #444;
+        color: var(--lgu-text);
     }
 }
 
-/* Shared polish */
 .white-card,
 .summary-card,
 .chart-container,
