@@ -184,7 +184,7 @@ img {
 
 .role-name,
 .user-name {
-    color: var(--admin-green);
+    color: #444444; 
     font-weight: 600;
     font-size: 1rem;
     overflow-wrap: anywhere;
@@ -736,21 +736,28 @@ input:checked + .slider::before {
         border: 1px solid #edf0ec;
     }
 
-    /* Two-column content layout */
     .content-area {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
-        padding: 0 60px 40px 20px;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        column-gap: 40px;
-        align-content: start;
+        padding: 0 40px 40px 40px;
         overflow-y: auto;
         min-height: 0;
+        
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        
+        width: 100%;
+        max-width: 800px; 
+        margin: 0 auto; 
+    }
+
+    #roles-view, 
+    #users-view {
+        width: 100%;
     }
 
     .group-title {
-        grid-column: span 1;
         font-size: 1.3rem;
         margin: 20px 0 15px;
     }
