@@ -164,6 +164,72 @@ body {
     cursor: default;
     transition: all 0.2s ease;
 }
+/* Bagong wrapper para sa swipe */
+.swipe-wrapper {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border-radius: 25px;
+}
+
+/* Background na lalabas kapag nag-swipe */
+.delete-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 80px;
+    background-color: #ff4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 0 25px 25px 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.schedule-item {
+    background: white; 
+    border-left: 6px solid #99cc33;
+    padding: 18px 25px; 
+    border-radius: 25px; 
+    margin-bottom: 0; /* Binago para hindi mag-doble ang space */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    cursor: default;
+    transition: transform 0.3s ease, box-shadow 0.2s ease; /* Update transition */
+    position: relative;
+    z-index: 2;
+    touch-action: pan-y; /* Para hindi ma-block ang vertical scroll */
+}
+
+/* Desktop Delete Button (Hidden by default) */
+.delete-btn-desktop {
+    display: none;
+    background: none;
+    border: none;
+    color: #ff4444;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    transition: background 0.2s ease;
+}
+
+.delete-btn-desktop:hover {
+    background-color: #ffeeee;
+}
+
+/* Ipakita ang desktop delete button at itago ang swipe bg sa desktop view */
+@media (min-width: 900px) {
+    .delete-btn-desktop { display: block; }
+    .delete-bg { display: none; }
+}
 
 .schedule-item.schedule-actionable { cursor: pointer; }
 .schedule-item.schedule-actionable:focus-visible { outline: 2px solid #48742C; outline-offset: 3px; }
@@ -518,4 +584,100 @@ table { width: 100%; max-width: 100%; }
         max-width: 1600px;
         margin: 0 auto;
     }
+}
+/* --- CUSTOM SWEETALERT2 DESIGN --- */
+.swal2-popup.binsense-swal {
+    font-family: 'Reddit Sans', sans-serif !important;
+    border-radius: 35px !important;
+    padding: 30px 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+    width: 85% !important;
+    max-width: 350px !important;
+}
+
+.swal2-title.binsense-title {
+    color: #48742C !important; /* Dark green */
+    font-weight: 700 !important;
+    font-size: 1.3rem !important;
+}
+
+.swal2-html-container.binsense-text {
+    color: #666 !important;
+    font-size: 0.9rem !important;
+    line-height: 1.4 !important;
+    margin-top: 10px !important;
+}
+
+.swal2-actions.binsense-actions {
+    width: 100% !important;
+    gap: 12px !important;
+    margin-top: 25px !important;
+}
+
+/* Delete Button (Red) */
+.swal2-confirm.binsense-confirm-btn {
+    flex: 2 !important;
+    background: #ff4444 !important;
+    color: white !important;
+    border-radius: 18px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    font-family: 'Reddit Sans', sans-serif !important;
+    padding: 14px !important;
+    transition: transform 0.15s ease !important;
+}
+.swal2-confirm.binsense-confirm-btn:hover {
+    transform: translateY(-1px) !important;
+    background: #e53935 !important;
+}
+
+/* Cancel Button (Gray) */
+.swal2-cancel.binsense-cancel-btn {
+    flex: 1 !important;
+    background: #f0f0f0 !important;
+    color: #888 !important;
+    border-radius: 18px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    font-family: 'Reddit Sans', sans-serif !important;
+    padding: 14px !important;
+}
+.swal2-cancel.binsense-cancel-btn:hover {
+    background: #e0e0e0 !important;
+}
+
+/* Success Action Button (Green) */
+.swal2-confirm.binsense-success-btn {
+    width: 100% !important;
+    background: #99cc33 !important;
+    color: white !important;
+    border-radius: 18px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    font-family: 'Reddit Sans', sans-serif !important;
+    padding: 14px !important;
+    transition: transform 0.15s ease !important;
+    margin: 0 !important;
+}
+.swal2-confirm.binsense-success-btn:hover {
+    transform: translateY(-1px) !important;
+    background: #88b72e !important;
+}
+
+/* Error Action Button (Red) */
+.swal2-confirm.binsense-error-btn {
+    width: 100% !important;
+    background: #ff4444 !important;
+    color: white !important;
+    border-radius: 18px !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    font-family: 'Reddit Sans', sans-serif !important;
+    padding: 14px !important;
+    transition: transform 0.15s ease !important;
+    margin: 0 !important;
+}
+.swal2-confirm.binsense-error-btn:hover {
+    transform: translateY(-1px) !important;
+    background: #e53935 !important;
 }
