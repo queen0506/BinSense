@@ -50,6 +50,7 @@ body {
     position: relative;
     margin-top: -35px;
     margin-bottom: -0px;
+    min-height: 0;
     z-index: 1;
 }
 

@@ -40,8 +40,16 @@ function initMap() {
     listenForAdminDispatch();
     listenForFullBins();
 
-    // The map is inside a responsive layout; recalculate its dimensions after layout settles.
-    window.setTimeout(() => map.invalidateSize(), 0);
+    // Keep Leaflet's viewport in sync with responsive layout and orientation changes.
+    const invalidateMapSize = () => {
+        window.requestAnimationFrame(() => map.invalidateSize({ pan: false, debounceMoveend: true }));
+    };
+    if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(invalidateMapSize).observe(mapElement);
+    }
+    window.addEventListener('resize', invalidateMapSize);
+    window.addEventListener('orientationchange', invalidateMapSize);
+    window.setTimeout(invalidateMapSize, 0);
 }
 
 function showMapMessage(message) {
