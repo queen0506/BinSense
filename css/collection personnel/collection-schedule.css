@@ -3,7 +3,6 @@
     box-sizing: border-box; 
     margin: 0; 
     padding: 0; 
-    overflow-x: hidden
 }
 
 body {
@@ -12,7 +11,6 @@ body {
     display: flex; 
     justify-content: center; 
     min-height: 100vh;
-    
 }
 
 .mobile-container {
