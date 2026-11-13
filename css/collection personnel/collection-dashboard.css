@@ -12,6 +12,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .mobile-container {
@@ -50,6 +51,7 @@ body {
     position: relative;
     margin-top: -35px;
     margin-bottom: -0px;
+    min-height: 0;
     z-index: 1;
 }
 
