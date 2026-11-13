@@ -86,7 +86,7 @@ body {
     font-weight: 600;
     overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 .incident-report-location, .incident-report-time { display: block; margin-top: 5px; color: #777; font-size: 0.74rem; }
 
