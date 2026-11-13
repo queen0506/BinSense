@@ -1,5 +1,75 @@
 import { supabase } from './supabase-init.js';
 
+/* ============================
+   BIN CONNECTED SUCCESS POP-UP
+============================ */
+function showBinSuccess(binNumber) {
+    const modal = document.getElementById('bin-success-modal');
+    const chip = document.getElementById('bin-success-chip');
+    const btn = document.getElementById('bin-success-close');
+    if (!modal) return;
+
+    chip.textContent = `Smart Bin #${binNumber}`;
+    modal.classList.add('show');
+
+    const close = () => {
+        modal.classList.remove('show');
+        btn.removeEventListener('click', close);
+    };
+    btn.addEventListener('click', close);
+}
+/* ============================
+   DISCONNECT CONFIRM POP-UP
+============================ */
+function showDisconnectConfirm(binNumber) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('bin-confirm-modal');
+        const chip = document.getElementById('bin-confirm-chip');
+        const okBtn = document.getElementById('bin-confirm-ok');
+        const cancelBtn = document.getElementById('bin-confirm-cancel');
+
+        chip.textContent = `Smart Bin #${binNumber}`;
+        modal.classList.add('show');
+
+        const finish = (result) => {
+            modal.classList.remove('show');
+            okBtn.removeEventListener('click', onOk);
+            cancelBtn.removeEventListener('click', onCancel);
+            modal.removeEventListener('click', onOverlay);
+            document.removeEventListener('keydown', onKey);
+            resolve(result);
+        };
+        const onOk = () => finish(true);
+        const onCancel = () => finish(false);
+        const onOverlay = (e) => { if (e.target === modal) finish(false); };
+        const onKey = (e) => { if (e.key === 'Escape') finish(false); };
+
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+        modal.addEventListener('click', onOverlay);
+        document.addEventListener('keydown', onKey);
+    });
+}
+/* ============================
+   NOTICE POP-UP
+============================ */
+function showBinNotice(title, message) {
+    const modal = document.getElementById('bin-notice-modal');
+    const titleEl = document.getElementById('bin-notice-title');
+    const textEl = document.getElementById('bin-notice-text');
+    const btn = document.getElementById('bin-notice-close');
+    if (!modal) return;
+
+    titleEl.textContent = title;
+    textEl.textContent = message;
+    modal.classList.add('show');
+
+    const close = () => {
+        modal.classList.remove('show');
+        btn.removeEventListener('click', close);
+    };
+    btn.addEventListener('click', close);
+}
 let activeChannels = {};
 let modalChannel = null;
 
@@ -255,7 +325,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (binError) throw binError;
                 
                 if (!binData) {
-                    alert("Invalid Bin ID. Ask the system administrator to register it first.");
+                    showBinNotice("Invalid Bin ID", "Ask the system administrator to register it first.");
                     return;
                 }
 
@@ -268,7 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (insertError) {
                     if (insertError.code === '23505') {
-                        alert("This bin is already connected to your account.");
+                        showBinNotice("Already Connected", "This bin is already connected to your account.");
                     } else {
                         throw insertError;
                     }
@@ -281,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 if (binModal) binModal.style.display = "none";
                 if (input) input.value = '';
-                alert(`Successfully connected to Smart Bin #${targetBinId.replace('bin_', '')}!`);
+                showBinSuccess(targetBinId.replace('bin_', ''));
 
             } catch (error) {
                 console.error("Add Bin Error:", error);
@@ -454,7 +524,7 @@ function renderDetailsModal(container, id, data) {
 }
 
 window.removeBin = async function(id) {
-    if (confirm(`Disconnect Smart Bin #${id.replace('bin_', '')}?`)) {
+    if (await showDisconnectConfirm(id.replace('bin_', ''))) {
         if (activeChannels[id]) {
             supabase.removeChannel(activeChannels[id]);
             delete activeChannels[id];

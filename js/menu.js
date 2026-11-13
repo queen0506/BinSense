@@ -1,5 +1,30 @@
 import { supabase } from './supabase-init.js';
 
+// POP UP ICONS
+const POPUP_ICONS = {
+    success: '<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>',
+    error:   '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>',
+    warning: '<svg viewBox="0 0 24 24"><line x1="12" y1="6" x2="12" y2="13"></line><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>'
+};
+
+function showMenuPopup(type, title, message) {
+    const overlay = document.getElementById('menu-popup');
+    const box = document.getElementById('menu-popup-box');
+    const btn = document.getElementById('menu-popup-close');
+    if (!overlay) return;
+
+    box.className = `menu-popup-box ${type}`;
+    document.getElementById('menu-popup-icon').innerHTML = POPUP_ICONS[type];
+    document.getElementById('menu-popup-title').textContent = title;
+    document.getElementById('menu-popup-text').textContent = message;
+    overlay.classList.add('show');
+
+    const close = () => {
+        overlay.classList.remove('show');
+        btn.removeEventListener('click', close);
+    };
+    btn.addEventListener('click', close);
+}
 async function writeLog(action, message) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -72,11 +97,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const message = feedbackText.value.trim();
         if (!Number.isInteger(currentRating) || currentRating < 1 || currentRating > 5) {
-            alert('Please select a rating from 1 to 5.');
+            showMenuPopup('warning', 'Rating Needed', 'Please select a rating from 1 to 5.');
             return;
         }
         if (!message) {
-            alert('Please enter your feedback message.');
+            showMenuPopup('warning', 'Message Needed', 'Please enter your feedback message.');
             feedbackText.focus();
             return;
         }
@@ -99,10 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
             currentRating = 0;
             stars.forEach(star => star.style.color = '#ccc');
             feedbackModal.style.display = 'none';
-            alert('Feedback sent successfully. Thank you.');
+            showMenuPopup('success', 'Feedback Sent!', 'Thank you for helping us improve BinSense.');
         } catch (error) {
             console.error('Feedback database error:', error.message || error);
-            alert(`Failed to send feedback: ${error.message || 'Please try again.'}`);
+            showMenuPopup('error', 'Something Went Wrong', `Failed to send feedback: ${error.message || 'Please try again.'}`);
         }
     });
 
@@ -114,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const description = bugDescription.value.trim();
         const severity = bugSeverity.value;
         if (!title || !description || !severity) {
-            alert('Please provide a title, description, and severity.');
+            showMenuPopup('warning', 'Missing Details', 'Please provide a title, description, and severity.');
             return;
         }
 
@@ -135,10 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
             await writeLog('Bug Report', `New bug report: ${title}`);
             bugReportForm.reset();
             bugModal.style.display = 'none';
-            alert('Bug report submitted successfully.');
+            showMenuPopup('success', 'Bug Report Sent!', 'Thanks! Our team will look into it.');
         } catch (error) {
             console.error('Incident report database error:', error.message || error);
-            alert(`Failed to submit bug report: ${error.message || 'Please try again.'}`);
+            showMenuPopup('error', 'Something Went Wrong', `Failed to submit bug report: ${error.message || 'Please try again.'}`);
         }
     });
 

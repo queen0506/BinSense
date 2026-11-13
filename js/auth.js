@@ -28,6 +28,25 @@ async function writeLog(logData) {
     }
 }
 
+/* ====================================
+   HELPER: SUCCESS POP-UP
+==================================== */
+function showSuccessModal(message, onClose) {      // 👈 paste it here
+    const modal = document.getElementById('success-modal');
+    const msg = document.getElementById('modal-message');
+    const btn = document.getElementById('modal-close');
+
+    msg.textContent = message;
+    modal.classList.add('show');
+
+    const close = () => {
+        modal.classList.remove('show');
+        btn.removeEventListener('click', close);
+        if (onClose) onClose();
+    };
+    btn.addEventListener('click', close);
+}
+
 /* ============================
    SECTION SWITCHING
 ============================ */
@@ -298,8 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ? 'Account created. Check your email to confirm it before logging in.'
                         : 'Account created successfully. You can now log in.';
                     showRegistrationMessage(successMessage, false);
-                    alert(successMessage);
-                    window.showLogin();
+                    showSuccessModal(successMessage, () => window.showLogin());
                 } catch (err) {
                     console.error("Registration Error:", err);
                     const errorMessage = err.message || 'Unable to create your account.';
