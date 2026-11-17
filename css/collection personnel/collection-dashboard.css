@@ -25,7 +25,7 @@ body {
     position: relative;
 }
 
-/* TOP NAVIGATION - Accurate to image */
+/* TOP NAVIGATION */
 .top-nav {
     background-color: #99cc33;
     padding: 55px 25px 20px 25px;
@@ -37,6 +37,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     position: relative;
     z-index: 10;
+    flex-shrink: 0; 
 }
 
 .dashboard-title {
@@ -45,20 +46,86 @@ body {
     font-weight: 700;
 }
 
+/* MAP CONTENT AREA */
 .content-area {
     flex: 1;
     position: relative;
-    margin-top: -35px;
-    margin-bottom: -0px;
+    margin-top: 0; 
+    padding: 15px; 
+    margin-bottom: 0;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .full-screen-map {
     width: 100%;
     height: 100%;
     background-color: #e5e5e5; 
+    position: relative;
+    border-radius: 20px; 
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
+/* FLOATING ETA PANEL */
+.eta-panel {
+    position: absolute;
+    top: 20px;       
+    left: 20px;      
+    z-index: 700;
+    width: min(280px, calc(100% - 40px)); 
+    max-height: 40vh;
+    overflow-y: auto;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border-left: 4px solid #99cc33;
+    color: #333;
+    font-size: 0.85rem;
+}
+
+.eta-panel h2 {
+    margin: 0 0 6px 0;
+    color: #48742C;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.eta-panel p { 
+    margin: 0 0 4px 0;
+    color: #555; 
+    line-height: 1.3;
+}
+
+.eta-panel ol { 
+    margin: 8px 0 0 16px; 
+    padding: 0;
+}
+
+.eta-panel li { 
+    padding: 2px 0;
+    color: #333;
+    font-weight: 500;
+}
+
+/* FLOATING MAP BUBBLE */
+#etaBubble {
+    background: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-weight: 700;
+    font-size: 13px;
+    color: #333;
+    pointer-events: none;
+    border-left: 4px solid #99cc33;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+}
+
+/* Map Placeholder */
 .map-placeholder {
     display: flex;
     flex-direction: column;
@@ -70,24 +137,20 @@ body {
     padding: 20px;
 }
 
-/* Keep Leaflet controls and attribution legible over the dashboard map. */
+/* Leaflet Overrides */
 .leaflet-container {
     width: 100%;
     height: 100%;
     min-height: 0;
     font-family: 'Reddit Sans', sans-serif;
     background: #e5e5e5;
+    border-radius: 20px;
 }
 
-.leaflet-control-zoom a {
-    color: #2d3436;
-}
+.leaflet-control-zoom a { color: #2d3436; }
+.leaflet-control-attribution { font-size: 9px; opacity: 0.7; }
 
-.leaflet-control-attribution {
-    font-size: 9px;
-    opacity: 0.7;
-}
-
+/* Truck Marker */
 .truck-marker-icon {
     display: flex;
     align-items: center;
@@ -138,10 +201,9 @@ body {
     object-fit: contain;
 }
 
-.leaflet-bottom {
-    bottom: 80px;
-}
-/* --- ACCURATE FLOATING SIDEBAR RESPONSIVE (DESKTOP) --- */
+.leaflet-bottom { bottom: 80px; }
+
+/* --- DESKTOP RESPONSIVE --- */
 @media (min-width: 900px) {
     body {
         background-color: #f8faf8; 
@@ -149,7 +211,6 @@ body {
         overflow: hidden;
     }
 
-    /* Grid layout to separate sidebar from content */
     .mobile-container {
         max-width: 100%;
         height: 100vh;
@@ -159,7 +220,6 @@ body {
         background-color: transparent;
     }
 
-    /* --- FLOATING PILL SIDEBAR --- */
     .bottom-nav {
         grid-column: 1 / 2;
         grid-row: 1 / 3;
@@ -220,7 +280,7 @@ body {
     .content-area {
         grid-column: 2 / 3;
         grid-row: 2 / 3;
-        padding: 0 40px 25px 40px; 
+        padding: 0 40px 25px 0; 
         margin-top: 0;
         margin-bottom: 0;
         min-height: 0;
@@ -240,24 +300,35 @@ body {
         overflow: hidden;
     }
 
-    .leaflet-bottom {
-    bottom: 0;
-     }
+    .leaflet-bottom { bottom: 0; }
+    
+    .eta-panel { 
+        width: 320px; 
+        top: 24px; 
+        left: 24px;
+    }
 }
 
-/* Shared dashboard polish */
-.white-card, .summary-card, .chart-container, .chart-container-box, .report-card, .log-card, .bin-card { min-width: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07); }
-table { width: 100%; max-width: 100%; }
-canvas { max-width: 100%; }
-@media (min-width: 1024px) {
-    .main-content, .content-area { min-width: 0; width: 100%; gap: 1.5rem; }
-    .chart-container, .chart-container-box, .report-card, .white-card { max-width: 100%; }
-    .table-container, .table-wrapper, .logs-container, .data-table-container { max-width: 100%; overflow-x: auto; }
-}
-
-@media (min-width: 1400px) {
+/* --- SMALL MOBILE DEVICES --- */
+@media (max-width: 400px) {
     .content-area {
-        max-width: 1600px;
-        margin: 0 auto;
+        padding: 10px; 
+    }
+    
+    .eta-panel {
+        padding: 10px;
+        font-size: 0.75rem; 
+        top: 12px; 
+        left: 12px;
+        max-height: 35vh;
+    }
+
+    .eta-panel h2 { font-size: 0.85rem; }
+    .eta-panel li { font-size: 0.72rem; margin-bottom: 2px; }
+
+    #etaBubble {
+        font-size: 11px;
+        padding: 5px 8px;
+        transform: translate(-50%, -110%); 
     }
 }
