@@ -1,4 +1,4 @@
-/* --- Global Reset & Base Styles --- */
+
 * { 
     box-sizing: border-box; 
     margin: 0; 
@@ -11,6 +11,7 @@ body {
     display: flex; 
     justify-content: center; 
     min-height: 100vh;
+    overflow-x: hidden; 
 }
 
 .mobile-container {
@@ -324,20 +325,25 @@ body {
 
 .input-group { text-align: left; margin-bottom: 15px; }
 .input-group label { 
-    display: block; color: #888; font-size: 0.85rem; 
+    display: block; color: #48742C; font-size: 0.85rem; font-weight: 700;
     margin-bottom: 6px; margin-left: 5px;
 }
 
 .input-container {
-    border: 1px solid #eee;
-    background-color: #f9f9f9;
+    border: 1px solid #99cc33; /* Ginawang green border para halata na pwedeng i-edit */
+    background-color: #f9fff5;
     border-radius: 15px;
     padding: 12px 15px;
+    transition: all 0.2s ease;
+}
+
+.input-container:focus-within {
+    box-shadow: 0 0 0 3px rgba(153, 204, 51, 0.2);
 }
 
 .input-container input {
     border: none; outline: none; width: 100%;
-    color: #444; font-family: 'Reddit Sans', sans-serif;
+    color: #333; font-family: 'Reddit Sans', sans-serif; font-weight: 600;
     font-size: 1rem; background: transparent;
 }
 

@@ -68,12 +68,50 @@
                 </ul>
             </div>
 
-            <div class="chart-container-box">
+                        <div class="chart-container-box">
                 <h3 class="chart-label">Waste Generation Trend (%)</h3>
                 <div class="canvas-wrapper">
                     <canvas id="wasteChart"></canvas>
                 </div>
             </div>
+
+                        <!-- BAGONG SECTION: Collection Records -->
+            <section class="records-section">
+                <div class="records-header">
+                    <h3 class="section-label" style="margin-bottom: 0;">Recent Collection Records</h3>
+                    
+                    <!-- DATE FILTER -->
+                    <select id="dateFilter" class="records-filter">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+
+                <div class="records-table-container">
+                    <table class="records-table">
+                        <thead>
+                            <tr>
+                                <th>Bin / Barangay</th>
+                                <th>Date & Time</th>
+                                <th>Actual Collector</th>
+                                <th>Registered To</th>
+                            </tr>
+                        </thead>
+                        <tbody id="collectionRecordsBody">
+                            <tr><td colspan="4" style="text-align: center; color: #888; padding: 20px;">Loading records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION CONTROLS -->
+                <div class="pagination-container">
+                    <button id="prevPageBtn" class="page-btn" disabled>Previous</button>
+                    <span id="pageInfo" class="page-info">Page 1 of 1</span>
+                    <button id="nextPageBtn" class="page-btn" disabled>Next</button>
+                </div>
+            </section>
 
             <section class="insights-section">
                 <h3 class="section-label">Compliance Metrics</h3>
