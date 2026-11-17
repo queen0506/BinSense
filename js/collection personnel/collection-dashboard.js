@@ -12,7 +12,6 @@ let dispatchChannel;
 let fullBinsChannel;
 
 const DEFAULT_MAP_CENTER = [14.8354, 120.2842]; // Olongapo City
-const BIN_ICON_URL = '../../logo/bin.png';
 
 // Leaflet replaces Google Maps. Supabase queries and the collection modal remain in place.
 function initMap() {
@@ -197,8 +196,15 @@ function getValidBinPosition(bin) {
 }
 
 function createBinIcon(size = 35) {
-    return L.icon({
-        iconUrl: BIN_ICON_URL,
+    return L.divIcon({
+        className: '',
+        html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     width="${size}" height="${size}" aria-label="Waste bin">
+            <path d="M8 3h8l1 2h4v2H3V5h4l1-2Zm-3 5h14l-1 13H6L5 8Z"
+                  fill="#e53935"/>
+            <path d="M9 10v8m6-8v8" fill="none" stroke="#fff"
+                  stroke-width="1.5" stroke-linecap="round"/>
+        </svg>`,
         iconSize: [size, size],
         iconAnchor: [size / 2, size],
         popupAnchor: [0, -size + 4]
