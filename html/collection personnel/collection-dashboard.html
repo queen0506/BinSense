@@ -21,6 +21,18 @@
                 <p>Initializing Route Map...</p>
                 <span>Full bins will appear here as waypoints</span>
             </div>
+            
+            <!-- ETA Panel -->
+            <section id="etaPanel" class="eta-panel" aria-live="polite" aria-label="Route progress" style="display:none;">
+                <h2>Route Progress</h2>
+                <p>Driving Time: <span id="totalDriveTime">--</span> mins</p>
+                <p style="font-weight:bold; color:#99cc33; font-size:1.1em;">Arrive by: <span id="finalArrivalTime">--:--</span></p>
+                <p id="eta-panel-status" style="margin-top:8px; font-size:0.85em; color:#666;">Waiting for GPS...</p>
+                <ol id="eta-list"></ol>
+            </section>
+
+            <!--  ETA for the map -->
+            <div id="etaBubble" style="display:none;">Arrive by --:--</div>
         </div>
     </main>
 
@@ -54,11 +66,8 @@
     </div>
 </div>
 
-    <!-- include authentication helpers (firebase) -->
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- include authentication helpers -->
     <script type="module" src="../../js/auth.js"></script>
-    <!-- dashboard navigation logic -->
     <script type="module" src="../../js/collection personnel/collection-dashboard.js"></script>
 
 </body>
