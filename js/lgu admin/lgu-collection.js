@@ -1,17 +1,16 @@
 import { supabase } from '../supabase-init.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
-// Global state to keep dispatch data accessible to the button
 let currentOptimizedPath = [];
 let currentComplianceScore = 0;
+let etaRequestId = 0;
+let etaRefreshTimer = null;
+const LGU_DISPATCH_ORIGIN = { lat: 14.8350, lng: 120.2840 };
 
 initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
 });
 
-/**
- * Helper for System Logs
- */
 async function writeLog(action, message) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -28,7 +27,6 @@ async function writeLog(action, message) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Initialize Professional Map (CartoDB Voyager)
     const map = L.map('map', { zoomControl: false }).setView([14.8350, 120.2840], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '©OpenStreetMap'
@@ -40,25 +38,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const { data: bins, error } = await supabase.from('bins').select('*');
         if (error) return console.error('Bin sync failed:', error);
         
-        // --- ROUTE OPTIMIZATION LOGIC ---
         currentOptimizedPath = bins
-            .filter(b => (b.status?.toLowerCase() === 'full' || (b.level || b.volume || 0) >= 80))
-            .sort((a, b) => (b.level || b.volume || 0) - (a.level || a.volume || 0));
+            .filter(bin => bin.status?.toLowerCase() === 'full')
+            .sort((a, b) => (Number(b.level) || 0) - (Number(a.level) || 0));
 
-        // --- BEHAVIORAL COMPLIANCE TRACKING ---
         const total = bins.length;
         const available = bins.filter(b => b.status?.toLowerCase() === 'available').length;
         currentComplianceScore = total > 0 ? Math.round((available / total) * 100) : 0;
 
-        updateDashboardUI(currentOptimizedPath, currentComplianceScore, markerLayer);
+        updateDashboardUI(currentOptimizedPath, currentComplianceScore, markerLayer, map);
     };
+    
     refreshBins();
+    
     supabase.channel('lgu-collection-bins')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'bins' }, refreshBins)
         .subscribe();
 
-    // 3. FIXED Dispatch Button Handler
-    // Attached once to avoid event duplication/unresponsiveness
     const dispatchBtn = document.getElementById('dispatchBtn');
     if (dispatchBtn) {
         dispatchBtn.onclick = async () => {
@@ -86,19 +82,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/**
- * Updates the Map and Route List UI
- */
-function updateDashboardUI(path, score, markerLayer) {
+async function updateDashboardUI(path, score, markerLayer, map) {
+    if (etaRefreshTimer) {
+        clearInterval(etaRefreshTimer);
+        etaRefreshTimer = null;
+    }
+    const requestId = ++etaRequestId;
+    let etaTimes = null;
+    let routeGeometry = null;
+    if (path.length) {
+        try {
+            const coords = [LGU_DISPATCH_ORIGIN, ...path.map(bin => ({
+                lng: Number(bin.lng) || LGU_DISPATCH_ORIGIN.lng,
+                lat: Number(bin.lat) || LGU_DISPATCH_ORIGIN.lat
+            }))].map(point => `${point.lng},${point.lat}`).join(';');
+            const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`);
+            if (!response.ok) throw new Error(`Routing service returned HTTP ${response.status}`);
+            const result = await response.json();
+            const route = result.routes?.[0];
+            const legs = route?.legs;
+            if (result.code !== 'Ok' || !legs || legs.length !== path.length || legs.some(leg => !Number.isFinite(Number(leg.duration)))) {
+                throw new Error('Per-bin route durations are unavailable.');
+            }
+            routeGeometry = route.geometry;
+            let arrivalAt = Date.now();
+            etaTimes = legs.map((leg, index) => {
+                arrivalAt += Number(leg.duration) * 1000;
+                const eta = new Date(arrivalAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (index < legs.length - 1) arrivalAt += 5 * 60 * 1000;
+                return eta;
+            });
+        } catch (error) {
+            console.warn('Could not calculate LGU route ETAs:', error);
+        }
+    }
+    if (requestId !== etaRequestId) return;
+
     markerLayer.clearLayers();
+    if (routeGeometry) {
+        L.geoJSON(routeGeometry, { style: { color: '#4285F4', weight: 5, opacity: 0.8 } }).addTo(markerLayer);
+    }
     
-    // Update Stats
     document.getElementById('binsToCollect').innerText = path.length;
     document.getElementById('complianceScore').innerText = `${score}%`;
     document.getElementById('route-status').innerText = path.length > 0 ? "Optimization Active" : "All Clear";
 
     const container = document.getElementById('routeContainer');
     const dispatchBtn = document.getElementById('dispatchBtn');
+    const etaSummary = document.getElementById('etaSummary');
     
     container.innerHTML = "";
 
@@ -107,44 +138,57 @@ function updateDashboardUI(path, score, markerLayer) {
              All communities compliant. No urgent routes detected.
         </p>`;
         dispatchBtn.style.display = 'none';
+        if (etaSummary) etaSummary.textContent = 'No route ETA: there are no bins to collect.';
         return;
     }
 
     dispatchBtn.style.display = 'block';
+    if (etaSummary) {
+        etaSummary.textContent = etaTimes?.length
+            ? `Estimated Final Arrival: ${etaTimes[etaTimes.length - 1]}`
+            : 'Route ETA is unavailable. Check the routing connection.';
+    }
 
     path.forEach((bin, index) => {
         const stopNum = index + 1;
         
-        // Add Marker to Map
         const markerColor = (bin.level || bin.volume || 0) >= 90 ? '#ff4444' : '#fc1111';
-        const binIcon = L.divIcon({
-            html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                     width="36" height="36" aria-label="Waste bin">
-                <path d="M8 3h8l1 2h4v2H3V5h4l1-2Zm-3 5h14l-1 13H6L5 8Z"
-                      fill="#e53935"/>
-                <path d="M9 10v8m6-8v8" fill="none" stroke="#fff"
-                      stroke-width="1.5" stroke-linecap="round"/>
-            </svg>`,
-            className: "",
-            iconSize: [36, 36],
-            iconAnchor: [18, 32],
-            popupAnchor: [0, -32]
-        });
 
-        L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
-            .addTo(markerLayer)
-            .bindPopup(`<b>Stop #${stopNum}:</b> Brgy. ${bin.barangay}`);
+       
+const binIcon = L.divIcon({
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             width="36" height="36" aria-label="Waste bin">
+        <path d="M8 3h8l1 2h4v2H3V5h4l1-2Zm-3 5h14l-1 13H6L5 8Z"
+              fill="#e53935"/>
+        <path d="M9 10v8m6-8v8" fill="none" stroke="#fff"
+              stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`,
+    className: "",
+    iconSize: [36, 36],
+    iconAnchor: [18, 32],
+    popupAnchor: [0, -32]
+});
 
-        // Inject Route Card
+L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
+    .addTo(markerLayer)
+    .bindPopup(`<b>Stop #${stopNum}:</b> Brgy. ${bin.barangay}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
+
+
+
         container.innerHTML += `
             <div class="route-card" style="border-left: 5px solid ${markerColor}">
                 <div class="stop-number">${stopNum}</div>
                 <div class="card-details">
                     <h4>Brgy. ${bin.barangay || 'Unknown'}</h4>
                     <p>Status: ${bin.status || 'Active'}</p>
+                    <p style="font-size:0.8em; color:#666; margin-top:4px;">Estimated Time of Arrival: <b>${etaTimes?.[index] || 'Unavailable'}</b></p>
                 </div>
                 <div class="load-tag">${bin.level || bin.volume || 0}%</div>
             </div>
         `;
     });
+
+    etaRefreshTimer = setInterval(() => {
+        updateDashboardUI(currentOptimizedPath, currentComplianceScore, markerLayer, map);
+    }, 60000);
 }

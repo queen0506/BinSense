@@ -6,18 +6,17 @@ let binMarkers = [];
 let fullBinMarkers = [];
 let currentTruckPos = null;
 let activeBinWaypoints = [];
-let pendingBinId = null; // Track bin awaiting confirmation
+let pendingBinId = null; 
 let routeRequestId = 0;
 let dispatchChannel;
 let fullBinsChannel;
 
 const DEFAULT_MAP_CENTER = [14.8354, 120.2842]; // Olongapo City
 
-// Leaflet replaces Google Maps. Supabase queries and the collection modal remain in place.
 function initMap() {
     const mapElement = document.getElementById('map-container');
     if (!mapElement || typeof L === 'undefined') {
-        console.error('Leaflet could not be loaded. Check the Leaflet CDN scripts.');
+        console.error('Leaflet could not be loaded.');
         showMapMessage('The map could not be loaded. Please refresh the page.');
         return;
     }
@@ -29,10 +28,9 @@ function initMap() {
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Place zoom controls away from the dashboard's top navigation where possible.
     map.zoomControl.setPosition('topright');
 
     trackTruckLocation();
@@ -64,9 +62,33 @@ function hideMapMessage() {
     if (placeholder) placeholder.style.display = 'none';
 }
 
+function setEtaPanel(message, stops = [], visible = true) {
+    const panel = document.getElementById('etaPanel');
+    const status = document.getElementById('eta-panel-status');
+    const list = document.getElementById('eta-list');
+    if (!panel || !status || !list) return;
+    
+    panel.style.display = visible ? 'block' : 'none';
+    status.textContent = message;
+    
+    if (stops.length === 0) {
+        const totalDriveTime = document.getElementById('totalDriveTime');
+        const finalArrivalTime = document.getElementById('finalArrivalTime');
+        if (totalDriveTime) totalDriveTime.textContent = '--';
+        if (finalArrivalTime) finalArrivalTime.textContent = '--:--';
+    }
+    
+    list.replaceChildren(...stops.map(stop => {
+        const item = document.createElement('li');
+        item.textContent = `${stop.barangay}: ${stop.eta}`;
+        return item;
+    }));
+}
+
 function trackTruckLocation() {
     if (!navigator.geolocation) {
-        showMapMessage('Location is not supported by this browser. Bin locations are still available.');
+        setEtaPanel('Location is unavailable. Enable GPS to calculate route ETAs.');
+        showMapMessage('Location is not supported by this browser.');
         return;
     }
 
@@ -99,7 +121,8 @@ function trackTruckLocation() {
         }
     }, (error) => {
         console.warn('Unable to get collector location:', error.message);
-        showMapMessage('Allow location access to calculate a route from your current position.');
+        setEtaPanel('Allow location access to calculate ETAs.');
+        showMapMessage('Allow location access to calculate a route.');
     }, {
         enableHighAccuracy: true,
         maximumAge: 10000,
@@ -117,15 +140,13 @@ function listenForAdminDispatch() {
             .limit(1)
             .maybeSingle();
 
-        if (dispatchError) {
-            console.error('Dispatch sync failed:', dispatchError);
-            return;
-        }
+        if (dispatchError) return console.error('Dispatch sync failed:', dispatchError);
 
         if (!dispatchData || !dispatchData.bin_ids?.length) {
             activeBinWaypoints = [];
             clearMap();
-            showMapMessage('✅ No active collection dispatch. Full bins awaiting dispatch will remain visible.');
+            setEtaPanel('No active collection route.');
+            showMapMessage('✅ No active collection dispatch.');
             return;
         }
 
@@ -134,10 +155,7 @@ function listenForAdminDispatch() {
             .select('*')
             .in('id', dispatchData.bin_ids);
 
-        if (binsError) {
-            console.error('Bin sync failed:', binsError);
-            return;
-        }
+        if (binsError) return console.error('Bin sync failed:', binsError);
 
         const allBins = new Map((bins || []).map(bin => [bin.id, bin]));
         activeBinWaypoints = [];
@@ -148,10 +166,7 @@ function listenForAdminDispatch() {
             if (!bin || bin.status?.toLowerCase() !== 'full') return;
 
             const position = getValidBinPosition(bin);
-            if (!position) {
-                console.warn(`Skipping bin ${binId}: invalid latitude or longitude.`);
-                return;
-            }
+            if (!position) return;
 
             activeBinWaypoints.push({ ...position, binId, barangay: bin.barangay || 'Unknown' });
 
@@ -169,11 +184,13 @@ function listenForAdminDispatch() {
             if (currentTruckPos) {
                 calculateSmartGPSRoute(currentTruckPos, activeBinWaypoints);
             } else {
-                showMapMessage('Full bins are shown. Allow location access to calculate your collection route.');
+                setEtaPanel('Waiting for your GPS location...');
+                showMapMessage('Full bins are shown. Allow location access to calculate route.');
                 fitMapToMarkers();
             }
         } else {
             clearRoute();
+            setEtaPanel('No full bins remain in the active dispatch.');
             showMapMessage('No full bins remain in the active dispatch.');
         }
     };
@@ -211,7 +228,7 @@ function createBinIcon(size = 35) {
     });
 }
 
-function createCollectionPopup(bin) {
+function createCollectionPopup(bin, etaText = 'Calculating ETA…') {
     const wrapper = document.createElement('div');
     wrapper.className = 'bin-popup';
     wrapper.style.cssText = 'padding:8px; font-family:sans-serif; text-align:center;';
@@ -220,17 +237,21 @@ function createCollectionPopup(bin) {
     heading.textContent = `Brgy. ${bin.barangay || 'Unknown'}`;
     heading.style.cssText = 'margin:0 0 8px 0;';
 
+    const eta = document.createElement('p');
+    eta.className = 'bin-eta';
+    eta.textContent = `ETA: ${etaText}`;
+    eta.style.cssText = 'margin:0 0 10px 0; font-weight:bold; color:#527a1a;';
+
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = 'Mark as Collected';
     button.style.cssText = 'background:#99cc33; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold;';
     button.addEventListener('click', () => window.showConfirmationModal(bin.id));
 
-    wrapper.append(heading, button);
+    wrapper.append(heading, eta, button);
     return wrapper;
 }
 
-// Confirmation modal handling remains unchanged in behavior.
 window.showConfirmationModal = function(binId) {
     pendingBinId = binId;
     document.getElementById('confirmModal').style.display = 'flex';
@@ -252,14 +273,9 @@ document.getElementById('confirmCollect').onclick = async () => {
 
 async function executeMarkAsCollected(binId) {
     try {
-        const { data: binData, error: binError } = await supabase
-            .from('bins')
-            .select('*')
-            .eq('id', binId)
-            .single();
+        const { data: binData, error: binError } = await supabase.from('bins').select('*').eq('id', binId).single();
         if (binError) throw binError;
 
-        // 1. Reset bin status
         const collectedAt = new Date().toISOString();
         const { error: updateError } = await supabase.from('bins').update({
             level: 0,
@@ -268,7 +284,6 @@ async function executeMarkAsCollected(binId) {
         }).eq('id', binId);
         if (updateError) throw updateError;
 
-        // 2. Log for Audit
         const { error: logError } = await supabase.from('collection_logs').insert({
             bin_id: binId,
             barangay: binData.barangay || 'Unknown',
@@ -279,7 +294,6 @@ async function executeMarkAsCollected(binId) {
         });
         if (logError) throw logError;
 
-        // 3. Remove from Active Dispatch and update route dynamically
         const { data: dispatches, error: dispatchError } = await supabase
             .from('active_dispatch')
             .select('*')
@@ -290,20 +304,16 @@ async function executeMarkAsCollected(binId) {
         for (const dispatch of dispatches || []) {
             const updatedIds = dispatch.bin_ids.filter(id => id !== binId);
             if (updatedIds.length === 0) {
-                const { error } = await supabase.from('active_dispatch')
-                    .update({ bin_ids: [], status: 'Completed' })
-                    .eq('id', dispatch.id);
+                const { error } = await supabase.from('active_dispatch').update({ bin_ids: [], status: 'Completed' }).eq('id', dispatch.id);
                 if (error) throw error;
             } else {
-                const { error } = await supabase.from('active_dispatch')
-                    .update({ bin_ids: updatedIds })
-                    .eq('id', dispatch.id);
+                const { error } = await supabase.from('active_dispatch').update({ bin_ids: updatedIds }).eq('id', dispatch.id);
                 if (error) throw error;
             }
         }
     } catch (err) {
         console.error('Collection process failed:', err);
-        alert('The bin could not be marked as collected. Please check your connection and try again.');
+        alert('The bin could not be marked as collected. Please check your connection.');
     }
 }
 
@@ -312,9 +322,8 @@ async function calculateSmartGPSRoute(origin, binLocations) {
         clearRoute();
         return;
     }
+    setEtaPanel('Calculating route ETAs...');
 
-    // OSRM Trip optimizes the order of intermediate stops while preserving the first
-    // coordinate (collector) and last coordinate (destination) for a one-way trip.
     const locations = [origin, ...binLocations];
     const coordinates = locations.map(point => `${point.lng},${point.lat}`).join(';');
     const requestId = ++routeRequestId;
@@ -324,9 +333,9 @@ async function calculateSmartGPSRoute(origin, binLocations) {
         const response = await fetch(routeUrl);
         if (!response.ok) throw new Error(`Routing service returned HTTP ${response.status}`);
         const result = await response.json();
-        if (requestId !== routeRequestId) return; // Ignore stale route responses.
+        if (requestId !== routeRequestId) return; 
         if (result.code !== 'Ok' || !result.trips?.length || !result.trips[0].geometry?.coordinates?.length) {
-            throw new Error(result.message || 'No driving route was returned.');
+            throw new Error('No driving route was returned.');
         }
 
         const routeLatLngs = result.trips[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
@@ -340,11 +349,74 @@ async function calculateSmartGPSRoute(origin, binLocations) {
         hideMapMessage();
         const bounds = routeLine.getBounds();
         if (bounds.isValid()) map.fitBounds(bounds.pad(0.15), { maxZoom: 16 });
+
+        const trip = result.trips[0];
+        const orderedBins = binLocations
+            .map((bin, index) => ({ bin, order: result.waypoints?.[index + 1]?.waypoint_index ?? index + 1 }))
+            .sort((a, b) => a.order - b.order);
+        
+        const rawDriveSeconds = Number(trip.duration);
+        const totalDriveSeconds = rawDriveSeconds * 1.5; 
+        
+        const serviceTimePerStopSeconds = 5 * 60; // 5 mins
+        const avgDriveSecondsPerStop = totalDriveSeconds / orderedBins.length;
+        
+        let etaAt = Date.now();
+        const etaStops = [];
+
+        orderedBins.forEach(({ bin }, index) => {
+            etaAt += avgDriveSecondsPerStop * 1000;
+            
+            
+            if (index < orderedBins.length - 1) {
+                etaAt += serviceTimePerStopSeconds * 1000; 
+            }
+            
+            const etaText = new Date(etaAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            etaStops.push({ barangay: bin.barangay || 'Unknown', eta: etaText });
+
+            const marker = binMarkers.find(candidate => {
+                const position = candidate.getLatLng();
+                return Math.abs(position.lat - bin.lat) < 0.0001 && Math.abs(position.lng - bin.lng) < 0.0001;
+            });
+            if (marker) marker.setPopupContent(createCollectionPopup({ id: bin.binId, barangay: bin.barangay }, etaText));
+        });
+        
+        const totalDriveTime = document.getElementById('totalDriveTime');
+        const finalArrivalTime = document.getElementById('finalArrivalTime');
+        
+        
+        if (totalDriveTime) totalDriveTime.textContent = String(Math.ceil(totalDriveSeconds / 60));
+        if (finalArrivalTime) finalArrivalTime.textContent = etaStops[etaStops.length - 1]?.eta || '--:--';
+        
+        setEtaPanel(`Total stops: ${orderedBins.length}`, etaStops);
+
+        // ETA Bubble 
+        const etaBubble = document.getElementById('etaBubble');
+        if (etaBubble) {
+            const lastBin = orderedBins[orderedBins.length - 1].bin;
+            const finalEta = etaStops[etaStops.length - 1].eta;
+            
+            const placeBubble = () => {
+                const pt = map.latLngToContainerPoint([lastBin.lat, lastBin.lng]);
+                etaBubble.style.left = `${pt.x}px`;
+                etaBubble.style.top = `${pt.y - 25}px`; 
+            };
+            
+            etaBubble.style.display = 'block';
+            etaBubble.innerText = `Arrive by ${finalEta}`;
+            placeBubble();
+            
+            map.off('move zoom', placeBubble);
+            map.on('move zoom', placeBubble);
+        }
+
     } catch (error) {
         if (requestId !== routeRequestId) return;
         console.error('Route calculation failed:', error);
         clearRoute();
-        showMapMessage('The road route is temporarily unavailable. Bin markers are still shown.');
+        setEtaPanel('Could not calculate ETAs. Check connection.', [], false);
+        showMapMessage('The road route is temporarily unavailable.');
         fitMapToMarkers();
     }
 }
@@ -355,11 +427,13 @@ function clearMarkers() {
 }
 
 function clearRoute() {
-    routeRequestId += 1; // Invalidate any pending route response.
+    routeRequestId += 1; 
     if (routeLine) {
         routeLine.remove();
         routeLine = null;
     }
+    const etaBubble = document.getElementById('etaBubble');
+    if (etaBubble) etaBubble.style.display = 'none';
 }
 
 function clearMap() {
@@ -376,14 +450,10 @@ function fitMapToMarkers() {
     if (points.length) map.fitBounds(L.latLngBounds(points).pad(0.15), { maxZoom: 16 });
 }
 
-// Passive monitoring of full bins that have not yet been dispatched.
 function listenForFullBins() {
     const refreshFullBins = async () => {
         const { data: allBins, error } = await supabase.from('bins').select('*');
-        if (error) {
-            console.error('Full bin sync failed:', error);
-            return;
-        }
+        if (error) return console.error('Full bin sync failed:', error);
 
         fullBinMarkers.forEach(marker => marker.remove());
         fullBinMarkers = [];
