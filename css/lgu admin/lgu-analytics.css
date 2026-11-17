@@ -385,6 +385,145 @@ table {
     border-radius: 50%;
 }
 
+/* --- COLLECTION RECORDS SECTION --- */
+.records-section {
+    grid-column: 1 / -1; /* Sinesentro/Full width sa desktop grid */
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--lgu-shadow);
+    margin-bottom: 25px;
+    min-width: 0;
+}
+
+.records-table-container {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.records-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.records-table th {
+    background-color: #f9f9f9;
+    color: var(--lgu-dark-green);
+    font-weight: 700;
+    padding: 12px;
+    border-bottom: 2px solid #eee;
+    white-space: nowrap;
+}
+
+.records-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #444;
+}
+
+.records-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.records-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+/* Highlight para sa Actual Collector at Registered Name */
+.actual-name {
+    color: var(--lgu-green);
+    font-weight: 700;
+}
+.registered-name {
+    color: #888;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* --- COLLECTION RECORDS SECTION --- */
+.records-section {
+    grid-column: 1 / -1;
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--lgu-shadow);
+    margin-bottom: 25px;
+    min-width: 0;
+}
+
+/* Bagong idinagdag para sa header at filter */
+.records-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.records-filter {
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid #eee;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: #444;
+    background-color: #f9f9f9;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.records-filter:focus, .records-filter:hover {
+    border-color: var(--lgu-green);
+    background-color: #fff;
+}
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.page-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--lgu-green);
+    background: #fff;
+    color: var(--lgu-dark-green);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.85rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.page-btn:disabled {
+    border-color: #eee;
+    color: #ccc;
+    cursor: not-allowed;
+    background: #fafafa;
+}
+
+.page-btn:not(:disabled):hover {
+    background: var(--lgu-green);
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(153, 204, 51, 0.3);
+}
+
+.page-info {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 700;
+}
+
 @media (max-width: 600px) {
     .main-content {
         padding-left: 20px;

@@ -23,11 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmDoneBtn.textContent = 'Mark as Done';
     };
 
+        const collectorNameInput = document.getElementById('collectorNameInput');
+    let currentCollectorName = '';
+
     const openCompletionModal = (schedule) => {
         activeSchedule = schedule;
         doneScheduleDetails.textContent = `Brgy. ${schedule.barangay} | ${schedule.date} at ${schedule.time}`;
+        
+        // Auto-fill ang pangalan ng naka-login
+        collectorNameInput.value = currentCollectorName;
+        
         doneConfirmModal.classList.add('open');
-        confirmDoneBtn.focus();
+        collectorNameInput.focus();
     };
 
     const renderCalendar = () => {
@@ -265,20 +272,66 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && doneConfirmModal.classList.contains('open')) closeCompletionModal();
     });
-    confirmDoneBtn.addEventListener('click', async () => {
+        confirmDoneBtn.addEventListener('click', async () => {
         if (!activeSchedule) return;
+        
+        const actualName = collectorNameInput.value.trim();
+        if (!actualName) {
+            Swal.fire({
+                title: 'Name Required',
+                text: 'Please enter the collector\'s name before submitting.',
+                icon: 'warning',
+                iconColor: '#ff9800',
+                confirmButtonText: 'Okay',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'binsense-swal',
+                    title: 'binsense-title',
+                    htmlContainer: 'binsense-text',
+                    actions: 'binsense-actions',
+                    confirmButton: 'binsense-success-btn' /* Green button for warning is okay, or make an orange one */
+                }
+            });
+            return;
+        }
+
         confirmDoneBtn.disabled = true;
-        confirmDoneBtn.textContent = 'Updating...';
-        const { data, error } = await supabase.rpc('complete_collection_schedule', { p_schedule_id: activeSchedule.id });
+        confirmDoneBtn.textContent = 'Submitting...';
+        
+        const { data, error } = await supabase.rpc('complete_collection_with_record', { 
+            p_schedule_id: activeSchedule.id,
+            p_bin_id: activeSchedule.bin_id || null, 
+            p_actual_name: actualName,
+            p_barangay: activeSchedule.barangay || null 
+        });
+
         if (error || data !== true) {
             console.error('Collection completion failed:', error || 'Schedule is already complete or unavailable.');
             window.alert(error?.message || 'This schedule could not be marked done. Refresh and try again.');
             confirmDoneBtn.disabled = false;
-            confirmDoneBtn.textContent = 'Mark as Done';
+            confirmDoneBtn.textContent = 'Confirm & Submit';
             return;
         }
+        
         closeCompletionModal();
         await loadSchedules();
+        
+        // Optional: Success alert
+        Swal.fire({
+            title: 'Success!',
+            text: 'Collection record has been saved.',
+            icon: 'success',
+            iconColor: '#99cc33',
+            confirmButtonText: 'Great!',
+            buttonsStyling: false,
+            customClass: {
+                popup: 'binsense-swal',
+                title: 'binsense-title',
+                htmlContainer: 'binsense-text',
+                actions: 'binsense-actions',
+                confirmButton: 'binsense-success-btn'
+            }
+        });
     });
 
     renderCalendar();
@@ -288,8 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
             scheduleList.innerHTML = '<p class="empty-pill">Sign in to view assigned collection schedules.</p>';
             return;
         }
+                // Kinukuha natin pati yung 'name' para may auto-fill
         const { data: profile, error } = await supabase.from('users')
-            .select('role')
+            .select('role, name')
             .eq('id', user.id)
             .maybeSingle();
         if (error) {
@@ -298,6 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         isWasteCollector = profile?.role === 'waste collector';
+        currentCollectorName = profile?.name || 'Waste Collector';
         await loadSchedules();
     };
 

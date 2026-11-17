@@ -60,13 +60,21 @@
         </footer>
     </div>
 
-    <div class="modal-overlay" id="doneConfirmModal" role="dialog" aria-modal="true" aria-labelledby="doneModalTitle">
+        <div class="modal-overlay" id="doneConfirmModal" role="dialog" aria-modal="true" aria-labelledby="doneModalTitle">
         <div class="modal-content">
-            <h2 class="modal-title" id="doneModalTitle">Complete Collection?</h2>
-            <p class="cancel-warning" id="doneScheduleDetails"></p>
+            <h2 class="modal-title" id="doneModalTitle">Complete Collection</h2>
+            <p class="cancel-warning" id="doneScheduleDetails" style="margin-bottom: 15px;"></p>
+            
+            <div class="input-group">
+                <label for="collectorNameInput">Collector's Name</label>
+                <div class="input-container">
+                    <input type="text" id="collectorNameInput" placeholder="Enter your name">
+                </div>
+            </div>
+
             <div class="modal-actions">
                 <button type="button" class="modal-cancel-btn" id="cancelDoneBtn">Cancel</button>
-                <button type="button" class="modal-submit-btn" id="confirmDoneBtn">Mark as Done</button>
+                <button type="button" class="modal-submit-btn" id="confirmDoneBtn">Confirm & Submit</button>
             </div>
         </div>
     </div>
