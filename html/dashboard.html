@@ -123,6 +123,55 @@
             </div>
         </footer>
     </div>
+    <!-- BIN CONNECTED SUCCESS POP-UP -->
+    <div class="bin-success-overlay" id="bin-success-modal" role="dialog" aria-modal="true" aria-labelledby="bin-success-title">
+        <div class="bin-success-box">
+            <div class="bin-success-icon">
+                <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
+            </div>
+            <h3 class="bin-success-title" id="bin-success-title">Bin Connected!</h3>
+            <div class="bin-success-chip" id="bin-success-chip"></div>
+            <p class="bin-success-text">This smart bin is now linked to your account. You can monitor its fill level from your dashboard.</p>
+            <button type="button" class="bin-success-btn" id="bin-success-close">GOT IT</button>
+        </div>
+    </div>
+
+    <!-- DISCONNECT CONFIRM POP-UP -->
+    <div class="bin-confirm-overlay" id="bin-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="bin-confirm-title">
+        <div class="bin-confirm-box">
+            <div class="bin-confirm-icon">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                    <path d="M10 11v6M14 11v6"></path>
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                </svg>
+            </div>
+            <h3 class="bin-confirm-title" id="bin-confirm-title">Disconnect Bin?</h3>
+            <div class="bin-confirm-chip" id="bin-confirm-chip"></div>
+            <p class="bin-confirm-text">This bin will be removed from your dashboard. You can reconnect it later using its Bin ID.</p>
+            <div class="bin-confirm-actions">
+                <button type="button" class="bin-confirm-cancel" id="bin-confirm-cancel">CANCEL</button>
+                <button type="button" class="bin-confirm-ok" id="bin-confirm-ok">DISCONNECT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTICE POP-UP -->
+    <div class="bin-notice-overlay" id="bin-notice-modal" role="alertdialog" aria-modal="true" aria-labelledby="bin-notice-title">
+        <div class="bin-notice-box">
+            <div class="bin-notice-icon">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+            </div>
+            <h3 class="bin-notice-title" id="bin-notice-title"></h3>
+            <p class="bin-notice-text" id="bin-notice-text"></p>
+            <button type="button" class="bin-notice-btn" id="bin-notice-close">OKAY</button>
+        </div>
+    </div>
 
     <script type="module" src="../js/dashboard.js"></script>
 </body>

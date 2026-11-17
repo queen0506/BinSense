@@ -12,6 +12,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .mobile-container {
@@ -50,9 +51,9 @@ body {
 .content-area {
     flex: 1;
     position: relative;
-    margin-top: 0; 
-    padding: 15px; 
-    margin-bottom: 0;
+    margin-top: -35px;
+    margin-bottom: -0px;
+    min-height: 0;
     z-index: 1;
     display: flex;
     flex-direction: column;

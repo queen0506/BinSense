@@ -153,9 +153,27 @@ async function updateDashboardUI(path, score, markerLayer, map) {
         const stopNum = index + 1;
         
         const markerColor = (bin.level || bin.volume || 0) >= 90 ? '#ff4444' : '#fc1111';
-        L.circleMarker([bin.lat || 14.8350, bin.lng || 120.2840], {
-            radius: 10, fillColor: markerColor, color: "#fff", weight: 3, fillOpacity: 0.9
-        }).addTo(markerLayer).bindPopup(`<b>Stop #${stopNum}:</b> Brgy. ${bin.barangay}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
+
+       
+const binIcon = L.divIcon({
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             width="36" height="36" aria-label="Waste bin">
+        <path d="M8 3h8l1 2h4v2H3V5h4l1-2Zm-3 5h14l-1 13H6L5 8Z"
+              fill="#e53935"/>
+        <path d="M9 10v8m6-8v8" fill="none" stroke="#fff"
+              stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`,
+    className: "",
+    iconSize: [36, 36],
+    iconAnchor: [18, 32],
+    popupAnchor: [0, -32]
+});
+
+L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
+    .addTo(markerLayer)
+    .bindPopup(`<b>Stop #${stopNum}:</b> Brgy. ${bin.barangay}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
+
+
 
         container.innerHTML += `
             <div class="route-card" style="border-left: 5px solid ${markerColor}">
