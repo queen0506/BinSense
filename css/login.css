@@ -68,6 +68,8 @@ input::placeholder { color: #BBB; }
     color: red;
     font-size: 0.85rem;
     display: none;
+    text-align: center;
+    line-height: 1.4;
 }
 
 /* PASSWORD INPUT WRAPPER */
