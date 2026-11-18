@@ -265,11 +265,36 @@ document.getElementById('cancelCollect').onclick = () => {
 
 document.getElementById('confirmCollect').onclick = async () => {
     if (pendingBinId) {
-        await executeMarkAsCollected(pendingBinId);
-        document.getElementById('confirmModal').style.display = 'none';
+        const binId = pendingBinId;
         pendingBinId = null;
+        document.getElementById('confirmModal').style.display = 'none';
+
+        const success = await executeMarkAsCollected(binId);
+        if (success) {
+            showCollectionAlert('success', 'Bin Collected Successfully!', 'The bin has been marked as collected and the route was updated.');
+        } else {
+            showCollectionAlert('error', 'Collection Failed', 'The bin could not be marked as collected. Please check your connection.');
+        }
     }
 };
+
+// Styled pop-up (replaces the browser alert)
+function showCollectionAlert(type, title, message) {
+    const modal = document.getElementById('collectAlert');
+    const box = modal.querySelector('.alert-box');
+    const icon = document.getElementById('collectAlertIcon');
+    const btn = document.getElementById('collectAlertClose');
+
+    box.classList.toggle('error', type === 'error');
+    icon.innerHTML = type === 'error'
+        ? '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>'
+        : '<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>';
+    document.getElementById('collectAlertTitle').textContent = title;
+    document.getElementById('collectAlertMessage').textContent = message;
+
+    modal.classList.add('show');
+    btn.onclick = () => modal.classList.remove('show');
+}
 
 async function executeMarkAsCollected(binId) {
     try {
@@ -311,9 +336,10 @@ async function executeMarkAsCollected(binId) {
                 if (error) throw error;
             }
         }
+        return true;
     } catch (err) {
         console.error('Collection process failed:', err);
-        alert('The bin could not be marked as collected. Please check your connection.');
+        return false;
     }
 }
 

@@ -1,5 +1,31 @@
 import { supabase } from '../supabase-init.js';
 
+// POP UP ICONS
+const POPUP_ICONS = {
+    success: '<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>',
+    error:   '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>',
+    warning: '<svg viewBox="0 0 24 24"><line x1="12" y1="6" x2="12" y2="13"></line><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>'
+};
+
+function showMenuPopup(type, title, message) {
+    const overlay = document.getElementById('menu-popup');
+    const box = document.getElementById('menu-popup-box');
+    const btn = document.getElementById('menu-popup-close');
+    if (!overlay) return;
+
+    box.className = `menu-popup-box ${type}`;
+    document.getElementById('menu-popup-icon').innerHTML = POPUP_ICONS[type];
+    document.getElementById('menu-popup-title').textContent = title;
+    document.getElementById('menu-popup-text').textContent = message;
+    overlay.classList.add('show');
+
+    const close = () => {
+        overlay.classList.remove('show');
+        btn.removeEventListener('click', close);
+    };
+    btn.addEventListener('click', close);
+}
+
 // Helper for System Logs & Audits
 async function writeLog(action, message) {
     const { data: { user } } = await supabase.auth.getUser();
@@ -65,26 +91,37 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    // --- 5. SUBMIT FEEDBACK ---
+        // --- 5. SUBMIT FEEDBACK ---
     const feedbackBtn = feedbackModal?.querySelector('.btn-submit');
     if (feedbackBtn) {
         feedbackBtn.onclick = async () => {
             const text = document.getElementById('feedbackText').value.trim();
-            
-            if (currentRating === 0) return alert("Please select a rating.");
+
+            if (currentRating < 1 || currentRating > 5) {
+                showMenuPopup('warning', 'Rating Needed', 'Please select a rating from 1 to 5.');
+                return;
+            }
+            if (!text) {
+                showMenuPopup('warning', 'Message Needed', 'Please enter your feedback message.');
+                document.getElementById('feedbackText').focus();
+                return;
+            }
 
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                await supabase.from('feedbacks').insert({
-                    email: user?.email || "Guest",
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError) throw userError;
+                if (!user?.email) throw new Error('You must be logged in to send feedback.');
+
+                const { error: dbError } = await supabase.from('feedbacks').insert({
+                    email: user.email,
                     rating: currentRating,
                     message: text,
                     timestamp: new Date().toISOString()
                 });
+                if (dbError) throw dbError;
 
                 await writeLog("Feedback", `Collector gave ${currentRating} stars`);
-                alert("Feedback sent!");
-                
+
                 // Clear and Close
                 document.getElementById('feedbackText').value = "";
                 stars.forEach(s => {
@@ -93,9 +130,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 currentRating = 0;
                 feedbackModal.style.display = 'none';
+                showMenuPopup('success', 'Feedback Sent!', 'Thank you for helping us improve BinSense.');
             } catch (error) {
                 console.error("Feedback Error:", error);
-                alert("Failed to send feedback.");
+                showMenuPopup('error', 'Something Went Wrong', `Failed to send feedback: ${error.message || 'Please try again.'}`);
             }
         };
     }
@@ -104,36 +142,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const bugBtn = bugModal?.querySelector('.btn-submit');
     if (bugBtn) {
         bugBtn.onclick = async () => {
-            const titleInput = document.getElementById('bugTitle') || bugModal.querySelector('input[type="text"]');
-            const descInput = document.getElementById('bugDesc') || bugModal.querySelector('textarea');
-            const severityInput = document.getElementById('bugSeverity') || bugModal.querySelector('select');
+            const titleInput = bugModal.querySelector('input[type="text"]');
+            const descInput = bugModal.querySelector('textarea');
+            const severityInput = bugModal.querySelector('select');
 
             const title = titleInput.value.trim();
             const desc = descInput.value.trim();
             const severity = severityInput.value;
 
-            if (!title) return alert("Please enter a title.");
+            if (!title || !desc || !severity) {
+                showMenuPopup('warning', 'Missing Details', 'Please provide a title, description, and severity.');
+                return;
+            }
 
             try {
-                const { data: { user } } = await supabase.auth.getUser();
-                await supabase.from('incident_reports').insert({
-                    email: user?.email || "Guest",
+                const { data: { user }, error: userError } = await supabase.auth.getUser();
+                if (userError) throw userError;
+                if (!user?.email) throw new Error('You must be logged in to report a bug.');
+
+                const { error: dbError } = await supabase.from('incident_reports').insert({
+                    email: user.email,
                     title: title,
                     description: desc,
                     severity: severity,
                     timestamp: new Date().toISOString()
                 });
+                if (dbError) throw dbError;
 
                 await writeLog("Bug Report", `New Bug from Collector: ${title}`);
-                alert("Bug reported!");
 
                 // Clear and Close
                 titleInput.value = "";
                 descInput.value = "";
                 bugModal.style.display = 'none';
+                showMenuPopup('success', 'Bug Report Sent!', 'Thanks! Our team will look into it.');
             } catch (error) {
                 console.error("Bug Error:", error);
-                alert("Failed to report bug.");
+                showMenuPopup('error', 'Something Went Wrong', `Failed to submit bug report: ${error.message || 'Please try again.'}`);
             }
         };
     }
