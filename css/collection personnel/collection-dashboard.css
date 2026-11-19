@@ -1,11 +1,11 @@
 :root {
     --brand-green: #99cc33;
-    --brand-green-dark: #48742c; /* Deep green for text contrast */
+    --brand-green-dark: #48742c; 
     --text-main: #2d3436;
     --text-muted: #7a877f;
     --bg-panel: #ffffff;
-    --bg-subtle: #f4f8ec; /* Very light green tint */
-    --border-light: #e2ecd3; /* Light green border */
+    --bg-subtle: #f4f8ec; 
+    --border-light: #e2ecd3; 
 }
 
 * {
@@ -80,9 +80,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-/* ============================================================
-   ETA PANEL (Themed to match top nav)
-   ============================================================ */
+/* ETA GUYS */
 .eta-panel {
     position: absolute;
     top: 16px;
@@ -231,12 +229,12 @@ body {
 .eta-stat-divider {
     width: 1px;
     height: 36px;
-    background: #d5e4be; /* Green tinted divider */
+    background: #d5e4be; 
     margin: 0 12px;
     flex-shrink: 0;
 }
 
-/* --- Status / Total Stops Banner --- */
+
 .eta-status {
     flex: 0 0 auto;
     margin: 0 0 10px;
@@ -404,9 +402,6 @@ body {
     bottom: 80px;
 }
 
-/* ============================================================
-   MEDIA QUERIES
-   ============================================================ */
 
 /* Desktop (min-width: 900px) */
 @media (min-width: 900px) {
@@ -519,7 +514,7 @@ body {
     }
 
     .eta-panel-toggle {
-        display: none; /* Hide toggle on desktop, always expanded */
+        display: none; 
     }
 }
 
