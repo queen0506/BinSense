@@ -68,7 +68,7 @@ function setEtaPanel(message, stops = [], visible = true) {
     const list = document.getElementById('eta-list');
     if (!panel || !status || !list) return;
     
-    panel.style.display = visible ? 'block' : 'none';
+    panel.style.display = visible ? 'flex' : 'none';
     status.textContent = message;
     
     if (stops.length === 0) {
@@ -83,6 +83,36 @@ function setEtaPanel(message, stops = [], visible = true) {
         item.textContent = `${stop.barangay}: ${stop.eta}`;
         return item;
     }));
+}
+
+function initEtaPanelToggle() {
+    const panel = document.getElementById('etaPanel');
+    const toggle = document.getElementById('etaPanelToggle');
+    if (!panel || !toggle) return;
+
+    const mobileLayout = window.matchMedia('(max-width: 899px)');
+    let wasMobile = mobileLayout.matches;
+
+    const syncLayout = () => {
+        const isMobile = mobileLayout.matches;
+        if (isMobile && !wasMobile) panel.classList.add('collapsed');
+        if (!isMobile) panel.classList.remove('collapsed');
+        wasMobile = isMobile;
+
+        const expanded = !panel.classList.contains('collapsed');
+        toggle.setAttribute('aria-expanded', String(expanded));
+        toggle.setAttribute('aria-label', expanded ? 'Collapse route stops' : 'Expand route stops');
+    };
+
+    toggle.addEventListener('click', () => {
+        if (!mobileLayout.matches) return;
+        const collapsed = panel.classList.toggle('collapsed');
+        toggle.setAttribute('aria-expanded', String(!collapsed));
+        toggle.setAttribute('aria-label', collapsed ? 'Expand route stops' : 'Collapse route stops');
+    });
+
+    window.addEventListener('resize', syncLayout);
+    syncLayout();
 }
 
 function trackTruckLocation() {
@@ -526,4 +556,5 @@ function listenForFullBins() {
         .subscribe();
 }
 
+initEtaPanelToggle();
 initMap();

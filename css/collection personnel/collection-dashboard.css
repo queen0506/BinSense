@@ -1,3 +1,12 @@
+:root {
+    --brand-green: #99cc33;
+    --brand-green-dark: #48742c; /* Deep green for text contrast */
+    --text-main: #2d3436;
+    --text-muted: #7a877f;
+    --bg-panel: #ffffff;
+    --bg-subtle: #f4f8ec; /* Very light green tint */
+    --border-light: #e2ecd3; /* Light green border */
+}
 
 * {
     box-sizing: border-box;
@@ -28,7 +37,7 @@ body {
 }
 
 .top-nav {
-    background-color: #99cc33;
+    background-color: var(--brand-green);
     padding: 30px 25px 20px 25px;
     display: flex;
     justify-content: space-between;
@@ -71,59 +80,246 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
+/* ============================================================
+   ETA PANEL (Themed to match top nav)
+   ============================================================ */
 .eta-panel {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 16px;
+    left: 16px;
     z-index: 700;
-    width: min(280px, calc(100% - 40px));
-    max-height: 40vh;
-    overflow-y: auto;
-    padding: 14px 16px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    border-left: 4px solid #99cc33;
-    color: #333;
-    font-size: 0.85rem;
+    width: min(340px, calc(100% - 32px));
+    max-height: min(70dvh, 620px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(45, 52, 54, 0.08);
+    border-radius: 18px;
+    background: var(--bg-panel);
+    box-shadow: 0 12px 32px rgba(26, 42, 18, 0.15);
+    color: var(--text-main);
+    font-family: 'Reddit Sans', sans-serif;
+}
+
+/* Header matches the exact green of the top nav */
+.eta-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding: 0 10px 0 16px;
+    background-color: var(--brand-green);
+    color: #fff;
 }
 
 .eta-panel h2 {
-    margin: 0 0 6px 0;
-    color: #48742C;
-    font-size: 0.95rem;
+    margin: 0;
+    color: #fff;
+    font-size: 1rem;
     font-weight: 700;
+    letter-spacing: 0.02em;
 }
 
-.eta-panel p {
-    margin: 0 0 4px 0;
-    color: #555;
-    line-height: 1.3;
+.eta-panel-toggle {
+    display: inline-flex;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3); /* Slightly lighter green/white blend */
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.eta-panel ol {
-    margin: 8px 0 0 16px;
-    padding: 0;
+.eta-panel-toggle:hover {
+    background: rgba(255, 255, 255, 0.5);
 }
 
-.eta-panel li {
-    padding: 2px 0;
-    color: #333;
+.eta-panel-toggle:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.eta-toggle-icon {
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 240ms ease;
+}
+
+.eta-panel.collapsed .eta-toggle-icon {
+    transform: translateY(2px) rotate(225deg);
+}
+
+.eta-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 12px;
+}
+
+/* --- Stats Banner (Light green theme) --- */
+.eta-stats-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+}
+
+.eta-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.eta-stat-item:first-child {
+    flex: 1 1 0;
+}
+
+.eta-stat-accent {
+    flex: 1 1 0;
+    text-align: right;
+}
+
+.eta-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+}
+
+.eta-stat-accent .eta-label {
+    color: var(--brand-green-dark);
+}
+
+.eta-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.eta-stat-accent .eta-value {
+    font-size: 1.45rem;
+    color: var(--brand-green-dark);
+}
+
+.eta-unit {
+    font-size: 0.75rem;
     font-weight: 500;
+    color: #8b968f;
 }
 
-#etaBubble {
-    background: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+.eta-stat-divider {
+    width: 1px;
+    height: 36px;
+    background: #d5e4be; /* Green tinted divider */
+    margin: 0 12px;
+    flex-shrink: 0;
+}
+
+/* --- Status / Total Stops Banner --- */
+.eta-status {
+    flex: 0 0 auto;
+    margin: 0 0 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #f0f4e8;
+    color: var(--brand-green-dark);
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+}
+
+/* --- Scrollable List --- */
+.eta-stops-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 2px;
+}
+
+.eta-list {
+    counter-reset: eta-stop;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.eta-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 2px;
+    border-bottom: 1px solid #eef2e6;
+    color: #4b5650;
+    font-size: 0.84rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.eta-list li::before {
+    counter-increment: eta-stop;
+    content: counter(eta-stop);
+    display: inline-flex;
+    flex: 0 0 20px;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e5f0d3;
+    color: var(--brand-green-dark);
+    font-size: 0.7rem;
     font-weight: 700;
-    font-size: 13px;
-    color: #333;
+}
+
+.eta-list li:last-child {
+    border-bottom: 0;
+}
+
+/* --- Map Bubble --- */
+#etaBubble {
+    position: absolute;
+    z-index: 750;
+    max-width: min(190px, calc(100% - 20px));
+    background: var(--brand-green);
+    padding: 8px 14px;
+    border: 1px solid #78a526;
+    border-radius: 999px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #1f2d10;
     pointer-events: none;
-    border-left: 4px solid #99cc33;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    text-align: center;
     transform: translate(-50%, -100%);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .map-placeholder {
@@ -160,7 +356,7 @@ body {
     align-items: center;
     justify-content: center;
     background: white;
-    border: 2px solid #99cc33;
+    border: 2px solid var(--brand-green);
     border-radius: 50%;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     font-size: 23px;
@@ -168,7 +364,7 @@ body {
 }
 
 .bottom-nav {
-    background-color: #99cc33;
+    background-color: var(--brand-green);
     border-radius: 999px;
     padding: 8px 28px;
     position: absolute;
@@ -208,6 +404,11 @@ body {
     bottom: 80px;
 }
 
+/* ============================================================
+   MEDIA QUERIES
+   ============================================================ */
+
+/* Desktop (min-width: 900px) */
 @media (min-width: 900px) {
 
     body {
@@ -234,7 +435,7 @@ body {
         left: auto;
         height: calc(100vh - 40px);
         width: 75px;
-        background-color: #99cc33;
+        background-color: var(--brand-green);
         margin: 20px auto;
         border-radius: 40px;
         padding: 20px 0;
@@ -311,12 +512,55 @@ body {
     }
 
     .eta-panel {
-        width: 320px;
-        top: 24px;
-        left: 24px;
+        width: min(340px, calc(100% - 40px));
+        top: 20px;
+        left: 20px;
+        max-height: min(62dvh, calc(100% - 40px), 560px);
+    }
+
+    .eta-panel-toggle {
+        display: none; /* Hide toggle on desktop, always expanded */
     }
 }
 
+/* Mobile (max-width: 899px) */
+@media (max-width: 899px) {
+    .eta-panel {
+        top: auto;
+        right: auto;
+        bottom: 12px;
+        left: 50%;
+        width: min(340px, calc(100% - 24px));
+        max-height: min(45dvh, 450px);
+        border-radius: 18px;
+        transform: translateX(-50%);
+        transition: max-height 300ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease;
+    }
+    
+    .eta-body {
+        padding: 10px 12px 12px;
+    }
+
+    .eta-panel.collapsed {
+        max-height: 125px;
+    }
+
+    .eta-panel.collapsed .eta-status,
+    .eta-panel.collapsed .eta-stops-scroll {
+        display: none;
+    }
+
+    .eta-panel.collapsed .eta-body {
+        padding: 8px 10px 10px;
+    }
+
+    .eta-panel.collapsed .eta-stats-banner {
+        margin-bottom: 0;
+        padding: 10px 14px;
+    }
+}
+
+/* Small Phones (max-width: 400px) */
 @media (max-width: 400px) {
 
     .content-area {
@@ -324,26 +568,65 @@ body {
     }
 
     .eta-panel {
-        padding: 10px;
-        font-size: 0.75rem;
-        top: 12px;
-        left: 12px;
-        max-height: 35vh;
+        bottom: 10px;
+        width: min(320px, calc(100% - 20px));
+        max-height: min(45dvh, 360px);
     }
 
-    .eta-panel h2 {
-        font-size: 0.85rem;
+    .eta-stats-banner {
+        padding: 10px 12px;
     }
-
-    .eta-panel li {
-        font-size: 0.72rem;
-        margin-bottom: 2px;
+    
+    .eta-value {
+        font-size: 1rem;
     }
-
+    
+    .eta-stat-accent .eta-value {
+        font-size: 1.35rem;
+    }
+    
+    .eta-list li {
+        font-size: 0.8rem;
+        padding: 8px 2px;
+    }
+    
     #etaBubble {
-        font-size: 11px;
-        padding: 5px 8px;
+        max-width: calc(100% - 12px);
+        padding: 6px 10px;
+        font-size: 0.75rem;
         transform: translate(-50%, -110%);
+    }
+
+    .eta-panel.collapsed {
+        max-height: 115px;
+    }
+}
+
+/* Landscape Short Screens */
+@media (max-height: 500px) and (orientation: landscape) {
+    .eta-panel {
+        max-height: min(60dvh, 420px);
+        top: 12px;
+    }
+
+    .eta-panel.collapsed {
+        top: auto;
+        max-height: 125px;
+    }
+
+    .eta-panel-header {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 899px) and (max-height: 500px) and (orientation: landscape) {
+    .eta-panel {
+        top: auto;
+        right: auto;
+        width: min(360px, calc(100% - 24px));
+        left: 12px;
+        bottom: 12px;
+        transform: none;
     }
 }
 
