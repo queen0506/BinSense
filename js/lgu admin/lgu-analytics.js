@@ -23,31 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const request = ++trendRequest;
         const { start, end, days } = getTrendPeriod(trendPeriod.value);
         if (showLoading) {
-            renderTrend(days, new Map(), new Map());
-            setTrendStatus('Loading bin fill readings…');
+            renderTrend(days, new Map());
+            setTrendStatus('Loading collection readings…');
         }
 
-        const [sensorResult, collectionResult] = await Promise.allSettled([
-            loadSensorTrend(start, end),
-            loadCollectionTrend(start, end)
-        ]);
-        if (request !== trendRequest) return;
-
-        const sensor = sensorResult.status === 'fulfilled' ? sensorResult.value : new Map();
-        const collection = collectionResult.status === 'fulfilled' ? collectionResult.value : new Map();
-        renderTrend(days, sensor, collection);
-
-        const errors = [];
-        if (sensorResult.status === 'rejected') {
-            console.error('Unable to load bin sync readings:', sensorResult.reason);
-            errors.push('Bin sync readings are unavailable.');
+        try {
+            const collection = await loadCollectionTrend(start, end);
+            if (request !== trendRequest) return;
+            renderTrend(days, collection);
+            setTrendStatus(collection.size ? '' : 'No collection readings for this period.');
+        } catch (error) {
+            if (request !== trendRequest) return;
+            console.error('Unable to load collection readings:', error);
+            renderTrend(days, new Map());
+            setTrendStatus('Unable to load collection readings. Reload this page to try again.');
         }
-        if (collectionResult.status === 'rejected') {
-            console.error('Unable to load collection readings:', collectionResult.reason);
-            errors.push('Collection readings are unavailable.');
-        }
-        const empty = !sensor.size && !collection.size ? 'No readings to display for this period.' : '';
-        setTrendStatus([...errors, empty].filter(Boolean).join(' '));
     };
 
     const refreshTrend = () => {
@@ -193,9 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCollectionRecords();
 
     supabase.channel('lgu-analytics-sync')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_bin_fill' }, () => {
-            if (wasteChart) refreshTrend();
-        })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_logs' }, () => {
             if (wasteChart) refreshTrend();
         })
@@ -233,16 +220,6 @@ function getTrendPeriod(period, now = new Date()) {
     }
 
     return { start: days[0], end: end.toISOString().slice(0, 10), days };
-}
-
-async function loadSensorTrend(start, end) {
-    const { data, error } = await supabase.from('daily_bin_fill')
-        .select('reading_date, level_total, reading_count')
-        .gte('reading_date', start)
-        .lt('reading_date', end);
-    if (error) throw error;
-
-    return new Map(data.map(row => [row.reading_date, Math.round(row.level_total / row.reading_count)]));
 }
 
 async function loadCollectionTrend(start, end) {
@@ -285,8 +262,7 @@ function initTrendChart() {
         data: {
             labels: [],
             datasets: [
-                { label: 'Bin sync readings', data: [], borderColor: '#48742c', backgroundColor: '#48742c' },
-                { label: 'At collection', data: [], borderColor: '#4466a6', backgroundColor: '#4466a6', borderDash: [5, 4] }
+                { label: 'At collection', data: [], borderColor: '#48742c', backgroundColor: '#48742c' }
             ]
         },
         options: {
@@ -301,10 +277,9 @@ function initTrendChart() {
     });
 }
 
-function renderTrend(days, sensor, collection) {
+function renderTrend(days, collection) {
     wasteChart.data.labels = days.map(day => chartDate.format(new Date(day)));
-    wasteChart.data.datasets[0].data = days.map(day => sensor.get(day) ?? null);
-    wasteChart.data.datasets[1].data = days.map(day => collection.get(day) ?? null);
+    wasteChart.data.datasets[0].data = days.map(day => collection.get(day) ?? null);
     wasteChart.update('none');
 }
 
