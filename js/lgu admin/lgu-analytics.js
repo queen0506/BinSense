@@ -24,19 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const { start, end, days } = getTrendPeriod(trendPeriod.value);
         if (showLoading) {
             renderTrend(days, new Map());
-            setTrendStatus('Loading collection readings…');
+            setTrendStatus('Loading bin readings…');
         }
 
         try {
-            const collection = await loadCollectionTrend(start, end);
+            const collection = await loadBinTrend(start, end);
             if (request !== trendRequest) return;
-            renderTrend(days, collection);
-            setTrendStatus(collection.size ? '' : 'No collection readings for this period.');
+            renderTrend(days, readings);
+            setTrendStatus(readings.size ? '' : 'No bin readings for this period.');
         } catch (error) {
             if (request !== trendRequest) return;
-            console.error('Unable to load collection readings:', error);
+            console.error('Unable to load bin readings:', error);
             renderTrend(days, new Map());
-            setTrendStatus('Unable to load collection readings. Reload this page to try again.');
+            setTrendStatus('Unable to load bin readings. Reload this page to try again.');
         }
     };
 
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCollectionRecords();
 
     supabase.channel('lgu-analytics-sync')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_logs' }, () => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_bin_peaks' }, () => {
             if (wasteChart) refreshTrend();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_records' }, loadCollectionRecords)
@@ -222,38 +222,10 @@ function getTrendPeriod(period, now = new Date()) {
     return { start: days[0], end: end.toISOString().slice(0, 10), days };
 }
 
-async function loadCollectionTrend(start, end) {
-    const daily = new Map();
-    const pageSize = 500;
-    let lastId;
-
-    while (true) {
-        let query = supabase.from('collection_logs')
-            .select('id, collected_at, waste_level_at_collection')
-            .gte('collected_at', new Date(start + 'T00:00:00+08:00').toISOString())
-            .lt('collected_at', new Date(end + 'T00:00:00+08:00').toISOString())
-            .eq('action', 'Collection Completed')
-            .gte('waste_level_at_collection', 0)
-            .lte('waste_level_at_collection', 100)
-            .order('id')
-            .limit(pageSize);
-        if (lastId !== undefined) query = query.gt('id', lastId);
-
-        const { data, error } = await query;
-        if (error) throw error;
-        if (!data.length) break;
-
-        for (const row of data) {
-            const day = getManilaDate(new Date(row.collected_at));
-            const values = daily.get(day) || { total: 0, count: 0 };
-            values.total += row.waste_level_at_collection;
-            values.count++;
-            daily.set(day, values);
-        }
-        lastId = data.at(-1).id;
-    }
-
-    return new Map([...daily].map(([day, values]) => [day, Math.round(values.total / values.count)]));
+async function loadBinTrend(start, end) {
+    const { data, error } = await supabase.rpc('lgu_daily_bin_trends', { p_start: start, p_end: end });
+    if (error) throw error;
+    return new Map(data.map(row => [row.reading_date, row]));
 }
 
 function initTrendChart() {
@@ -262,24 +234,56 @@ function initTrendChart() {
         data: {
             labels: [],
             datasets: [
-                { label: 'At collection', data: [], borderColor: '#48742c', backgroundColor: '#48742c' }
+                {
+                    label: 'Average peak fill',
+                    data: [],
+                    borderColor: '#48742c',
+                    backgroundColor: '#48742c',
+                    yAxisID: 'fill'
+                },
+                {
+                    type: 'bar',
+                    label: 'Bins that reached full',
+                    data: [],
+                    backgroundColor: '#b97523',
+                    yAxisID: 'full'
+                }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { labels: { boxWidth: 16, usePointStyle: true } } },
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { boxWidth: 16, usePointStyle: true } },
+                tooltip: {
+                    callbacks: {
+                        label({ dataset, raw }) {
+                            return dataset.yAxisID === 'fill'
+                                ? 'Average peak fill: ' + raw + '%'
+                                : 'Bins that reached full: ' + raw;
+                        },
+                        footer(items) {
+                            const index = items[0].dataIndex;
+                            return wasteChart.reportingBins[index] + ' bins reported';
+                        }
+                    }
+                }
+            },
             scales: {
-                y: { beginAtZero: true, max: 100, ticks: { stepSize: 25, callback: value => value + '%' } },
+                fill: { position: 'left', beginAtZero: true, max: 100, ticks: { stepSize: 25, callback: value => value + '%' } },
+                full: { position: 'right', beginAtZero: true, suggestedMax: 1, grid: { drawOnChartArea: false }, ticks: { precision: 0 } },
                 x: { ticks: { maxTicksLimit: 8 } }
             }
         }
     });
 }
 
-function renderTrend(days, collection) {
+function renderTrend(days, readings) {
     wasteChart.data.labels = days.map(day => chartDate.format(new Date(day)));
-    wasteChart.data.datasets[0].data = days.map(day => collection.get(day) ?? null);
+    wasteChart.data.datasets[0].data = days.map(day => readings.get(day)?.average_peak ?? null);
+    wasteChart.data.datasets[1].data = days.map(day => readings.get(day)?.full_bins ?? null);
+    wasteChart.reportingBins = days.map(day => readings.get(day)?.reporting_bins ?? null);
     wasteChart.update('none');
 }
 

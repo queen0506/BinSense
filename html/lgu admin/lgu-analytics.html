@@ -19,7 +19,7 @@
         <main class="main-content">
             <div class="chart-container-box">
                 <div class="records-header">
-                    <h3 class="chart-label">Average Bin Fill at Collection (%)</h3>
+                    <h3 class="chart-label">Daily Bin Fill and Full Bins</h3>
                     <select id="trendPeriod" class="records-filter" aria-label="Bin fill trend period">
                         <option value="this-week">This Week</option>
                         <option value="last-week">Last Week</option>
@@ -29,16 +29,14 @@
                 </div>
                 <p id="wasteChartStatus" class="chart-status" role="status" hidden></p>
                 <div class="canvas-wrapper">
-                    <canvas id="wasteChart" role="img" aria-label="Daily average bin fill percentages at collection"></canvas>
+                    <canvas id="wasteChart" role="img" aria-label="Daily average peak fill and number of bins that reached full"></canvas>
                 </div>
             </div>
 
-                        <!-- BAGONG SECTION: Collection Records -->
             <section class="records-section">
                 <div class="records-header">
-                    <h3 class="section-label" style="margin-bottom: 0;">Recent Collection Records</h3>
-                    
-                    <!-- DATE FILTER -->
+                    <h3 class="section-label" style="margin-bottom: 0;">Collection Log</h3>
+
                     <select id="dateFilter" class="records-filter">
                         <option value="all">All Time</option>
                         <option value="today">Today</option>
