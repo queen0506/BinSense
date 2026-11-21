@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const months = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
     let isWasteCollector = false;
+    const getScheduleArea = schedule => schedule.barangay && schedule.barangay !== 'Global'
+        ? `Brgy. ${schedule.barangay}`
+        : 'Olongapo City';
 
     const closeCompletionModal = () => {
         doneConfirmModal.classList.remove('open');
@@ -28,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const openCompletionModal = (schedule) => {
         activeSchedule = schedule;
-        doneScheduleDetails.textContent = `Brgy. ${schedule.barangay} | ${schedule.date} at ${schedule.time}`;
+        doneScheduleDetails.textContent = `${getScheduleArea(schedule)} | ${schedule.date} at ${schedule.time}`;
         
         // Auto-fill ang pangalan ng naka-login
         collectorNameInput.value = currentCollectorName;
@@ -66,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         info.className = 'schedule-info';
         const area = document.createElement('h4');
         area.style.cssText = 'color: #48742C; margin-bottom: 2px;';
-        area.textContent = `Brgy. ${schedule.barangay || 'Unassigned'}`;
+        area.textContent = getScheduleArea(schedule);
         const dateTime = document.createElement('p');
         dateTime.style.cssText = 'color: #888; font-size: 0.8rem;';
         dateTime.textContent = `Time: ${schedule.time || 'Not set'} | Date: ${schedule.date || 'Not set'}`;
@@ -102,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             item.classList.add('schedule-actionable');
             item.setAttribute('role', 'button');
             item.tabIndex = 0;
-            item.setAttribute('aria-label', `Open collection actions for Brgy. ${schedule.barangay}, ${schedule.date} at ${schedule.time}`);
+            item.setAttribute('aria-label', `Open collection actions for ${getScheduleArea(schedule)}, ${schedule.date} at ${schedule.time}`);
             item.addEventListener('click', () => openCompletionModal(schedule));
             item.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') {

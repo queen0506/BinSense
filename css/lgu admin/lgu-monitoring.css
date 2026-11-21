@@ -79,133 +79,6 @@ img {
     -webkit-overflow-scrolling: touch;
 }
 
-.filter-section {
-    width: 100%;
-    position: relative;
-    z-index: 30;
-}
-
-.custom-select-native {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-}
-
-.custom-select {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    min-height: 52px;
-    padding: 15px 46px 15px 18px;
-    border-radius: var(--radius-md);
-    border: 1px solid #eee;
-    background: #f9f9f9;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 1rem;
-    color: #444;
-    margin-bottom: 25px;
-    box-shadow: var(--lgu-shadow);
-    cursor: pointer;
-    text-align: left;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
-
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2399cc33' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    background-size: 16px;
-}
-
-.custom-select:hover {
-    border-color: var(--lgu-green);
-    background-color: #fdfff9;
-}
-
-.custom-select:focus,
-.custom-select:focus-visible {
-    border-color: var(--lgu-green);
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(153, 204, 51, 0.18), 0 6px 20px rgba(153, 204, 51, 0.12);
-}
-
-.custom-select.open {
-    border-color: var(--lgu-green);
-    background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(153, 204, 51, 0.18), 0 6px 20px rgba(153, 204, 51, 0.12);
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2399cc33' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='18 15 12 9 6 15'/></svg>");
-}
-
-.custom-select .selected-label {
-    flex: 1 1 auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-}
-
-.custom-select-list {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    z-index: 100;
-    margin: 0;
-    padding: 8px;
-    list-style: none;
-    background-color: #ffffff;
-    border: 1px solid var(--lgu-border);
-    border-radius: var(--radius-md);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-
-    max-height: 260px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-
-    display: none;
-
-    scrollbar-width: thin;
-    scrollbar-color: rgba(153, 204, 51, 0.5) transparent;
-}
-
-.custom-select-list.open {
-    display: block;
-}
-
-.custom-select-list li {
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    color: #444;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.custom-select-list li:hover {
-    background-color: #f2f7e6;
-}
-
-.custom-select-list li.is-selected {
-    background-color: var(--lgu-green);
-    color: #fff;
-    font-weight: 700;
-}
-
-.custom-select-list::-webkit-scrollbar { width: 8px; }
-.custom-select-list::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
-.custom-select-list::-webkit-scrollbar-thumb {
-    background-color: rgba(153, 204, 51, 0.5);
-    border-radius: 4px;
-}
-.custom-select-list::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(153, 204, 51, 0.75);
-}
-
 .status-cards-container {
     display: flex;
     flex-direction: column;
@@ -388,8 +261,7 @@ img {
     background: #fff;
     width: 100%;
     max-width: 414px;
-    border-top-left-radius: var(--radius-lg);
-    border-top-right-radius: var(--radius-lg);
+    border-radius: var(--radius-lg);
     padding: 30px;
     max-height: 80vh;
     overflow-y: auto;
@@ -501,10 +373,6 @@ img {
         gap: 16px;
     }
 
-    .filter-section {
-        max-width: 480px;
-    }
-
     .dashboard-title {
         color: #fff;
         font-size: 1.8rem;
@@ -523,13 +391,4 @@ img {
 }
 
 @media (min-width: 1024px) {
-    .filter-section {
-        max-width: 460px;
-    }
-
-    .custom-select {
-        margin-bottom: 0;
-        min-height: 52px;
-        background-color: #ffffff;
-    }
 }

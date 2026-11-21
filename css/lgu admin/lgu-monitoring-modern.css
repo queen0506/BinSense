@@ -17,16 +17,10 @@
     padding: 20px 24px 110px;
 }
 
-.filter-section,
 .status-cards-container,
 .overflow-section {
     width: 100%;
     min-width: 0;
-}
-
-.custom-select {
-    border-color: var(--lgu-border);
-    box-shadow: var(--lgu-shadow);
 }
 
 .summary-card,
@@ -84,43 +78,6 @@
 
 .collection-schedule-header .section-label {
     margin: 0;
-}
-
-.schedule-barangay-wrapper {
-    position: relative;
-    margin-bottom: 8px;
-    z-index: 10;
-}
-
-.schedule-barangay-wrapper .custom-select {
-    margin-bottom: 0;
-    min-height: 44px;
-    padding: 10px 44px 10px 14px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border-radius: 8px;
-    border: 1px solid var(--lgu-border);
-    background: #fff;
-    box-shadow: none;
-    background-position: right 14px center;
-    background-size: 14px;
-}
-
-.schedule-barangay-wrapper .custom-select:hover {
-    border-color: var(--lgu-green);
-}
-
-.schedule-barangay-wrapper .custom-select-list {
-    top: calc(100% + 4px);
-    max-height: 200px;
-    border-radius: 8px;
-    padding: 6px;
-}
-
-.schedule-barangay-wrapper .custom-select-list li {
-    padding: 10px 14px;
-    font-size: 0.9rem;
-    border-radius: 6px;
 }
 
 .schedule-modal-card {
@@ -412,16 +369,6 @@
         grid-row: 2 / 3;
         padding: 0 60px 40px 20px;
         overflow-y: auto;
-    }
-
-    .filter-section {
-        max-width: 1240px;
-    }
-
-    .custom-select {
-        width: min(100%, 420px);
-        margin-bottom: 28px;
-        background-color: #fff;
     }
 
     .status-cards-container {
