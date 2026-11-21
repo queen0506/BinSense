@@ -149,23 +149,25 @@
     overflow-wrap: anywhere;
 }
 
-.lgu-schedule-type {
-    color: var(--lgu-dark-green);
-    font-size: 0.8rem;
-    font-weight: 700;
-    white-space: nowrap;
-    padding: 4px 8px;
-    background: rgba(153, 204, 51, 0.1);
-    border-radius: 6px;
+.lgu-schedule-badges {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
+.lgu-schedule-type,
 .lgu-schedule-status {
     padding: 6px 10px;
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
-    flex-shrink: 0;
+}
+
+.lgu-schedule-type {
+    color: var(--lgu-dark-green);
+    background: rgba(153, 204, 51, 0.1);
 }
 
 .lgu-schedule-status.is-scheduled { color: #815b00; background: #fff4cc; }
@@ -280,10 +282,8 @@
         flex: 1 1 auto;
     }
 
-    .lgu-schedule-item > .lgu-schedule-type,
-    .lgu-schedule-item > .lgu-schedule-status {
-        display: inline-block;
-        width: fit-content;
+    .lgu-schedule-badges {
+        align-self: flex-start;
     }
 
     .schedule-item-actions {

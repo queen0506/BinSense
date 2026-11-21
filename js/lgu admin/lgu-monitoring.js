@@ -14,6 +14,12 @@ const manilaTimeFormatter = new Intl.DateTimeFormat('en', {
     minute: '2-digit',
     hourCycle: 'h23'
 });
+const scheduleTimeFormatter = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'UTC',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+});
 
 function getManilaDate(date) {
     const parts = Object.fromEntries(manilaDateFormatter.formatToParts(date).map(({ type, value }) => [type, value]));
@@ -24,6 +30,24 @@ function formatTime(minutes) {
     const hour = String(Math.floor(minutes / 60)).padStart(2, '0');
     const minute = String(minutes % 60).padStart(2, '0');
     return `${hour}:${minute}`;
+}
+
+function formatScheduleTime(time) {
+    if (!time) return 'Time not set';
+    const match = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(time);
+    if (!match) return 'Time unavailable';
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    const seconds = Number(match[3] || 0);
+    if (hours > 23 || minutes > 59 || seconds > 59) return 'Time unavailable';
+    return scheduleTimeFormatter.format(new Date(Date.UTC(
+        2000,
+        0,
+        1,
+        hours,
+        minutes,
+        seconds
+    )));
 }
 
 // Removed: initNotificationListener function[cite: 11]
@@ -172,16 +196,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const details = document.createElement('div');
             details.className = 'lgu-schedule-details';
             const area = document.createElement('h4');
-            area.textContent = schedule.barangay && schedule.barangay !== 'Global'
-                ? `Brgy. ${schedule.barangay}`
-                : 'Olongapo City';
+            const barangay = schedule.barangay && schedule.barangay !== 'Global'
+                ? schedule.barangay
+                : 'East Bajac-Bajac';
+            area.textContent = `Brgy. ${barangay}`;
             const dateTime = document.createElement('p');
             const displayDate = schedule.date
-                ? new Date(`${schedule.date}T00:00:00`).toLocaleDateString()
+                ? new Date(`${schedule.date}T00:00:00`).toLocaleDateString('en-PH', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                })
                 : 'Date not set';
-            dateTime.textContent = `${displayDate} at ${schedule.time || 'Time not set'}`;
+            dateTime.textContent = `${displayDate} at ${formatScheduleTime(schedule.time)}`;
             details.append(area, dateTime);
 
+            const badges = document.createElement('div');
+            badges.className = 'lgu-schedule-badges';
             const type = document.createElement('span');
             type.className = 'lgu-schedule-type';
             type.textContent = schedule.scheduleType || 'One-Time';
@@ -189,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const status = document.createElement('span');
             status.className = `lgu-schedule-status ${schedule.collection_status === 'Done' ? 'is-done' : 'is-scheduled'}`;
             status.textContent = schedule.collection_status === 'Done' ? 'Done' : 'Scheduled';
+            badges.append(type, status);
 
             const actions = document.createElement('div');
             actions.className = 'schedule-item-actions';
@@ -222,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             actions.append(editButton, deleteButton);
-            item.append(details, type, status, actions);
+            item.append(details, badges, actions);
             scheduleList.appendChild(item);
         });
     };
