@@ -82,20 +82,31 @@
 
 .schedule-modal-card {
     overflow: visible;
-    padding-bottom: 40px;
+    padding-bottom: 20px;
 }
 
-.schedule-add-btn,
-.schedule-save-btn {
+.schedule-add-btn {
     border: 0;
     border-radius: 50px;
     padding: 4px 10px;
     border: 1px solid var(--lgu-dark-green);
+    background: var(--lgu-surface);
     color: var(--lgu-dark-green);
     font: inherit;
     font-weight: 700;
     cursor: pointer;
     font-size: 0.9rem;
+}
+
+.schedule-save-btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 4px 10px;
+    background: var(--lgu-green);
+    color: var(--lgu-surface);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .lgu-schedule-list {
@@ -219,10 +230,20 @@
     color: var(--lgu-text);
     font: inherit;
 }
+.schedule-field-error {
+    margin-top: -8px;
+    color: #b42318;
+    font-size: 0.78rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.schedule-field-error[hidden] { display: none; }
 .schedule-form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
 .schedule-cancel-btn {
     padding: 11px 16px;
-    border: 1px solid var(--lgu-border);
+    border: 1px solid var(--lgu-text);
     border-radius: 8px;
     background: #fff;
     color: var(--lgu-text);

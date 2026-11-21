@@ -2,6 +2,29 @@ import { supabase } from '../supabase-init.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
 let allBins = [];
+const manilaDateFormatter = new Intl.DateTimeFormat('en', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+});
+const manilaTimeFormatter = new Intl.DateTimeFormat('en', {
+    timeZone: 'Asia/Manila',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
+});
+
+function getManilaDate(date) {
+    const parts = Object.fromEntries(manilaDateFormatter.formatToParts(date).map(({ type, value }) => [type, value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function formatTime(minutes) {
+    const hour = String(Math.floor(minutes / 60)).padStart(2, '0');
+    const minute = String(minutes % 60).padStart(2, '0');
+    return `${hour}:${minute}`;
+}
 
 // Removed: initNotificationListener function[cite: 11]
 initializeLguNotifications(supabase).catch(error => {
@@ -40,11 +63,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const scheduleForm = document.getElementById('collectionScheduleForm');
     const scheduleModalTitle = document.getElementById('scheduleModalTitle');
     const saveScheduleBtn = document.getElementById('saveScheduleBtn');
+    const scheduleDateInput = document.getElementById('scheduleDate');
+    const scheduleDateError = document.getElementById('scheduleDateError');
+    const scheduleTimeInput = document.getElementById('scheduleTime');
+    const scheduleTimeError = document.getElementById('scheduleTimeError');
+    const officeStartMinutes = 8 * 60;
+    const officeEndMinutes = 17 * 60;
     let editingScheduleId = null;
+
+    const updateScheduleConstraints = () => {
+        const now = new Date();
+        const today = getManilaDate(now);
+        const timeParts = Object.fromEntries(manilaTimeFormatter.formatToParts(now).map(({ type, value }) => [type, value]));
+        const currentMinutes = Number(timeParts.hour) * 60 + Number(timeParts.minute);
+        const earliestToday = Math.max(
+            officeStartMinutes,
+            currentMinutes + (now.getSeconds() || now.getMilliseconds() ? 1 : 0)
+        );
+        const isToday = scheduleDateInput.value === today;
+        const noSlotsToday = isToday && currentMinutes >= officeEndMinutes;
+        const earliestTime = isToday ? Math.min(earliestToday, officeEndMinutes) : officeStartMinutes;
+
+        const dateError = scheduleDateInput.value && scheduleDateInput.value < today
+            ? 'Choose today or a future date.'
+            : '';
+        scheduleDateError.textContent = dateError;
+        scheduleDateError.hidden = !dateError;
+        scheduleDateInput.setAttribute('aria-invalid', String(Boolean(dateError)));
+        scheduleDateInput.setCustomValidity('');
+
+        let timeError = '';
+        if (noSlotsToday) {
+            timeError = 'No office times remain today; choose another date.';
+        } else if (scheduleTimeInput.value && (scheduleTimeInput.value < '08:00' || scheduleTimeInput.value > '17:00')) {
+            timeError = 'Choose a time from 8:00 AM to 5:00 PM.';
+        } else if (isToday && scheduleTimeInput.value && scheduleTimeInput.value < formatTime(earliestToday)) {
+            timeError = 'Choose a later time today.';
+        }
+        scheduleTimeError.textContent = timeError;
+        scheduleTimeError.hidden = !timeError;
+        scheduleTimeInput.setAttribute('aria-invalid', String(Boolean(timeError)));
+        scheduleTimeInput.setCustomValidity('');
+        return { dateError, timeError };
+    };
 
     const closeScheduleModal = () => {
         scheduleModal.classList.remove('open');
         scheduleForm.reset();
+        updateScheduleConstraints();
         editingScheduleId = null;
         scheduleModalTitle.textContent = 'Add Collection Schedule';
         saveScheduleBtn.textContent = 'Save Schedule';
@@ -63,8 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
             scheduleModalTitle.textContent = 'Add Collection Schedule';
             saveScheduleBtn.textContent = 'Save Schedule';
         }
+        updateScheduleConstraints();
         scheduleModal.classList.add('open');
     };
+
+    scheduleDateInput.addEventListener('input', updateScheduleConstraints);
+    scheduleDateInput.addEventListener('change', updateScheduleConstraints);
+    scheduleTimeInput.addEventListener('input', updateScheduleConstraints);
+    scheduleTimeInput.addEventListener('change', updateScheduleConstraints);
+    updateScheduleConstraints();
 
     const loadCollectionSchedules = async () => {
         const { data, error } = await supabase.from('notifications')
@@ -163,11 +236,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     scheduleForm.addEventListener('submit', async event => {
         event.preventDefault();
+        const { dateError, timeError } = updateScheduleConstraints();
+        if (dateError) {
+            scheduleDateInput.focus();
+            return;
+        }
+        if (timeError) {
+            scheduleTimeInput.focus();
+            return;
+        }
+        if (!scheduleForm.reportValidity()) return;
+
         saveScheduleBtn.disabled = true;
         saveScheduleBtn.textContent = editingScheduleId ? 'Updating...' : 'Saving...';
 
-        const date = document.getElementById('scheduleDate').value;
-        const time = document.getElementById('scheduleTime').value;
+        const date = scheduleDateInput.value;
+        const time = scheduleTimeInput.value;
         const scheduleType = document.getElementById('scheduleType').value;
         const values = {
             title: 'Waste Collection Schedule',
