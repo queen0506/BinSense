@@ -261,15 +261,54 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBins(allBins, e.target.value);
     });
 
+        /**
+     * INCIDENT ERROR (below the selection) & RESULT POP-UP
+     */
+    const incidentError = document.getElementById('incidentError');
+
+    function showIncidentError(message) {
+        incidentError.textContent = message;
+        incidentError.style.display = 'block';
+    }
+
+    function clearIncidentError() {
+        incidentError.textContent = '';
+        incidentError.style.display = 'none';
+    }
+
+    // Hide the error as soon as an option is picked
+    document.querySelectorAll('input[name="issue"]').forEach(el => {
+        el.addEventListener('change', clearIncidentError);
+    });
+
+    function showReportAlert(type, title, message) {
+        const modal = document.getElementById('reportAlert');
+        const box = modal.querySelector('.alert-box');
+        const icon = document.getElementById('reportAlertIcon');
+        const btn = document.getElementById('reportAlertClose');
+
+        box.classList.toggle('error', type === 'error');
+        icon.innerHTML = type === 'error'
+            ? '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"></line><line x1="18" y1="6" x2="6" y2="18"></line></svg>'
+            : '<svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>';
+        document.getElementById('reportAlertTitle').textContent = title;
+        document.getElementById('reportAlertMessage').textContent = message;
+
+        modal.classList.add('show');
+        btn.onclick = () => modal.classList.remove('show');
+    }
+
     /**
      * 5. SUBMIT INCIDENT REPORT & NOTIFY CITIZENS
      */
     submitUpdateBtn.addEventListener('click', async () => {
         const selected = document.querySelector('input[name="issue"]:checked');
-        if (!selected) {
-            alert('Please select an incident type before submitting.');
+                if (!selected) {
+            showIncidentError('Please select an incident before submitting');
             return;
         }
+        clearIncidentError();
+
         const binKey = displayBinID.innerText.replace('BIN #', 'bin_');
         let issueText = selected ? selected.value : "Routine Checkup";
         if (issueText === "Others") {
@@ -320,19 +359,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (citizenNotificationError) {
                 console.error("Bin report filed, but citizen notification could not be created:", citizenNotificationError);
                 await writeLog("Bin Reported", `Collection report filed for ${binKey}; citizen notification failed for Brgy. ${binBarangay}.`, "logs");
-                alert(`Report filed successfully, but the citizen notification could not be sent.`);
-                closeDetailView();
+                                closeDetailView();
+                showReportAlert('success', 'Report Filed Successfully!','The report will be reviewed in a few days.');
                 return;
             }
 
             // 3. Log the system action[cite: 8]
             await writeLog("Bin Reported", `Citizen notification sent to Brgy. ${binBarangay} for ${binKey}`, "logs");
             
-            alert(`Success! Report filed and citizens in Brgy. ${binBarangay} have been notified.`);
+             
             closeDetailView();
+            showReportAlert('success', 'Report Filed Successfully!', `Citizens in Brgy. ${binBarangay} have been notified.`);
         } catch (error) {
             console.error("Update failed:", error);
-            alert("Error updating bin status.");
+                        showReportAlert('error', 'Report Failed', 'Error updating bin status. Please try again.');
         }
     });
 
@@ -346,6 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
         binSelectionView.style.display = 'block';
         
         document.querySelectorAll('input[name="issue"]').forEach(el => el.checked = false);
+        clearIncidentError();
         const otherInput = document.getElementById('otherIssueInput');
         if (otherInput) otherInput.value = "";
     }

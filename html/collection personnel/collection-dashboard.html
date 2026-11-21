@@ -6,7 +6,7 @@
     <title>BinSense - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="../../css/collection personnel/collection-dashboard.css">
+    <link rel="stylesheet" href="../../css/collection personnel/collection-dashboard.css?v=eta-theme-2">
 </head>
 <body>
 
@@ -21,17 +21,39 @@
                 <p>Initializing Route Map...</p>
                 <span>Full bins will appear here as waypoints</span>
             </div>
-            
+
             <!-- ETA Panel -->
-            <section id="etaPanel" class="eta-panel" aria-live="polite" aria-label="Route progress" style="display:none;">
-                <h2>Route Progress</h2>
-                <p>Driving Time: <span id="totalDriveTime">--</span> mins</p>
-                <p style="font-weight:bold; color:#99cc33; font-size:1.1em;">Arrive by: <span id="finalArrivalTime">--:--</span></p>
-                <p id="eta-panel-status" style="margin-top:8px; font-size:0.85em; color:#666;">Waiting for GPS...</p>
-                <ol id="eta-list"></ol>
+            <section id="etaPanel" class="eta-panel collapsed" aria-live="polite" aria-labelledby="etaPanelTitle" style="display:none;">
+                <header class="eta-panel-header">
+                    <h2 id="etaPanelTitle">Route Progress</h2>
+                    <button id="etaPanelToggle" class="eta-panel-toggle" type="button"
+                        aria-expanded="false" aria-controls="eta-stops-scroll" aria-label="Expand route stops">
+                        <span class="eta-toggle-icon" aria-hidden="true"></span>
+                    </button>
+                </header>
+
+                <div class="eta-body">
+                    <div class="eta-stats-banner">
+                        <div class="eta-stat-item">
+                            <span class="eta-label">Driving Time</span>
+                            <span class="eta-value"><span id="totalDriveTime">--</span> <span class="eta-unit">mins</span></span>
+                        </div>
+                        <div class="eta-stat-divider"></div>
+                        <div class="eta-stat-item eta-stat-accent">
+                            <span class="eta-label">Arrive by</span>
+                            <span class="eta-value" id="finalArrivalTime">--:--</span>
+                        </div>
+                    </div>
+
+                    <p id="eta-panel-status" class="eta-status">Waiting for GPS...</p>
+
+                    <div id="eta-stops-scroll" class="eta-stops-scroll">
+                        <ol id="eta-list" class="eta-list"></ol>
+                    </div>
+                </div>
             </section>
 
-            <!--  ETA for the map -->
+            <!-- ETA for the map -->
             <div id="etaBubble" style="display:none;">Arrive by --:--</div>
         </div>
     </main>
@@ -63,6 +85,16 @@
             <button id="cancelCollect" style="flex: 1; padding: 12px; border: none; border-radius: 8px; background: #eee; color: #666; font-weight: bold; cursor: pointer;">Cancel</button>
             <button id="confirmCollect" style="flex: 1; padding: 12px; border: none; border-radius: 8px; background: #99cc33; color: white; font-weight: bold; cursor: pointer;">Yes, Collected</button>
         </div>
+    </div>
+</div>
+
+<!-- Result Alert -->
+<div id="collectAlert" class="alert-overlay" role="dialog" aria-modal="true" aria-labelledby="collectAlertTitle">
+    <div class="alert-box">
+        <div class="alert-icon" id="collectAlertIcon"></div>
+        <h3 class="alert-title" id="collectAlertTitle"></h3>
+        <p class="alert-message" id="collectAlertMessage"></p>
+        <button type="button" class="alert-btn" id="collectAlertClose">OK</button>
     </div>
 </div>
 

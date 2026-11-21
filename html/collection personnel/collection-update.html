@@ -60,7 +60,10 @@
                                 <input type="radio" name="issue" value="Others">
                                 <span class="radio-custom"></span> Others: <input type="text" id="otherIssueInput" class="inline-input" placeholder="...">
                             </label>
+
+                            <p id="incidentError" class="incident-error" role="alert"></p>
                         </div>
+
                     </section>
 
                     <button class="update-submit-btn" id="submitUpdate">Update</button>
@@ -93,6 +96,16 @@
         </footer>
     </div>
 
+        <!-- Result Alert -->
+    <div id="reportAlert" class="alert-overlay" role="dialog" aria-modal="true" aria-labelledby="reportAlertTitle">
+        <div class="alert-box">
+            <div class="alert-icon" id="reportAlertIcon"></div>
+            <h3 class="alert-title" id="reportAlertTitle"></h3>
+            <p class="alert-message" id="reportAlertMessage"></p>
+            <button type="button" class="alert-btn" id="reportAlertClose">OK</button>
+        </div>
+    </div>
+    
     <script type="module" src="../../js/collection personnel/collection-update.js"></script>
 </body>
 </html>

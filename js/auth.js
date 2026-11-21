@@ -214,11 +214,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // REGISTRATION HANDLER
+        // REGISTRATION HANDLER
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
+        const messageBox = document.getElementById('register-message');
+        const submitButton = document.getElementById('register-submit');
+
+        const showRegistrationMessage = (message, isError = true) => {
+            if (!messageBox) return;
+            messageBox.textContent = message;
+            messageBox.style.color = isError ? 'red' : '#4d7f13';
+            messageBox.style.display = 'block';
+        };
+
+        const clearRegistrationMessage = () => {
+            if (!messageBox) return;
+            messageBox.textContent = '';
+            messageBox.style.display = 'none';
+        };
+
+        registerForm.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', clearRegistrationMessage);
+        });
+
+        const friendlyRegistrationError = (err) => {
+            const raw = String(err?.message || '').toLowerCase();
+            if (raw.includes('already registered') || raw.includes('already been registered') || raw.includes('already exists')) {
+                return 'User already registered.';
+            }
+            if (raw.includes('invalid') && raw.includes('email')) {
+                return 'Please enter a valid email address.';
+            }
+            if (raw === 'failed to fetch' || err?.name === 'TypeError') {
+                return 'Unable to connect to the server. Please check your internet connection.';
+            }
+            return err?.message || 'Unable to create your account.';
+        };
+
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            clearRegistrationMessage();
 
             const name = document.getElementById('registerName').value.trim().replace(/\s+/g, ' ');
             const email = document.getElementById('registerEmail').value.trim().toLowerCase();
@@ -226,114 +261,96 @@ document.addEventListener('DOMContentLoaded', () => {
             const confirm = document.getElementById('registerConfirm').value.trim();
 
             if (!name || !email || !pass || !confirm) {
-                return alert("Please fill in all fields.");
+                showRegistrationMessage('Please fill in all fields.');
+                return;
             }
 
             if (!EMAIL_PATTERN.test(email)) {
-                return alert("Please enter a valid email address.");
+                showRegistrationMessage('Please enter a valid email address.');
+                return;
             }
 
             if (pass !== confirm) {
-                return alert("Passwords do not match.");
+                showRegistrationMessage('Passwords do not match.');
+                return;
             }
 
+            if (!PASSWORD_PATTERN.test(pass)) {
+                showRegistrationMessage('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.');
+                return;
+            }
+
+            const role = getRoleByEmail(email);
+
+            isRegistrationInProgress = true;
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'CREATING ACCOUNT...';
+            }
+            showRegistrationMessage('Creating your account...', false);
+
             try {
-                const messageBox = document.getElementById('register-message');
-                const submitButton = document.getElementById('register-submit');
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: pass,
+                    options: {
+                        data: { full_name: name }
+                    }
+                });
 
-                const showRegistrationMessage = (message, isError = true) => {
-                    if (!messageBox) return;
-                    messageBox.textContent = message;
-                    messageBox.style.color = isError ? 'red' : '#4d7f13';
-                    messageBox.style.display = 'block';
-                };
+                if (authError) throw authError;
 
-                if (!registerForm.checkValidity()) {
-                    registerForm.reportValidity();
-                    showRegistrationMessage('Please complete all required fields with a valid email address.');
+                const user = authData.user;
+
+                if (!user) {
+                    throw new Error('Supabase did not return a user account.');
+                }
+
+                // Existing email with confirmation on: Supabase returns no error,
+                // but the user has an empty identities list.
+                if (Array.isArray(user.identities) && user.identities.length === 0) {
+                    showRegistrationMessage('User already registered.');
                     return;
                 }
 
-                if (!PASSWORD_PATTERN.test(pass)) {
-                    showRegistrationMessage('Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.');
-                    return;
+                if (authData.session) {
+                    const { error: dbError } = await supabase
+                        .from('users')
+                        .upsert({
+                            id: user.id,
+                            name: name,
+                            email: email,
+                            role: role,
+                            is_disabled: false
+                        }, { onConflict: 'id' });
+
+                    if (dbError) throw dbError;
                 }
 
-                const role = getRoleByEmail(email);
+                await writeLog({
+                    user: email,
+                    role: role,
+                    action: "Account Created",
+                    message: `${name} created a new ${role} account`,
+                    category: "audit"
+                });
 
-                // 1. Create User in Supabase Auth
-                isRegistrationInProgress = true;
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'CREATING ACCOUNT...';
-                }
-                showRegistrationMessage('Creating your account...', false);
-
-                try {
-                    const { data: authData, error: authError } = await supabase.auth.signUp({
-                        email: email,
-                        password: pass,
-                        options: {
-                            data: { full_name: name }
-                        }
-                    });
-
-                    if (authError) throw authError;
-
-                    const user = authData.user;
-
-                    if (!user) {
-                        throw new Error('Supabase did not return a user account.');
-                    }
-
-                    // 2. The database trigger creates a profile even before email confirmation.
-                    // Update it here only when Auth returned a usable browser session.
-                    if (authData.session) {
-                        const { error: dbError } = await supabase
-                            .from('users')
-                            .upsert({
-                                id: user.id,
-                                name: name,
-                                email: email,
-                                role: role,
-                                is_disabled: false
-                            }, { onConflict: 'id' });
-
-                        if (dbError) throw dbError;
-                    }
-
-                    // 3. AUDIT LOG
-                    await writeLog({
-                        user: email,
-                        role: role,
-                        action: "Account Created",
-                        message: `${name} created a new ${role} account`,
-                        category: "audit"
-                    });
-
-                    const confirmationRequired = !authData.session;
-                    await supabase.auth.signOut();
-                    const successMessage = confirmationRequired
-                        ? 'Account created. Check your email to confirm it before logging in.'
-                        : 'Account created successfully. You can now log in.';
-                    showRegistrationMessage(successMessage, false);
-                    showSuccessModal(successMessage, () => window.showLogin());
-                } catch (err) {
-                    console.error("Registration Error:", err);
-                    const errorMessage = err.message || 'Unable to create your account.';
-                    showRegistrationMessage(`Registration error: ${errorMessage}`);
-                    alert(`Registration error: ${errorMessage}`);
-                } finally {
-                    isRegistrationInProgress = false;
-                    if (submitButton) {
-                        submitButton.disabled = false;
-                        submitButton.textContent = 'SIGN UP';
-                    }
-                }
-
+                const confirmationRequired = !authData.session;
+                await supabase.auth.signOut();
+                const successMessage = confirmationRequired
+                    ? 'Account created. Check your email to confirm it before logging in.'
+                    : 'Account created successfully. You can now log in.';
+                clearRegistrationMessage();
+                showSuccessModal(successMessage, () => window.showLogin());
             } catch (err) {
-                console.error("Registration form error:", err);
-                alert("Registration error: " + (err.message || 'Unable to submit the form.'));
+                console.error("Registration Error:", err);
+                showRegistrationMessage(friendlyRegistrationError(err));
+            } finally {
+                isRegistrationInProgress = false;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'SIGN UP';
+                }
             }
         });
     }
