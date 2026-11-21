@@ -2,30 +2,72 @@ import { supabase } from '../supabase-init.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
 let wasteChart;
-const ctx = document.getElementById('wasteChart').getContext('2d');
+const manilaDate = new Intl.DateTimeFormat('en', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+});
+const chartDate = new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
 initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    initTrendChart();
+    const trendPeriod = document.getElementById('trendPeriod');
+    let trendRequest = 0;
+    let refreshTimer;
 
-    const loadBins = async () => {
-        setTrendStatus('Loading weekly bin readings...');
-        try {
-            const { data, error } = await supabase.from('bins').select('*, bin_history(data, counts)');
-            if (error) throw error;
-            processAnalytics(data || []);
-        } catch (error) {
-            console.error('Analytics sync failed:', error);
-            wasteChart.data.datasets[0].data = [null, null, null, null, null, null, null];
-            wasteChart.update('none');
-            setTrendStatus('Unable to load waste readings. Check your connection and sign-in, then try again.');
+    const loadTrend = async (showLoading = true) => {
+        const request = ++trendRequest;
+        const { start, end, days } = getTrendPeriod(trendPeriod.value);
+        if (showLoading) {
+            renderTrend(days, new Map(), new Map());
+            setTrendStatus('Loading bin fill readings…');
         }
+
+        const [sensorResult, collectionResult] = await Promise.allSettled([
+            loadSensorTrend(start, end),
+            loadCollectionTrend(start, end)
+        ]);
+        if (request !== trendRequest) return;
+
+        const sensor = sensorResult.status === 'fulfilled' ? sensorResult.value : new Map();
+        const collection = collectionResult.status === 'fulfilled' ? collectionResult.value : new Map();
+        renderTrend(days, sensor, collection);
+
+        const errors = [];
+        if (sensorResult.status === 'rejected') {
+            console.error('Unable to load bin sync readings:', sensorResult.reason);
+            errors.push('Bin sync readings are unavailable.');
+        }
+        if (collectionResult.status === 'rejected') {
+            console.error('Unable to load collection readings:', collectionResult.reason);
+            errors.push('Collection readings are unavailable.');
+        }
+        const empty = !sensor.size && !collection.size ? 'No readings to display for this period.' : '';
+        setTrendStatus([...errors, empty].filter(Boolean).join(' '));
     };
 
-        // PAGINATION & FILTER STATE
+    const refreshTrend = () => {
+        // Batch frequent bin updates and leave the existing chart visible during refresh.
+        if (refreshTimer) return;
+        refreshTimer = setTimeout(() => {
+            refreshTimer = undefined;
+            loadTrend(false);
+        }, 1000);
+    };
+
+    if (typeof Chart === 'function') {
+        initTrendChart();
+        trendPeriod.addEventListener('change', () => loadTrend());
+        loadTrend();
+    } else {
+        trendPeriod.disabled = true;
+        setTrendStatus('The chart could not start. Reload this page to try again.');
+    }
+
     let currentPage = 1;
     const pageSize = 10;
     let totalRecords = 0;
@@ -148,74 +190,122 @@ document.addEventListener('DOMContentLoaded', () => {
         loadCollectionRecords();
     });
 
-    loadBins();
     loadCollectionRecords();
 
     supabase.channel('lgu-analytics-sync')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'bins' }, loadBins)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'bin_history' }, loadBins)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_bin_fill' }, () => {
+            if (wasteChart) refreshTrend();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_logs' }, () => {
+            if (wasteChart) refreshTrend();
+        })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_records' }, loadCollectionRecords)
         .subscribe();
 
 });
 
+function getManilaDate(timestamp) {
+    const parts = Object.fromEntries(manilaDate.formatToParts(timestamp).map(({ type, value }) => [type, value]));
+    return [parts.year, parts.month, parts.day].join('-');
+}
+
+function getTrendPeriod(period, now = new Date()) {
+    const today = new Date(getManilaDate(now) + 'T00:00:00Z');
+    let start;
+    let end;
+
+    // UTC Date objects represent Manila calendar dates here.
+    if (period.endsWith('month')) {
+        const offset = period === 'last-month' ? -1 : 0;
+        start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + offset, 1));
+        end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+    } else {
+        start = new Date(today);
+        const daysSinceMonday = (start.getUTCDay() + 6) % 7;
+        start.setUTCDate(start.getUTCDate() - daysSinceMonday - (period === 'last-week' ? 7 : 0));
+        end = new Date(start);
+        end.setUTCDate(end.getUTCDate() + 7);
+    }
+
+    const days = [];
+    for (const day = new Date(start); day < end; day.setUTCDate(day.getUTCDate() + 1)) {
+        days.push(day.toISOString().slice(0, 10));
+    }
+
+    return { start: days[0], end: end.toISOString().slice(0, 10), days };
+}
+
+async function loadSensorTrend(start, end) {
+    const { data, error } = await supabase.from('daily_bin_fill')
+        .select('reading_date, level_total, reading_count')
+        .gte('reading_date', start)
+        .lt('reading_date', end);
+    if (error) throw error;
+
+    return new Map(data.map(row => [row.reading_date, Math.round(row.level_total / row.reading_count)]));
+}
+
+async function loadCollectionTrend(start, end) {
+    const daily = new Map();
+    const pageSize = 500;
+    let lastId;
+
+    while (true) {
+        let query = supabase.from('collection_logs')
+            .select('id, collected_at, waste_level_at_collection')
+            .gte('collected_at', new Date(start + 'T00:00:00+08:00').toISOString())
+            .lt('collected_at', new Date(end + 'T00:00:00+08:00').toISOString())
+            .eq('action', 'Collection Completed')
+            .gte('waste_level_at_collection', 0)
+            .lte('waste_level_at_collection', 100)
+            .order('id')
+            .limit(pageSize);
+        if (lastId !== undefined) query = query.gt('id', lastId);
+
+        const { data, error } = await query;
+        if (error) throw error;
+        if (!data.length) break;
+
+        for (const row of data) {
+            const day = getManilaDate(new Date(row.collected_at));
+            const values = daily.get(day) || { total: 0, count: 0 };
+            values.total += row.waste_level_at_collection;
+            values.count++;
+            daily.set(day, values);
+        }
+        lastId = data.at(-1).id;
+    }
+
+    return new Map([...daily].map(([day, values]) => [day, Math.round(values.total / values.count)]));
+}
+
 function initTrendChart() {
-    wasteChart = new Chart(ctx, {
+    wasteChart = new Chart(document.getElementById('wasteChart'), {
         type: 'line',
         data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-                label: 'Average Waste Level (%)',
-                data: [null, null, null, null, null, null, null],
-                borderColor: '#99cc33',
-                backgroundColor: 'rgba(153, 204, 51, 0.05)',
-                fill: true,
-                tension: 0.4
-            }]
+            labels: [],
+            datasets: [
+                { label: 'Bin sync readings', data: [], borderColor: '#48742c', backgroundColor: '#48742c' },
+                { label: 'At collection', data: [], borderColor: '#4466a6', backgroundColor: '#4466a6', borderDash: [5, 4] }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { legend: { labels: { boxWidth: 16, usePointStyle: true } } },
             scales: {
-                y: { beginAtZero: true, max: 100, ticks: { stepSize: 25, font: { size: 10 } } },
-                x: { ticks: { font: { size: 10 } } }
+                y: { beginAtZero: true, max: 100, ticks: { stepSize: 25, callback: value => value + '%' } },
+                x: { ticks: { maxTicksLimit: 8 } }
             }
         }
     });
 }
 
-function processAnalytics(bins) {
-    updateTrendGraph(bins);
-}
-
-function updateTrendGraph(bins) {
-    const weeklyTotals = [0, 0, 0, 0, 0, 0, 0];
-    const weeklyCounts = [0, 0, 0, 0, 0, 0, 0];
-
-    bins.forEach(bin => {
-        const history = Array.isArray(bin.bin_history) ? bin.bin_history[0] : bin.bin_history;
-        if (!history || !Array.isArray(history.data) || !Array.isArray(history.counts)
-            || history.data.length !== 7 || history.counts.length !== 7) {
-            return;
-        }
-
-        history.data.forEach((total, index) => {
-            const count = Number(history.counts[index]);
-            const value = Number(total);
-            if (Number.isFinite(value) && Number.isFinite(count) && count > 0) {
-                weeklyTotals[index] += value;
-                weeklyCounts[index] += count;
-            }
-        });
-    });
-
-    const hasReadings = weeklyCounts.some(count => count > 0);
-    wasteChart.data.datasets[0].data = weeklyTotals.map((total, index) =>
-        weeklyCounts[index] > 0 ? Math.round(total / weeklyCounts[index]) : null
-    );
+function renderTrend(days, sensor, collection) {
+    wasteChart.data.labels = days.map(day => chartDate.format(new Date(day)));
+    wasteChart.data.datasets[0].data = days.map(day => sensor.get(day) ?? null);
+    wasteChart.data.datasets[1].data = days.map(day => collection.get(day) ?? null);
     wasteChart.update('none');
-    setTrendStatus(hasReadings ? '' : 'No weekly bin readings are available yet.');
 }
 
 function setTrendStatus(message) {

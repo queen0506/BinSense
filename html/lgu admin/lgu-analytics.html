@@ -18,10 +18,18 @@
 
         <main class="main-content">
             <div class="chart-container-box">
-                <h3 class="chart-label">Average Bin Fill Trend (%)</h3>
+                <div class="records-header">
+                    <h3 class="chart-label">Average Bin Fill Trend (%)</h3>
+                    <select id="trendPeriod" class="records-filter" aria-label="Bin fill trend period">
+                        <option value="this-week">This Week</option>
+                        <option value="last-week">Last Week</option>
+                        <option value="this-month">This Month</option>
+                        <option value="last-month">Last Month</option>
+                    </select>
+                </div>
                 <p id="wasteChartStatus" class="chart-status" role="status" hidden></p>
                 <div class="canvas-wrapper">
-                    <canvas id="wasteChart"></canvas>
+                    <canvas id="wasteChart" role="img" aria-label="Daily average bin fill percentages"></canvas>
                 </div>
             </div>
 
