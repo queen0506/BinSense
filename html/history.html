@@ -15,7 +15,7 @@
             <h1 class="dashboard-title">Guide</h1>
             
             <div class="notification-icon-container">
-                <button class="notification-btn" id="notificationBtn">
+                <button class="notification-btn" id="notificationBtn" aria-label="Notifications">
                     <svg class="notification-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
@@ -47,33 +47,133 @@
             <p class="guide-subtitle">Follow these instructions to sort your trash properly. Click each button to know what to put in each waste bin.</p>
             
             <div class="activity-list">
-                <button class="guide-btn" data-modal="bioModal">
-                    <div class="guide-btn-content">
-                        <h3>Biodegradable</h3>
-                        <p>Organic materials that can be broken down by microorganisms into fine particles.</p>
+                <article class="guide-card" data-category="biodegradable">
+                    <button class="guide-card-toggle" type="button" id="guide-title-bio" aria-expanded="false" aria-controls="guide-panel-bio">
+                        <span class="guide-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 4c-8 0-13 3.5-13 9a5 5 0 0 0 5 5c5.5 0 8-6 8-14Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3 21c3-5 6-8 11-11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span class="guide-card-copy">
+                            <span class="guide-card-title">Biodegradable</span>
+                            <span class="guide-card-description">Organic materials that can be broken down by microorganisms into fine particles.</span>
+                        </span>
+                        <svg class="guide-card-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="guide-card-panel" id="guide-panel-bio" role="region" aria-labelledby="guide-title-bio" aria-hidden="true">
+                        <div class="guide-card-panel-inner">
+                            <div class="guide-card-details">
+                                <h3>Common examples</h3>
+                                <ul class="guide-examples">
+                                    <li>Fruit and vegetable peels</li>
+                                    <li>Food scraps</li>
+                                    <li>Dried leaves</li>
+                                    <li>Grass clippings</li>
+                                </ul>
+                                <p class="guide-disposal-tip"><strong>Disposal tip</strong> Place it in the designated organic waste bin. Compost suitable materials when possible.</p>
+                            </div>
+                        </div>
                     </div>
-                </button>
+                </article>
 
-                <button class="guide-btn" data-modal="recyModal">
-                    <div class="guide-btn-content">
-                        <h3>Recyclable</h3>
-                        <p>Waste materials that can still be processed into raw materials for new products.</p>
+                <article class="guide-card" data-category="recyclable">
+                    <button class="guide-card-toggle" type="button" id="guide-title-recycle" aria-expanded="false" aria-controls="guide-panel-recycle">
+                        <span class="guide-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="m7 7 2-3 2 3M9 4l-3 5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="m17 9 3 1-1 3m1-3h-6l2 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="m10 18-2 2-3-2m3 2 3-5H7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="guide-card-copy">
+                            <span class="guide-card-title">Recyclable</span>
+                            <span class="guide-card-description">Waste materials that can still be processed into raw materials for new products.</span>
+                        </span>
+                        <svg class="guide-card-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="guide-card-panel" id="guide-panel-recycle" role="region" aria-labelledby="guide-title-recycle" aria-hidden="true">
+                        <div class="guide-card-panel-inner">
+                            <div class="guide-card-details">
+                                <h3>Common examples</h3>
+                                <ul class="guide-examples">
+                                    <li>Clean plastic bottles</li>
+                                    <li>Paper and cardboard</li>
+                                    <li>Aluminum cans</li>
+                                    <li>Glass bottles</li>
+                                </ul>
+                                <p class="guide-disposal-tip"><strong>Disposal tip</strong> Empty and clean containers when appropriate. Follow local recycling guidelines.</p>
+                            </div>
+                        </div>
                     </div>
-                </button>
+                </article>
 
-                <button class="guide-btn" data-modal="residModal">
-                    <div class="guide-btn-content">
-                        <h3>Residual</h3>
-                        <p>Non-hazardous materials that have no further use and cannot be composted.</p>
+                <article class="guide-card" data-category="residual">
+                    <button class="guide-card-toggle" type="button" id="guide-title-residual" aria-expanded="false" aria-controls="guide-panel-residual">
+                        <span class="guide-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 7h16M10 11v6m4-6v6M5 7l1 13h12l1-13M9 7V4h6v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="guide-card-copy">
+                            <span class="guide-card-title">Residual</span>
+                            <span class="guide-card-description">Non-hazardous materials that have no further use and cannot be composted.</span>
+                        </span>
+                        <svg class="guide-card-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="guide-card-panel" id="guide-panel-residual" role="region" aria-labelledby="guide-title-residual" aria-hidden="true">
+                        <div class="guide-card-panel-inner">
+                            <div class="guide-card-details">
+                                <h3>Common examples</h3>
+                                <ul class="guide-examples">
+                                    <li>Used tissue paper</li>
+                                    <li>Contaminated wrappers</li>
+                                    <li>Non-recyclable packaging</li>
+                                    <li>Other non-recoverable household waste</li>
+                                </ul>
+                                <p class="guide-disposal-tip"><strong>Disposal tip</strong> Place it in its designated bin and keep it separate from recyclable and biodegradable materials.</p>
+                            </div>
+                        </div>
                     </div>
-                </button>
+                </article>
 
-                <button class="guide-btn" data-modal="hazModal">
-                    <div class="guide-btn-content">
-                        <h3>Hazardous</h3>
-                        <p>Materials containing toxic substances requiring special handling and disposal.</p>
+                <article class="guide-card" data-category="hazardous">
+                    <button class="guide-card-toggle" type="button" id="guide-title-hazardous" aria-expanded="false" aria-controls="guide-panel-hazardous">
+                        <span class="guide-card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10.3 4.4 2.8 18a1.7 1.7 0 0 0 1.5 2.5h15.4a1.7 1.7 0 0 0 1.5-2.5L13.7 4.4a1.9 1.9 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 9v4m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span class="guide-card-copy">
+                            <span class="guide-card-title">Hazardous</span>
+                            <span class="guide-card-description">Materials containing toxic substances requiring special handling and disposal.</span>
+                        </span>
+                        <svg class="guide-card-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="guide-card-panel" id="guide-panel-hazardous" role="region" aria-labelledby="guide-title-hazardous" aria-hidden="true">
+                        <div class="guide-card-panel-inner">
+                            <div class="guide-card-details">
+                                <h3>Common examples</h3>
+                                <ul class="guide-examples">
+                                    <li>Batteries</li>
+                                    <li>Certain chemical containers</li>
+                                    <li>Paint and chemical waste</li>
+                                    <li>Broken mercury-containing lamps</li>
+                                </ul>
+                                <p class="guide-disposal-tip"><strong>Disposal tip</strong> Keep it separate from regular household waste and follow local hazardous-waste collection procedures.</p>
+                            </div>
+                        </div>
                     </div>
-                </button>
+                </article>
             </div>
         </main>
 
@@ -94,18 +194,6 @@
             </div>
         </footer>
 
-        <div class="guide-modal-overlay" id="guideModalOverlay">
-            <div class="guide-modal-box">
-                <div class="modal-body-content">
-                    <h2 id="modalTitle" class="modal-h2">What to put in:</h2>
-                    <p id="modalDesc" class="modal-desc"></p>
-                    <ol id="modalList" class="modal-ol"></ol>
-                </div>
-                <div class="modal-footer">
-                    <button class="modal-okay-btn" id="modalCloseBtn">Okay</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script type="module" src="../js/history.js"></script>

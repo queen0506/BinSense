@@ -74,10 +74,9 @@ table {
 
 /* Header */
 .top-nav {
-    background-color: var(--lgu-green); 
+    background-color: transparent;
     padding: 35px 20px 15px 20px;
-    border-bottom-left-radius: var(--radius-xl);
-    border-bottom-right-radius: var(--radius-xl);
+    border-radius: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -88,7 +87,7 @@ table {
 }
 
 .dashboard-title {
-    color: #ffffff;
+    color: #1a1a1a;
     font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
@@ -102,7 +101,7 @@ table {
 }
 
 .notification-btn {
-    background-color: transparent; 
+    background-color: var(--lgu-green);
     border: none;
     cursor: pointer;
     padding: 0;
@@ -110,10 +109,10 @@ table {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;  
-    height: 48px; 
+    width: 44px;
+    height: 44px;
     border-radius: 50%; 
-    box-shadow: none; 
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     transition: transform 0.3s ease;
 }
 
@@ -122,8 +121,8 @@ table {
 }
 
 .notification-icon {
-    width: 28px; 
-    height: 28px;
+    width: 24px;
+    height: 24px;
     color: #fff;
     stroke: #fff;
     stroke-width: 2; 
@@ -713,8 +712,8 @@ table {
     }
 
     .notification-btn {
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background-color: var(--lgu-green);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     }
 
 
@@ -837,7 +836,7 @@ table {
 }
 .greeting-text {
     font-size: 0.9rem;
-    color: #fff;
+    color: #1a1a1a;
     margin-bottom: 2px;
 }
 

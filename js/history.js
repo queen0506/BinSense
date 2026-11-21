@@ -148,64 +148,29 @@ function updateBadge(count) {
     }
 }
 
-/* 
-   GUIDE MODAL LOGIC
-*/
 document.addEventListener('DOMContentLoaded', async () => {
-    
-    // 1. Initialize Supabase Notifications
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        initNotifications(user); 
-    }
+    const guideCards = Array.from(document.querySelectorAll('.guide-card'));
 
-    // 2. Guide Modal Logic
-    const modalOverlay = document.getElementById('guideModalOverlay');
-    const modalDesc = document.getElementById('modalDesc');
-    const modalList = document.getElementById('modalList');
-    const closeBtn = document.getElementById('modalCloseBtn');
+    guideCards.forEach((card) => {
+        const toggle = card.querySelector('.guide-card-toggle');
 
-    const modalData = {
-        bioModal: {
-            desc: 'Leftover food and kitchen scraps.',
-            items: ['Fruit and vegetable peelings.', 'Garden waste (dried leaves, grass clippings, small twigs).', 'Eggshells and coffee grounds.']
-        },
-        recyModal: {
-            desc: 'Items that can still be processed and used as raw materials.',
-            items: ['Plastics: Plastic bottles (PET), containers, and jugs.', 'Metals: Aluminum soda cans, tin cans, and scrap metal.', 'Glass: Empty glass bottles and jars (non-broken).', 'Paper: Old newspapers, magazines, cardboard boxes, and office paper.']
-        },
-        residModal: {
-            desc: 'Non-hazardous materials that have no further use.',
-            items: ['Soiled food wrappers and plastic sachets (shampoo, coffee, or snack packs).', 'Used tissues, napkins, and disposable diapers.', 'Worn-out rags and rubber materials.', 'Styrofoam packaging (if not accepted by local recyclers).']
-        },
-        hazModal: {
-            desc: 'Materials that contain toxic substances.',
-            items: ['Electronic Waste (E-waste): Old phones, chargers, and broken appliances.', 'Chemicals: Used batteries, light bulbs (CFLs and fluorescent tubes), and empty spray cans.', 'Medical Waste: Expired medicines and used face masks (in a household setting, these are often bagged separately).']
-        }
-    };
+        toggle.addEventListener('click', () => {
+            const shouldExpand = toggle.getAttribute('aria-expanded') !== 'true';
 
-    if (modalOverlay && modalDesc && modalList) {
-        document.querySelectorAll('.guide-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const data = modalData[btn.getAttribute('data-modal')];
-                if(data) {
-                    modalDesc.textContent = data.desc;
-                    modalList.innerHTML = data.items.map(item => `<li>${item}</li>`).join('');
-                    modalOverlay.style.display = 'flex';
-                }
+            guideCards.forEach((otherCard) => {
+                const otherToggle = otherCard.querySelector('.guide-card-toggle');
+                const otherPanel = otherCard.querySelector('.guide-card-panel');
+                const isExpanded = otherCard === card && shouldExpand;
+
+                otherCard.classList.toggle('is-expanded', isExpanded);
+                otherToggle.setAttribute('aria-expanded', String(isExpanded));
+                otherPanel.setAttribute('aria-hidden', String(!isExpanded));
             });
         });
-    }
+    });
 
-    if (closeBtn && modalOverlay) {
-        closeBtn.onclick = () => modalOverlay.style.display = 'none';
-    }
-
-    if (modalOverlay) {
-        window.onclick = (e) => {
-            if(e.target == modalOverlay) {
-                modalOverlay.style.display = 'none';
-            }
-        };
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        initNotifications(user);
     }
 });

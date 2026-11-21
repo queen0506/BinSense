@@ -141,62 +141,173 @@ function updateBadge(count) {
 // YOUR ORIGINAL ANALYTICS LOGIC STARTS HERE
 // ==========================================
 
+const chartContainer = document.getElementById('chartContainer');
+const chartStateMessage = document.getElementById('chartStateMessage');
+const retryStatisticsBtn = document.getElementById('retryStatisticsBtn');
+const chartPointDetail = document.getElementById('chartPointDetail');
+const insightTitle = document.getElementById('insightTitle');
+const insightMessage = document.getElementById('insightMessage');
+const chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const fullDayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+let retryStatistics = null;
+
+function setChartState(state, message, retryAction = null) {
+    chartContainer.dataset.state = state;
+    chartStateMessage.textContent = message;
+    retryStatistics = retryAction;
+    retryStatisticsBtn.hidden = state !== 'error';
+    retryStatisticsBtn.disabled = false;
+}
+
+function setInsight(title, message) {
+    insightTitle.textContent = title;
+    insightMessage.textContent = message;
+}
+
+retryStatisticsBtn.addEventListener('click', () => {
+    if (retryStatistics) {
+        retryStatisticsBtn.disabled = true;
+        retryStatistics();
+    }
+});
+
 // --- 1. Chart Initialization ---
 const ctx = document.getElementById('binChart').getContext('2d');
 const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-gradient.addColorStop(0, 'rgba(153, 204, 51, 0.4)');
+gradient.addColorStop(0, 'rgba(153, 204, 51, 0.28)');
 gradient.addColorStop(1, 'rgba(153, 204, 51, 0)');
 
 const binChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], // FIXED LABELS
+        labels: chartLabels,
         datasets: [{
-            label: 'Avg Daily Fill (%)',
-            data: [0, 0, 0, 0, 0, 0, 0], 
+            label: 'Average recorded fill',
+            data: [null, null, null, null, null, null, null],
             borderColor: '#99cc33',
-            borderWidth: 4,
+            borderWidth: 3,
             backgroundColor: gradient,
             fill: true,
-            tension: 0.4,
-            pointRadius: 5,
-            pointBackgroundColor: '#99cc33'
+            tension: 0.32,
+            spanGaps: false,
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            pointHitRadius: 14,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#79aa32',
+            pointBorderWidth: 2.5,
+            pointHoverBackgroundColor: '#99cc33',
+            pointHoverBorderColor: '#fff'
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        animation: {
+            duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 450,
+            easing: 'easeOutQuart'
+        },
+        interaction: {
+            mode: 'nearest',
+            intersect: true
+        },
+        onClick: (event, elements, chart) => {
+            if (!elements.length) return;
+
+            const { dataIndex, datasetIndex } = elements[0];
+            const value = chart.data.datasets[datasetIndex].data[dataIndex];
+            if (value === null || value === undefined) return;
+
+            chartPointDetail.textContent = `${fullDayLabels[dataIndex]} · Average recorded fill: ${value}%. Exact calendar dates are not available.`;
+            chartPointDetail.hidden = false;
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#243323',
+                titleColor: '#fff',
+                bodyColor: '#edf5e6',
+                padding: 12,
+                displayColors: false,
+                callbacks: {
+                    title: (items) => `${fullDayLabels[items[0].dataIndex]} · stored weekday`,
+                    label: (context) => `${context.dataset.label}: ${context.parsed.y}%`
+                }
+            }
+        },
         scales: {
-            y: { 
-                beginAtZero: true, 
-                max: 100, 
-                ticks: { stepSize: 25, callback: (v) => v + '%' } 
+            x: {
+                grid: { display: false },
+                ticks: { color: '#758174', font: { size: 11 } },
+                border: { display: false }
+            },
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    stepSize: 25,
+                    color: '#758174',
+                    callback: (value) => `${value}%`
+                },
+                grid: { color: '#edf1e9', drawTicks: false },
+                border: { display: false }
             }
         }
     }
 });
 
 // --- 2. Auth Initializer ---
-document.addEventListener('DOMContentLoaded', async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+document.addEventListener('DOMContentLoaded', loadStatistics);
 
-    if (user) {
-        // Initialize Notifications for Analytics Page
-        initNotifications(user);
+let notificationsInitialized = false;
+
+async function loadStatistics() {
+    setChartState('loading', 'Loading recorded readings…');
+    setInsight('Loading bin statistics', 'Waiting for the connected bin data to load.');
+
+    try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+
+        if (!user) {
+            setChartState('empty', 'Sign in to view connected-bin statistics.');
+            setInsight('Sign-in required', 'Statistics are available for the bins connected to your account.');
+            return;
+        }
+
+        if (!notificationsInitialized) {
+            notificationsInitialized = true;
+            initNotifications(user);
+        }
 
         // Query user_connected_bins table
-        const { data: connectedBins } = await supabase
+        const { data: connectedBins, error: connectedBinsError } = await supabase
             .from('user_connected_bins')
             .select('bin_id')
             .eq('user_id', user.id);
+        if (connectedBinsError) throw connectedBinsError;
 
-        if (connectedBins && connectedBins.length > 0) {
-            const firstBinId = connectedBins[0].bin_id;
-            startTracking(firstBinId);
+        if (!connectedBins || connectedBins.length === 0) {
+            binChart.data.datasets[0].data = chartLabels.map(() => null);
+            binChart.update();
+            setChartState('empty', 'No connected bins are available for this account.');
+            setInsight('No connected bin', 'Connect a bin from Home to start viewing recorded monitoring data.');
+            return;
         }
+
+        await startTracking(connectedBins[0].bin_id);
+    } catch (error) {
+        if (error?.name === 'AuthSessionMissingError') {
+            setChartState('empty', 'Sign in to view connected-bin statistics.');
+            setInsight('Sign-in required', 'Statistics are available for the bins connected to your account.');
+            return;
+        }
+
+        console.error('Unable to load statistics:', error);
+        setChartState('error', 'Statistics could not be loaded. Check your connection and try again.', loadStatistics);
+        setInsight('Statistics unavailable', 'A data error prevented the dashboard from loading readings.');
     }
-});
+}
 
 // --- 3. Persistent Data Logic ---
 async function startTracking(activeBinId) {
@@ -220,23 +331,58 @@ async function startTracking(activeBinId) {
     }
 
     // B. Sync Weekly Data to Chart
-    const fetchHistory = async () => {
-        const { data: history } = await supabase
+    const fetchHistory = async (showLoading = false) => {
+        if (showLoading) setChartState('loading', 'Loading recorded readings...');
+
+        const { data: history, error: historyError } = await supabase
             .from('bin_history')
             .select('data, counts')
             .eq('bin_id', activeBinId)
             .single();
 
-        if (history && history.data && history.counts) {
-            const averages = history.data.map((total, i) => 
-                history.counts[i] > 0 ? Math.round(total / history.counts[i]) : 0
-            );
-            binChart.data.datasets[0].data = averages;
-            binChart.update(); 
+        if (historyError && historyError.code !== 'PGRST116') {
+            console.error('Unable to load weekly bin history:', historyError);
+            setChartState('error', 'Weekly readings could not be loaded. Try again.', () => fetchHistory(true));
+            setInsight('Statistics unavailable', 'A data error prevented the weekly readings from loading.');
+            return;
+        }
+
+        if (!history) {
+            binChart.data.datasets[0].data = chartLabels.map(() => null);
+            binChart.update();
+            setChartState('empty', 'No waste monitoring data is available for this period yet.');
+            setInsight('No readings yet', 'The connected bin has not recorded weekday readings for this period.');
+            return;
+        }
+
+        if (!Array.isArray(history.data) || !Array.isArray(history.counts)
+            || history.data.length !== chartLabels.length || history.counts.length !== chartLabels.length) {
+            const historyShapeError = new Error('Stored bin history does not contain seven weekday values and counts.');
+            console.error('Unable to display weekly bin history:', historyShapeError);
+            setChartState('error', 'The stored weekly readings are not in the expected format.', () => fetchHistory(true));
+            setInsight('Statistics unavailable', 'The saved readings could not be displayed.');
+            return;
+        }
+
+        const averages = history.data.map((total, i) =>
+            history.counts[i] > 0 ? Math.round(total / history.counts[i]) : null
+        );
+        const hasReadings = history.counts.some(count => count > 0);
+
+        binChart.data.datasets[0].data = averages;
+        binChart.update();
+        chartPointDetail.hidden = true;
+
+        if (hasReadings) {
+            setChartState('ready', '');
+            setInsight('Weekly readings available', 'The chart shows averages of recorded status-based fill readings. Days without samples are left blank.');
+        } else {
+            setChartState('empty', 'No waste monitoring data is available for this period yet.');
+            setInsight('No readings yet', 'No samples were recorded for the displayed weekdays.');
         }
     };
 
-    await fetchHistory();
+    await fetchHistory(true);
 
     // Listen for realtime bin_history changes
     supabase
@@ -308,15 +454,15 @@ function parseStatus(val) {
 }
 
 function updateEfficiencyUI(current, avg) {
-    const title = document.querySelector('.status-text h3');
-    const desc = document.querySelector('.status-text p');
+    const title = document.getElementById('insightTitle');
+    const desc = document.getElementById('insightMessage');
     if (!title || !desc) return;
 
     if (current >= 90) {
-        title.innerText = "Bin is full!";
-        desc.innerText = "Your usage is currently peaking. Collect the trash now!";
+        title.textContent = 'High bin fill status';
+        desc.textContent = `Latest recorded fill status: ${current}%. Today's recorded average: ${avg}%.`;
     } else {
-        title.innerText = "You're doing great!";
-        desc.innerText = `Today's average usage is ${avg}%. Keep collecting responsibly!`;
+        title.textContent = current === 0 ? 'Bin status: Available' : 'Latest status recorded';
+        desc.textContent = `Latest recorded fill status: ${current}%. Today's recorded average: ${avg}%.`;
     }
 }

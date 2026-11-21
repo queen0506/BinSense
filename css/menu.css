@@ -58,10 +58,9 @@ img {
 }
 
 .top-nav {
-    background-color: var(--lgu-green); 
-    padding: 40px 25px 24px 25px;
-    border-bottom-left-radius: var(--radius-xl);
-    border-bottom-right-radius: var(--radius-xl);
+    background-color: transparent;
+    padding: 40px 25px 0;
+    border-radius: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -72,7 +71,7 @@ img {
 }
 
 .dashboard-title {
-    color: #ffffff;
+    color: #1a1a1a;
     font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
@@ -85,7 +84,7 @@ img {
 .main-content {
     flex: 1;
     min-height: 0;
-    padding: 57px 0 20px 0;
+    padding: 5px 0 20px 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     display: flex;
