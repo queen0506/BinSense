@@ -12,9 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
     initTrendChart();
 
     const loadBins = async () => {
-        const { data, error } = await supabase.from('bins').select('*, bin_history(data)');
-        if (error) return console.error('Analytics sync failed:', error);
-        processAnalytics((data || []).map(bin => ({ ...bin, history: bin.bin_history })));
+        setTrendStatus('Loading weekly bin readings...');
+        try {
+            const { data, error } = await supabase.from('bins').select('*, bin_history(data, counts)');
+            if (error) throw error;
+            processAnalytics(data || []);
+        } catch (error) {
+            console.error('Analytics sync failed:', error);
+            wasteChart.data.datasets[0].data = [null, null, null, null, null, null, null];
+            wasteChart.update('none');
+            setTrendStatus('Unable to load waste readings. Check your connection and sign-in, then try again.');
+        }
     };
 
         // PAGINATION & FILTER STATE
@@ -23,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let totalRecords = 0;
 
     const loadCollectionRecords = async () => {
-        const selectedBrgy = document.getElementById('brgySelector').value;
         const dateFilter = document.getElementById('dateFilter').value;
         
         const tbody = document.getElementById('collectionRecordsBody');
@@ -43,12 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .order('created_at', { ascending: false })
             .range(from, to); 
 
-        // 1. Barangay Filter
-        if (selectedBrgy !== 'all') {
-            query = query.eq('bins.barangay', selectedBrgy);
-        }
-
-        // 2. Date Filter Logic
+        // Date Filter Logic
         if (dateFilter !== 'all') {
             const now = new Date();
             let startDate;
@@ -155,11 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_records' }, loadCollectionRecords)
         .subscribe();
 
-    document.getElementById('brgySelector').addEventListener('change', () => {
-        currentPage = 1; 
-        loadBins();
-        loadCollectionRecords(); 
-    });
 });
 
 function initTrendChart() {
@@ -168,8 +165,8 @@ function initTrendChart() {
         data: {
             labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             datasets: [{
-                label: 'Waste Volume (%)',
-                data: [0, 0, 0, 0, 0, 0, 0],
+                label: 'Average Waste Level (%)',
+                data: [null, null, null, null, null, null, null],
                 borderColor: '#99cc33',
                 backgroundColor: 'rgba(153, 204, 51, 0.05)',
                 fill: true,
@@ -189,74 +186,42 @@ function initTrendChart() {
 }
 
 function processAnalytics(bins) {
-    const selectedBrgy = document.getElementById('brgySelector').value;
-    const filtered = selectedBrgy === 'all' ? bins : bins.filter(b => b.barangay === selectedBrgy);
-    
-    if (filtered.length === 0) {
-        document.getElementById('nudgeEffectiveness').innerText = `0%`;
-        document.getElementById('awarenessStatus').innerText = "No active bins detected in " + (selectedBrgy === 'all' ? "the community" : selectedBrgy) + ".";
-        document.getElementById('statusIndicator').className = 'status-dot'; 
-        wasteChart.data.datasets[0].data = [0, 0, 0, 0, 0, 0, 0];
-        wasteChart.update();
-        return;
-    }
-
-    let totalBinsChecked = filtered.length;
-    let compliantBins = 0;
-
-    filtered.forEach(bin => {
-        // IMPROVED LOGIC: Real-time Health-First Compliance
-        // We evaluate based on the current volume to see if it's currently a health risk.
-        const currentVolume = bin.volume || bin.level || 0;
-        
-        // Compliance = Bin is kept below 75%. 
-        // 0% is now considered PERFECT compliance (Citizens/LGU acted quickly).
-        if (currentVolume < 75) {
-            compliantBins++;
-        }
-    });
-
-    const effectivenessScore = Math.round((compliantBins / totalBinsChecked) * 100);
-
-    // Update Compliance UI
-    document.getElementById('nudgeEffectiveness').innerText = `${effectivenessScore}%`;
-
-    const awarenessStatus = document.getElementById('awarenessStatus');
-    const statusIndicator = document.getElementById('statusIndicator');
-    const planningAdvice = document.getElementById('planningAdvice');
-
-    if (effectivenessScore >= 75) {
-        awarenessStatus.innerText = "High Compliance: Community is successfully preventing overflow and health risks.";
-        statusIndicator.className = 'status-dot status-good';
-        planningAdvice.innerText = "Strategy: Maintain current collection frequency. The community is responding well.";
-    } else {
-        awarenessStatus.innerText = "Critical: Bins are staying full in " + selectedBrgy + ", increasing pest risks.";
-        statusIndicator.className = 'status-dot status-critical';
-        planningAdvice.innerText = "Action Required: Immediate collection needed to prevent disease spread.";
-    }
-
-    updateTrendGraph(filtered);
+    updateTrendGraph(bins);
 }
 
-function updateTrendGraph(filteredBins) {
-    let weeklyAverages = [0, 0, 0, 0, 0, 0, 0];
-    let binCounts = [0, 0, 0, 0, 0, 0, 0];
+function updateTrendGraph(bins) {
+    const weeklyTotals = [0, 0, 0, 0, 0, 0, 0];
+    const weeklyCounts = [0, 0, 0, 0, 0, 0, 0];
 
-    filteredBins.forEach(bin => {
-        const dataPoints = (bin.history && bin.history.data) ? bin.history.data : [bin.volume || 0];
-        
-        dataPoints.forEach((value, index) => {
-            if (index < 7) { 
-                weeklyAverages[index] += value;
-                binCounts[index] += 1;
+    bins.forEach(bin => {
+        const history = Array.isArray(bin.bin_history) ? bin.bin_history[0] : bin.bin_history;
+        if (!history || !Array.isArray(history.data) || !Array.isArray(history.counts)
+            || history.data.length !== 7 || history.counts.length !== 7) {
+            return;
+        }
+
+        history.data.forEach((total, index) => {
+            const count = Number(history.counts[index]);
+            const value = Number(total);
+            if (Number.isFinite(value) && Number.isFinite(count) && count > 0) {
+                weeklyTotals[index] += value;
+                weeklyCounts[index] += count;
             }
         });
     });
 
-    const finalData = weeklyAverages.map((sum, i) => 
-        binCounts[i] > 0 ? Math.round(sum / binCounts[i]) : 0
+    const hasReadings = weeklyCounts.some(count => count > 0);
+    wasteChart.data.datasets[0].data = weeklyTotals.map((total, index) =>
+        weeklyCounts[index] > 0 ? Math.round(total / weeklyCounts[index]) : null
     );
+    wasteChart.update('none');
+    setTrendStatus(hasReadings ? '' : 'No weekly bin readings are available yet.');
+}
 
-    wasteChart.data.datasets[0].data = finalData;
-    wasteChart.update('none'); 
+function setTrendStatus(message) {
+    const status = document.getElementById('wasteChartStatus');
+    if (!status) return;
+
+    status.textContent = message;
+    status.hidden = !message;
 }

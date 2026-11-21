@@ -17,59 +17,9 @@
         </header>
 
         <main class="main-content">
-            <div class="filter-section">
-                <!-- Hidden native select — keeps #brgySelector for your JS -->
-                <select id="brgySelector" class="custom-select-native" tabindex="-1" aria-hidden="true">
-                    <option value="all">All Barangays (Olongapo City)</option>
-                    <option value="Asinan">Asinan</option>
-                    <option value="Banicain">Banicain</option>
-                    <option value="Barretto">Barretto</option>
-                    <option value="East Bajac-Bajac">East Bajac-Bajac</option>
-                    <option value="East Tapinac">East Tapinac</option>
-                    <option value="Gordon Heights">Gordon Heights</option>
-                    <option value="Kalaklan">Kalaklan</option>
-                    <option value="Mabayuan">Mabayuan</option>
-                    <option value="New Banicain">New Banicain</option>
-                    <option value="New Ilalim">New Ilalim</option>
-                    <option value="New Kababae">New Kababae</option>
-                    <option value="New Kalalake">New Kalalake</option>
-                    <option value="Old Cabalan">Old Cabalan</option>
-                    <option value="Pag-asa">Pag-asa</option>
-                    <option value="Santa Rita">Santa Rita</option>
-                    <option value="West Bajac-Bajac">West Bajac-Bajac</option>
-                    <option value="West Tapinac">West Tapinac</option>
-                </select>
-
-                <!-- Visible trigger -->
-                <button type="button" class="custom-select" id="brgyTrigger" aria-haspopup="listbox" aria-expanded="false">
-                    <span class="selected-label">All Barangays (Olongapo City)</span>
-                </button>
-
-                <!-- Dropdown list -->
-                <ul class="custom-select-list" id="brgyList" role="listbox">
-                    <li data-value="all" class="is-selected">All Barangays (Olongapo City)</li>
-                    <li data-value="Asinan">Asinan</li>
-                    <li data-value="Banicain">Banicain</li>
-                    <li data-value="Barretto">Barretto</li>
-                    <li data-value="East Bajac-Bajac">East Bajac-Bajac</li>
-                    <li data-value="East Tapinac">East Tapinac</li>
-                    <li data-value="Gordon Heights">Gordon Heights</li>
-                    <li data-value="Kalaklan">Kalaklan</li>
-                    <li data-value="Mabayuan">Mabayuan</li>
-                    <li data-value="New Banicain">New Banicain</li>
-                    <li data-value="New Ilalim">New Ilalim</li>
-                    <li data-value="New Kababae">New Kababae</li>
-                    <li data-value="New Kalalake">New Kalalake</li>
-                    <li data-value="Old Cabalan">Old Cabalan</li>
-                    <li data-value="Pag-asa">Pag-asa</li>
-                    <li data-value="Santa Rita">Santa Rita</li>
-                    <li data-value="West Bajac-Bajac">West Bajac-Bajac</li>
-                    <li data-value="West Tapinac">West Tapinac</li>
-                </ul>
-            </div>
-
-                        <div class="chart-container-box">
-                <h3 class="chart-label">Waste Generation Trend (%)</h3>
+            <div class="chart-container-box">
+                <h3 class="chart-label">Average Bin Fill Trend (%)</h3>
+                <p id="wasteChartStatus" class="chart-status" role="status" hidden></p>
                 <div class="canvas-wrapper">
                     <canvas id="wasteChart"></canvas>
                 </div>
@@ -113,27 +63,6 @@
                 </div>
             </section>
 
-            <section class="insights-section">
-                <h3 class="section-label">Compliance Metrics</h3>
-
-                <div class="compliance-single-card">
-                    <span class="insight-val" id="nudgeEffectiveness">--%</span>
-                    <p class="insight-desc">Nudge Effectiveness Score</p>
-                </div>
-
-                <div id="awarenessCard" class="awareness-card">
-                    <div class="awareness-content">
-                        <h4 class="awareness-title">Community Awareness</h4>
-                        <p id="awarenessStatus">Analyzing disposal patterns...</p>
-                    </div>
-                    <div id="statusIndicator" class="status-dot"></div>
-                </div>
-
-                <div class="planning-box">
-                    <h4 class="planning-title">Policy & Resource Planning</h4>
-                    <p id="planningAdvice">Awaiting data sync...</p>
-                </div>
-            </section>
         </main>
 
         <footer class="bottom-nav">
@@ -147,62 +76,5 @@
     </div>
 
     <script type="module" src="../../js/lgu admin/lgu-analytics.js"></script>
-
-    <!-- Dropdown bridge — keeps lgu-analytics.js untouched -->
-    <script>
-    (function () {
-        function init() {
-            const trigger = document.getElementById('brgyTrigger');
-            const list    = document.getElementById('brgyList');
-            const hidden  = document.getElementById('brgySelector');
-            if (!trigger || !list || !hidden) return;
-
-            trigger.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const isOpen = list.classList.toggle('open');
-                trigger.classList.toggle('open', isOpen);
-                trigger.setAttribute('aria-expanded', String(isOpen));
-            });
-
-            document.addEventListener('click', function () {
-                list.classList.remove('open');
-                trigger.classList.remove('open');
-                trigger.setAttribute('aria-expanded', 'false');
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    list.classList.remove('open');
-                    trigger.classList.remove('open');
-                    trigger.setAttribute('aria-expanded', 'false');
-                }
-            });
-
-            list.querySelectorAll('li').forEach(function (li) {
-                li.addEventListener('click', function () {
-                    const value = li.dataset.value;
-                    const label = li.textContent.trim();
-
-                    trigger.querySelector('.selected-label').textContent = label;
-                    list.querySelectorAll('li').forEach(x => x.classList.remove('is-selected'));
-                    li.classList.add('is-selected');
-
-                    hidden.value = value;
-                    hidden.dispatchEvent(new Event('change', { bubbles: true }));
-
-                    list.classList.remove('open');
-                    trigger.classList.remove('open');
-                    trigger.setAttribute('aria-expanded', 'false');
-                });
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    })();
-    </script>
 </body>
 </html>
