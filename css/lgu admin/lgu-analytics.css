@@ -225,8 +225,8 @@ table {
 }
 
 .chart-container-box {
-    background: #fff;
-    border-radius: var(--radius-lg);
+    background: var(--lgu-surface);
+    border-radius: var(--radius-md);
     padding: 20px;
     box-shadow: var(--lgu-shadow);
     margin-bottom: 25px;
@@ -236,8 +236,15 @@ table {
 .chart-label {
     font-size: 0.9rem;
     color: #666;
-    margin-bottom: 15px;
+    margin: 0;
     font-weight: 700;
+}
+
+.chart-status {
+    margin-bottom: 10px;
+    color: #777;
+    font-size: 0.85rem;
+    text-align: center;
 }
 
 .canvas-wrapper {
@@ -257,104 +264,6 @@ table {
     color: var(--lgu-dark-green);
     margin-bottom: 15px;
     font-weight: 700;
-}
-
-.insights-section {
-    width: 100%;
-    min-width: 0;
-}
-
-.compliance-single-card {
-    background: #fcfcfc;
-    border: 1px solid #f0f0f0;
-    padding: 25px;
-    border-radius: var(--radius-lg);
-    text-align: center;
-    margin-bottom: 15px;
-    min-width: 0;
-}
-
-.insight-val {
-    display: block;
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: var(--lgu-green);
-}
-
-.insight-desc {
-    font-size: 0.8rem;
-    color: #888;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.awareness-card {
-    background: #fff;
-    border: 1px solid #f0f0f0;
-    padding: 18px 22px;
-    border-radius: var(--radius-md);
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-}
-
-.awareness-content {
-    min-width: 0;
-    flex: 1;
-}
-
-.awareness-title {
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-    color: #333;
-}
-
-.awareness-card p {
-    font-size: 0.8rem;
-    color: #777;
-    overflow-wrap: anywhere;
-}
-
-.status-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #ccc;
-    flex-shrink: 0;
-}
-
-.status-good {
-    background: var(--lgu-green);
-    box-shadow: 0 0 8px rgba(153, 204, 51, 0.4);
-}
-
-.status-critical {
-    background: #ff4d4d;
-    box-shadow: 0 0 8px rgba(255, 77, 77, 0.4);
-}
-
-.planning-box {
-    background: var(--lgu-green);
-    padding: 22px;
-    border-radius: var(--radius-md);
-    color: #fff;
-    min-width: 0;
-}
-
-.planning-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.planning-box p {
-    font-size: 0.85rem;
-    line-height: 1.4;
-    overflow-wrap: anywhere;
 }
 
 .bottom-nav {
@@ -388,9 +297,9 @@ table {
 /* --- COLLECTION RECORDS SECTION --- */
 .records-section {
     grid-column: 1 / -1; /* Sinesentro/Full width sa desktop grid */
-    background: #fff;
-    border-radius: var(--radius-lg);
-    padding: 20px;
+    background: var(--lgu-surface);
+    border-radius: var(--radius-md);
+    padding: 1cap;
     box-shadow: var(--lgu-shadow);
     margin-bottom: 25px;
     min-width: 0;
@@ -440,17 +349,6 @@ table {
     color: #888;
     font-size: 0.8rem;
     font-style: italic;
-}
-
-/* --- COLLECTION RECORDS SECTION --- */
-.records-section {
-    grid-column: 1 / -1;
-    background: #fff;
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    box-shadow: var(--lgu-shadow);
-    margin-bottom: 25px;
-    min-width: 0;
 }
 
 /* Bagong idinagdag para sa header at filter */
@@ -574,36 +472,6 @@ table {
         height: 260px;
     }
 
-    .insights-section {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        align-content: start;
-    }
-
-    .insights-section .section-label {
-        grid-column: 1 / -1;
-    }
-
-    .compliance-single-card {
-        grid-column: 1 / 2;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        margin-bottom: 0;
-    }
-
-    .awareness-card {
-        grid-column: 2 / 3;
-        height: 100%;
-        margin-bottom: 0;
-    }
-
-    .planning-box {
-        grid-column: 1 / -1;
-    }
 }
 
 @media (min-width: 1024px) {
@@ -714,36 +582,6 @@ table {
         height: 100%;
     }
 
-    .insights-section {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        gap: 30px;
-        align-content: start;
-    }
-
-    .insights-section .section-label {
-        grid-column: 1 / -1;
-    }
-
-    .compliance-single-card {
-        grid-column: 1 / 2;
-        height: 200px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        margin-bottom: 0;
-    }
-
-    .awareness-card {
-        grid-column: 2 / 3;
-        height: 200px;
-        margin-bottom: 0;
-    }
-
-    .planning-box {
-        grid-column: 1 / -1;
-    }
 }
 
 .white-card,
@@ -752,7 +590,8 @@ table {
 .chart-container-box,
 .report-card,
 .log-card,
-.bin-card {
+.bin-card,
+.records-section {
     min-width: 0;
     box-shadow: var(--lgu-shadow-lg);
 }
@@ -763,4 +602,24 @@ table {
 .data-table-container {
     max-width: 100%;
     overflow-x: auto;
+}
+
+.chart-status-overlay:not([hidden]) {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 16px;
+    border-radius: 8px;
+    background: rgba(240, 240, 240, 0.85);
+    color: #7d7d7d;
+    font-size: 0.85rem;
+    text-align: center;
+    white-space: pre-line;
+}
+
+.canvas-wrapper:has(> .chart-status-overlay:not([hidden])) > canvas {
+    filter: grayscale(1);
 }

@@ -2,13 +2,20 @@ import { supabase } from '../supabase-init.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
 let wasteChart;
-const ctx = document.getElementById('wasteChart').getContext('2d');
+const manilaDate = new Intl.DateTimeFormat('en', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+});
+const chartDate = new Intl.DateTimeFormat('en-PH', { month: 'short', day: 'numeric', timeZone: 'UTC' });
 
 initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+<<<<<<< HEAD
     if (typeof Chart === 'function') initTrendChart();
     else setTrendStatus('Chart.js was not loaded.');
     document.getElementById('trendPeriod')?.addEventListener('change', () => refreshTrend());
@@ -21,15 +28,60 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         processAnalytics(data || []);
+=======
+    const trendPeriod = document.getElementById('trendPeriod');
+    let trendRequest = 0;
+    let refreshTimer;
+
+    const loadTrend = async (showLoading = true) => {
+        const request = ++trendRequest;
+        const { start, end, days } = getTrendPeriod(trendPeriod.value);
+        if (showLoading) {
+            renderTrend(days, new Map());
+            setTrendStatus('Loading bin readings…');
+        }
+
+        try {
+            const collection = await loadBinTrend(start, end);
+            if (request !== trendRequest) return;
+            renderTrend(days, readings);
+            setTrendStatus(readings.size ? '' : 'No bin readings for this period.');
+        } catch (error) {
+            if (request !== trendRequest) return;
+            console.error('Unable to load bin readings:', error);
+            renderTrend(days, new Map());
+            setTrendStatus('Unable to load bin readings.\nReload this page to try again.');
+        }
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962
     };
 
-        // PAGINATION & FILTER STATE
+    const refreshTrend = () => {
+        // Batch frequent bin updates and leave the existing chart visible during refresh.
+        if (refreshTimer) return;
+        refreshTimer = setTimeout(() => {
+            refreshTimer = undefined;
+            loadTrend(false);
+        }, 1000);
+    };
+
+    if (typeof Chart === 'function') {
+        initTrendChart();
+        trendPeriod.addEventListener('change', () => loadTrend());
+        loadTrend();
+    } else {
+        trendPeriod.disabled = true;
+        setTrendStatus('The chart could not start. Reload this page to try again.');
+    }
+
     let currentPage = 1;
     const pageSize = 10;
     let totalRecords = 0;
 
     const loadCollectionRecords = async () => {
+<<<<<<< HEAD
         const selectedBrgy = document.getElementById('brgySelector')?.value || 'all';
+=======
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962
         const dateFilter = document.getElementById('dateFilter').value;
         
         const tbody = document.getElementById('collectionRecordsBody');
@@ -49,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .order('created_at', { ascending: false })
             .range(from, to); 
 
+<<<<<<< HEAD
         // 1. Barangay Filter
         // Preserve the existing filter, but apply it after fetching the joined records.
         // A filtered embedded join does not automatically filter parent collection records.
@@ -57,6 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 2. Date Filter Logic
+=======
+        // Date Filter Logic
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962
         if (dateFilter !== 'all') {
             const now = new Date();
             let startDate;
@@ -154,11 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loadCollectionRecords();
     });
 
-    loadBins();
     loadCollectionRecords();
     refreshTrend();
 
     supabase.channel('lgu-analytics-sync')
+<<<<<<< HEAD
         .on('postgres_changes', { event: '*', schema: 'public', table: 'bins' }, loadBins)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bin_sensor_readings' }, refreshTrend)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_records' }, loadCollectionRecords)
@@ -169,17 +225,68 @@ document.addEventListener('DOMContentLoaded', () => {
         loadBins();
         loadCollectionRecords(); 
     });
+=======
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_bin_peaks' }, () => {
+            if (wasteChart) refreshTrend();
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_records' }, loadCollectionRecords)
+        .subscribe();
+
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962
 });
 
+function getManilaDate(timestamp) {
+    const parts = Object.fromEntries(manilaDate.formatToParts(timestamp).map(({ type, value }) => [type, value]));
+    return [parts.year, parts.month, parts.day].join('-');
+}
+
+function getTrendPeriod(period, now = new Date()) {
+    const today = new Date(getManilaDate(now) + 'T00:00:00Z');
+    let start;
+    let end;
+
+    // UTC Date objects represent Manila calendar dates here.
+    if (period.endsWith('month')) {
+        const offset = period === 'last-month' ? -1 : 0;
+        start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + offset, 1));
+        end = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 1));
+    } else {
+        start = new Date(today);
+        const daysSinceMonday = (start.getUTCDay() + 6) % 7;
+        start.setUTCDate(start.getUTCDate() - daysSinceMonday - (period === 'last-week' ? 7 : 0));
+        end = new Date(start);
+        end.setUTCDate(end.getUTCDate() + 7);
+    }
+
+    const days = [];
+    for (const day = new Date(start); day < end; day.setUTCDate(day.getUTCDate() + 1)) {
+        days.push(day.toISOString().slice(0, 10));
+    }
+
+    return { start: days[0], end: end.toISOString().slice(0, 10), days };
+}
+
+async function loadBinTrend(start, end) {
+    const { data, error } = await supabase.rpc('lgu_daily_bin_trends', { p_start: start, p_end: end });
+    if (error) throw error;
+    return new Map(data.map(row => [row.reading_date, row]));
+}
+
 function initTrendChart() {
+<<<<<<< HEAD
     const canvas = document.getElementById('wasteChart');
     if (!canvas) return;
     wasteChart = new Chart(canvas, {
         type: 'bar',
+=======
+    wasteChart = new Chart(document.getElementById('wasteChart'), {
+        type: 'line',
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962
         data: {
             labels: [],
             datasets: [
                 {
+<<<<<<< HEAD
                     type: 'line', label: 'Average peak fill', data: [],
                     borderColor: '#48742c', backgroundColor: '#48742c',
                     yAxisID: 'fill', spanGaps: false, tension: 0.3
@@ -187,21 +294,61 @@ function initTrendChart() {
                 {
                     type: 'bar', label: 'Bins that reached full', data: [],
                     backgroundColor: '#b97523', yAxisID: 'full'
+=======
+                    label: 'Average peak fill',
+                    data: [],
+                    borderColor: '#48742c',
+                    backgroundColor: '#48742c',
+                    yAxisID: 'fill'
+                },
+                {
+                    type: 'bar',
+                    label: 'Bins that reached full',
+                    data: [],
+                    backgroundColor: '#b97523',
+                    yAxisID: 'full'
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962
                 }
             ]
         },
         options: {
+<<<<<<< HEAD
             responsive: true, maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             scales: {
                 fill: { position: 'left', beginAtZero: true, max: 100, ticks: { callback: value => value + '%' } },
                 full: { position: 'right', beginAtZero: true, ticks: { precision: 0 }, grid: { drawOnChartArea: false } },
+=======
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { boxWidth: 16, usePointStyle: true } },
+                tooltip: {
+                    callbacks: {
+                        label({ dataset, raw }) {
+                            return dataset.yAxisID === 'fill'
+                                ? 'Average peak fill: ' + raw + '%'
+                                : 'Bins that reached full: ' + raw;
+                        },
+                        footer(items) {
+                            const index = items[0].dataIndex;
+                            return wasteChart.reportingBins[index] + ' bins reported';
+                        }
+                    }
+                }
+            },
+            scales: {
+                fill: { position: 'left', beginAtZero: true, max: 100, ticks: { stepSize: 25, callback: value => value + '%' } },
+                full: { position: 'right', beginAtZero: true, suggestedMax: 1, grid: { drawOnChartArea: false }, ticks: { precision: 0 } },
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962
                 x: { ticks: { maxTicksLimit: 8 } }
             }
         }
     });
 }
 
+<<<<<<< HEAD
 function processAnalytics(bins) {
     const selectedBrgy = document.getElementById('brgySelector')?.value || 'all';
     const filtered = selectedBrgy === 'all' ? bins : bins.filter(b => b.barangay === selectedBrgy);
@@ -323,3 +470,20 @@ async function refreshTrend() {
         setTrendStatus('Unable to load the trend. The LGU trend RPC may be missing from this Supabase project.');
     }
 }
+=======
+function renderTrend(days, readings) {
+    wasteChart.data.labels = days.map(day => chartDate.format(new Date(day)));
+    wasteChart.data.datasets[0].data = days.map(day => readings.get(day)?.average_peak ?? null);
+    wasteChart.data.datasets[1].data = days.map(day => readings.get(day)?.full_bins ?? null);
+    wasteChart.reportingBins = days.map(day => readings.get(day)?.reporting_bins ?? null);
+    wasteChart.update('none');
+}
+
+function setTrendStatus(message) {
+    const status = document.getElementById('wasteChartStatus');
+    if (!status) return;
+
+    status.textContent = message;
+    status.hidden = !message;
+}
+>>>>>>> 48398e87d7bb1297e6d39cffa20ea16385d05962

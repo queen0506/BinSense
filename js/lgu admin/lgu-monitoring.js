@@ -22,8 +22,6 @@ async function writeLog(action, message) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const brgySelector = document.getElementById('brgySelector');
-    
     // Removed: initNotificationListener call[cite: 11]
     
     const refreshBins = async () => {
@@ -36,10 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     supabase.channel('lgu-monitoring-bins')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'bins' }, refreshBins)
         .subscribe();
-
-    if (brgySelector) {
-        brgySelector.addEventListener('change', updateDashboard);
-    }
 
     const scheduleList = document.getElementById('lguScheduleList');
     const scheduleModal = document.getElementById('collectionScheduleModal');
@@ -60,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
         editingScheduleId = schedule?.id ?? null;
         scheduleForm.reset();
         if (schedule) {
-            document.getElementById('scheduleBarangay').value = schedule.barangay || '';
             document.getElementById('scheduleDate').value = schedule.date || '';
             document.getElementById('scheduleTime').value = schedule.time || '';
             document.getElementById('scheduleType').value = schedule.scheduleType || 'One-Time';
@@ -106,7 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const details = document.createElement('div');
             details.className = 'lgu-schedule-details';
             const area = document.createElement('h4');
-            area.textContent = `Brgy. ${schedule.barangay || 'Unassigned'}`;
+            area.textContent = schedule.barangay && schedule.barangay !== 'Global'
+                ? `Brgy. ${schedule.barangay}`
+                : 'Olongapo City';
             const dateTime = document.createElement('p');
             const displayDate = schedule.date
                 ? new Date(`${schedule.date}T00:00:00`).toLocaleDateString()
@@ -133,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteButton.className = 'schedule-delete-btn';
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', async () => {
-                if (!window.confirm(`Delete the collection schedule for ${schedule.barangay}?`)) return;
+                if (!window.confirm('Delete this collection schedule?')) return;
                 try {
                     const { data: deletedSchedule, error: deleteError } = await supabase.from('notifications')
                         .delete()
@@ -171,14 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
         saveScheduleBtn.disabled = true;
         saveScheduleBtn.textContent = editingScheduleId ? 'Updating...' : 'Saving...';
 
-        const barangay = document.getElementById('scheduleBarangay').value.trim();
         const date = document.getElementById('scheduleDate').value;
         const time = document.getElementById('scheduleTime').value;
         const scheduleType = document.getElementById('scheduleType').value;
         const values = {
             title: 'Waste Collection Schedule',
-            message: `Waste collection in Brgy. ${barangay} on ${date} at ${time} (${scheduleType})`,
-            barangay,
+            message: `Waste collection in Olongapo City on ${date} at ${time} (${scheduleType})`,
+            barangay: 'Global',
             date,
             time,
             scheduleType,
@@ -210,15 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateDashboard() {
-    const selector = document.getElementById('brgySelector');
-    if (!selector) return;
-
-    const selectedBrgy = selector.value;
-    const filtered = selectedBrgy === 'all' ? allBins : allBins.filter(b => b.barangay === selectedBrgy);
-
-    document.getElementById('count-available').innerText = filtered.filter(b => b.status?.toLowerCase() === 'available').length;
-    document.getElementById('count-filling').innerText = filtered.filter(b => b.status?.toLowerCase() === 'filling').length;
-    document.getElementById('count-full').innerText = filtered.filter(b => b.status?.toLowerCase() === 'full').length;
+    document.getElementById('count-available').innerText = allBins.filter(b => b.status?.toLowerCase() === 'available').length;
+    document.getElementById('count-filling').innerText = allBins.filter(b => b.status?.toLowerCase() === 'filling').length;
+    document.getElementById('count-full').innerText = allBins.filter(b => b.status?.toLowerCase() === 'full').length;
 
     updateHotspots();
 }
@@ -253,11 +241,9 @@ function updateHotspots() {
 window.openDetails = (status) => {
     const modal = document.getElementById('detailsModal');
     const container = document.getElementById('binCardsContainer');
-    const selector = document.getElementById('brgySelector');
-    if (!selector || !modal || !container) return;
+    if (!modal || !container) return;
 
-    const selectedBrgy = selector.value;
-    const matches = allBins.filter(b => b.status?.toLowerCase() === status && (selectedBrgy === 'all' || b.barangay === selectedBrgy));
+    const matches = allBins.filter(b => b.status?.toLowerCase() === status);
 
     document.getElementById('modalTitle').innerText = `${status.toUpperCase()} Bins`;
     container.innerHTML = matches.map(b => `
