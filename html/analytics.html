@@ -42,7 +42,7 @@
 
             <div class="header-text">
                 <h2 class="section-title">Waste Overview</h2>
-                <p class="section-desc">Track recorded bin fill statuses across the weekday readings available to this account.</p>
+                <p class="section-desc">Track timestamped fill-level readings recorded by your connected bin.</p>
             </div>
             
             <section class="chart-card" aria-labelledby="weeklyChartTitle">
@@ -52,12 +52,12 @@
                         <p>Weekday averages for the first connected bin</p>
                     </div>
                     <div class="period-selector" role="group" aria-label="Chart time period">
-                        <span class="period-option is-active" aria-current="true">Weekly</span>
-                        <button class="period-option" type="button" disabled aria-describedby="periodLimit" title="Daily readings are not stored separately">Daily</button>
-                        <button class="period-option" type="button" disabled aria-describedby="periodLimit" title="Monthly history is not available">Monthly</button>
+                        <button class="period-option" type="button" data-period="daily" aria-pressed="false">Daily</button>
+                        <button class="period-option is-active" type="button" data-period="weekly" aria-pressed="true">Weekly</button>
+                        <button class="period-option" type="button" data-period="monthly" aria-pressed="false">Monthly</button>
                     </div>
                 </div>
-                <p class="period-note" id="periodLimit">The stored data has weekday buckets, but no exact dates or week-start marker. Daily and monthly views are unavailable.</p>
+                <p class="period-note" id="periodLimit">Times are shown in Philippine Time (UTC+8).</p>
                 <div class="chart-container" id="chartContainer" data-state="loading">
                     <canvas id="binChart" role="img" aria-label="Weekly average recorded bin fill by weekday"></canvas>
                     <div class="chart-state" id="chartState" role="status" aria-live="polite">

@@ -148,15 +148,19 @@ const chartPointDetail = document.getElementById('chartPointDetail');
 const insightTitle = document.getElementById('insightTitle');
 const insightMessage = document.getElementById('insightMessage');
 const chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-const fullDayLabels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const MANILA_OFFSET_MS = 8 * 60 * 60 * 1000;
+let activeBinId = null;
+let activePeriod = 'weekly';
 let retryStatistics = null;
 
 function setChartState(state, message, retryAction = null) {
-    chartContainer.dataset.state = state;
-    chartStateMessage.textContent = message;
+    if (chartContainer) chartContainer.dataset.state = state;
+    if (chartStateMessage) chartStateMessage.textContent = message;
     retryStatistics = retryAction;
-    retryStatisticsBtn.hidden = state !== 'error';
-    retryStatisticsBtn.disabled = false;
+    if (retryStatisticsBtn) {
+        retryStatisticsBtn.hidden = state !== 'error';
+        retryStatisticsBtn.disabled = false;
+    }
 }
 
 function setInsight(title, message) {
@@ -164,11 +168,25 @@ function setInsight(title, message) {
     insightMessage.textContent = message;
 }
 
-retryStatisticsBtn.addEventListener('click', () => {
+retryStatisticsBtn?.addEventListener('click', () => {
     if (retryStatistics) {
         retryStatisticsBtn.disabled = true;
         retryStatistics();
     }
+});
+
+document.querySelectorAll('.period-option[data-period]').forEach((button) => {
+    button.addEventListener('click', () => {
+        if (button.classList.contains('is-active') || !activeBinId) return;
+
+        activePeriod = button.dataset.period;
+        document.querySelectorAll('.period-option[data-period]').forEach((option) => {
+            const isActive = option === button;
+            option.classList.toggle('is-active', isActive);
+            option.setAttribute('aria-pressed', String(isActive));
+        });
+        fetchSensorStatistics(true);
+    });
 });
 
 // --- 1. Chart Initialization ---
@@ -218,7 +236,7 @@ const binChart = new Chart(ctx, {
             const value = chart.data.datasets[datasetIndex].data[dataIndex];
             if (value === null || value === undefined) return;
 
-            chartPointDetail.textContent = `${fullDayLabels[dataIndex]} · Average recorded fill: ${value}%. Exact calendar dates are not available.`;
+            chartPointDetail.textContent = `${chartLabels[dataIndex]} · Average recorded fill: ${value}%`;
             chartPointDetail.hidden = false;
         },
         plugins: {
@@ -230,7 +248,7 @@ const binChart = new Chart(ctx, {
                 padding: 12,
                 displayColors: false,
                 callbacks: {
-                    title: (items) => `${fullDayLabels[items[0].dataIndex]} · stored weekday`,
+                    title: (items) => chartLabels[items[0].dataIndex],
                     label: (context) => `${context.dataset.label}: ${context.parsed.y}%`
                 }
             }
@@ -277,7 +295,7 @@ async function loadStatistics() {
 
         if (!notificationsInitialized) {
             notificationsInitialized = true;
-            initNotifications(user);
+            initNotifications(user).catch(error => console.warn('Notifications unavailable:', error));
         }
 
         // Query user_connected_bins table
@@ -310,159 +328,212 @@ async function loadStatistics() {
 }
 
 // --- 3. Persistent Data Logic ---
-async function startTracking(activeBinId) {
-    const now = new Date();
-    // JS: 0=Sun, 1=Mon... Mapping to Mon=0, Tue=1, Sun=6
-    const chartIndex = now.getDay() === 0 ? 6 : now.getDay() - 1; 
+async function startTracking(selectedBinId) {
+    window.activeStatisticsBinId = selectedBinId;
+    activeBinId = selectedBinId;
+    await fetchSensorStatistics(true);
 
-    // A. Weekly Reset Logic (Prevents daily wipes, persists for 7 days)
-    const currentWeek = getWeekNumber(now);
-    const lastResetWeek = localStorage.getItem('last_reset_week');
+    supabase
+        .channel(`sensor-readings-${activeBinId}`)
+        .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'bin_sensor_readings',
+            filter: `bin_id=eq.${activeBinId}`
+        }, () => fetchSensorStatistics(false))
+        .subscribe();
+}
 
-    if (lastResetWeek !== String(currentWeek)) {
-        await supabase
-            .from('bin_history')
-            .upsert({
-                bin_id: activeBinId,
-                data: [0, 0, 0, 0, 0, 0, 0],
-                counts: [0, 0, 0, 0, 0, 0, 0]
-            });
-        localStorage.setItem('last_reset_week', currentWeek);
+function getManilaNow() {
+    return new Date(Date.now() + MANILA_OFFSET_MS);
+}
+
+function startOfManilaDay(now = getManilaNow()) {
+    return new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()) -
+        MANILA_OFFSET_MS
+    );
+}
+
+function getPeriodRange(period, now = getManilaNow()) {
+    if (period === 'daily') {
+        const start = startOfManilaDay(now);
+        return {
+            start,
+            end: new Date(start.getTime() + 24 * 60 * 60 * 1000),
+            labels: Array.from({ length: 24 }, (_, hour) => `${String(hour).padStart(2, '0')}:00`)
+        };
     }
 
-    // B. Sync Weekly Data to Chart
-    const fetchHistory = async (showLoading = false) => {
-        if (showLoading) setChartState('loading', 'Loading recorded readings...');
+    if (period === 'monthly') {
+        const year = now.getUTCFullYear();
+        const month = now.getUTCMonth();
+        const start = new Date(Date.UTC(year, month, 1) - MANILA_OFFSET_MS);
+        const end = new Date(Date.UTC(year, month + 1, 1) - MANILA_OFFSET_MS);
+        const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+        return {
+            start,
+            end,
+            labels: Array.from({ length: days }, (_, index) => String(index + 1))
+        };
+    }
 
-        const { data: history, error: historyError } = await supabase
-            .from('bin_history')
-            .select('data, counts')
-            .eq('bin_id', activeBinId)
-            .single();
+    const todayStart = startOfManilaDay(now);
+    const mondayIndex = (now.getUTCDay() + 6) % 7;
+    const start = new Date(todayStart.getTime() - mondayIndex * 24 * 60 * 60 * 1000);
+    return {
+        start,
+        end: new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000),
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    };
+}
 
-        if (historyError && historyError.code !== 'PGRST116') {
-            console.error('Unable to load weekly bin history:', historyError);
-            setChartState('error', 'Weekly readings could not be loaded. Try again.', () => fetchHistory(true));
-            setInsight('Statistics unavailable', 'A data error prevented the weekly readings from loading.');
+function aggregateSensorReadings(readings, period, range) {
+    const averages = Array(range.labels.length).fill(null);
+    const exactAverages = Array(range.labels.length).fill(null);
+    const counts = Array(range.labels.length).fill(0);
+
+    readings.forEach((bucket) => {
+        const average = Number(bucket.average_fill_level);
+        const count = Number(bucket.reading_count);
+        if (!Number.isFinite(average) || !Number.isFinite(count) || count <= 0) return;
+        if (average < 0 || average > 100) return;
+
+        const timestamp = Date.parse(bucket.bucket_start);
+        if (!Number.isFinite(timestamp)) return;
+
+        const local = new Date(timestamp + MANILA_OFFSET_MS);
+        let index = -1;
+
+        if (period === 'daily') {
+            index = local.getUTCHours();
+        } else if (period === 'weekly') {
+            const localDate = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate());
+            const startLocal = new Date(range.start.getTime() + MANILA_OFFSET_MS);
+            const startDate = Date.UTC(
+                startLocal.getUTCFullYear(),
+                startLocal.getUTCMonth(),
+                startLocal.getUTCDate()
+            );
+            index = Math.floor((localDate - startDate) / (24 * 60 * 60 * 1000));
+        } else {
+            index = local.getUTCDate() - 1;
+        }
+
+        if (index >= 0 && index < averages.length) {
+            averages[index] = Math.round(average);
+            exactAverages[index] = average;
+            counts[index] = count;
+        }
+    });
+
+    return { averages, exactAverages, counts };
+}
+
+async function fetchSensorStatistics(showLoading = false) {
+    if (!activeBinId) return;
+
+    if (showLoading) {
+        setChartState('loading', 'Loading recorded sensor readings…');
+    }
+
+    const requestedBin = activeBinId;
+    const requestedPeriod = activePeriod;
+    const range = getPeriodRange(requestedPeriod);
+    chartLabels.splice(0, chartLabels.length, ...range.labels);
+    binChart.data.labels = chartLabels;
+    binChart.data.datasets[0].data = chartLabels.map(() => null);
+    binChart.update();
+
+    try {
+        const [{ data: buckets, error: readingError }, { data: bin, error: binError }] = await Promise.all([
+            supabase.rpc('get_bin_sensor_reading_averages', {
+                p_bin_id: activeBinId,
+                p_granularity: activePeriod === 'daily' ? 'hour' : 'day',
+                p_start: range.start.toISOString(),
+                p_end: range.end.toISOString()
+            }),
+            supabase
+                .from('bins')
+                .select('last_sync')
+                .eq('id', activeBinId)
+                .maybeSingle()
+        ]);
+
+        if (requestedBin !== activeBinId || requestedPeriod !== activePeriod) return;
+        if (readingError) {
+            if (readingError.code === 'PGRST202' || readingError.code === '42883') {
+                throw new Error('Sensor statistics RPC is not installed or exposed in the Supabase project used by this website.');
+            }
+            throw readingError;
+        }
+        if (binError) throw binError;
+
+        const staleTimestamp = bin?.last_sync ? Date.parse(bin.last_sync) : NaN;
+        const isStale = !Number.isFinite(staleTimestamp) ||
+            Date.now() - staleTimestamp > 60 * 1000;
+        const lastSyncLabel = Number.isFinite(staleTimestamp)
+            ? new Date(staleTimestamp).toLocaleString('en-PH', { timeZone: 'Asia/Manila' })
+            : 'No sensor sync timestamp is available';
+
+        if (!buckets || buckets.length === 0) {
+            if (isStale) {
+                setChartState(
+                    'offline',
+                    'The hardware is offline or stale. No readings are available for this period.'
+                );
+                setInsight(
+                    'Previously recorded readings',
+                    `Last sensor sync: ${lastSyncLabel}.`
+                );
+                chartPointDetail.hidden = true;
+                return;
+            }
+
+            setChartState('empty', 'No recorded sensor readings are available for this period.');
+            setInsight('No sensor readings', 'Actual fill-level readings will appear after the telemetry system records them.');
+            chartPointDetail.hidden = true;
             return;
         }
 
-        if (!history) {
-            binChart.data.datasets[0].data = chartLabels.map(() => null);
-            binChart.update();
-            setChartState('empty', 'No waste monitoring data is available for this period yet.');
-            setInsight('No readings yet', 'The connected bin has not recorded weekday readings for this period.');
-            return;
-        }
+        const periodNote = document.getElementById('periodLimit');
+        if (periodNote) periodNote.textContent = 'Times are shown in Philippine Time (UTC+8).';
 
-        if (!Array.isArray(history.data) || !Array.isArray(history.counts)
-            || history.data.length !== chartLabels.length || history.counts.length !== chartLabels.length) {
-            const historyShapeError = new Error('Stored bin history does not contain seven weekday values and counts.');
-            console.error('Unable to display weekly bin history:', historyShapeError);
-            setChartState('error', 'The stored weekly readings are not in the expected format.', () => fetchHistory(true));
-            setInsight('Statistics unavailable', 'The saved readings could not be displayed.');
-            return;
-        }
-
-        const averages = history.data.map((total, i) =>
-            history.counts[i] > 0 ? Math.round(total / history.counts[i]) : null
-        );
-        const hasReadings = history.counts.some(count => count > 0);
-
-        binChart.data.datasets[0].data = averages;
+        const aggregate = aggregateSensorReadings(buckets, activePeriod, range);
+        binChart.data.datasets[0].data = aggregate.averages;
         binChart.update();
         chartPointDetail.hidden = true;
 
-        if (hasReadings) {
-            setChartState('ready', '');
-            setInsight('Weekly readings available', 'The chart shows averages of recorded status-based fill readings. Days without samples are left blank.');
-        } else {
-            setChartState('empty', 'No waste monitoring data is available for this period yet.');
-            setInsight('No readings yet', 'No samples were recorded for the displayed weekdays.');
+        const validCount = aggregate.averages.filter((value) => value !== null).length;
+        const totalReadings = aggregate.counts.reduce((sum, count) => sum + count, 0);
+        const weightedTotal = aggregate.exactAverages.reduce(
+            (sum, value, index) =>
+                value === null ? sum : sum + value * aggregate.counts[index],
+            0
+        );
+        const periodAverage = totalReadings
+            ? Math.round(weightedTotal / totalReadings)
+            : null;
+
+        setChartState('ready', '');
+        setInsight(
+            'Recorded fill-level trend',
+            periodAverage === null
+                ? `${validCount} periods contain recorded readings.`
+                : `Average recorded fill across the loaded period: ${periodAverage}%.`
+        );
+
+        if (isStale) {
+            setChartState('offline', 'Showing previously recorded readings. The bin is currently offline or stale.');
+            setInsight(
+                'Previously recorded readings',
+                `Last sensor sync: ${lastSyncLabel}.`
+            );
         }
-    };
-
-    await fetchHistory(true);
-
-    // Listen for realtime bin_history changes
-    supabase
-        .channel(`bin-history-${activeBinId}`)
-        .on('postgres_changes', { 
-            event: '*', 
-            schema: 'public', 
-            table: 'bin_history', 
-            filter: `bin_id=eq.${activeBinId}` 
-        }, () => {
-            fetchHistory();
-        })
-        .subscribe();
-
-    // C. Real-time Accumulation
-    supabase
-        .channel(`bin-status-${activeBinId}`)
-        .on('postgres_changes', { 
-            event: 'UPDATE', 
-            schema: 'public', 
-            table: 'bins', 
-            filter: `id=eq.${activeBinId}` 
-        }, async (payload) => {
-            const statusVal = payload.new?.status;
-            if (statusVal === null || statusVal === undefined) return;
-
-            let currentLevel = parseStatus(statusVal);
-
-            const { data: snap } = await supabase
-                .from('bin_history')
-                .select('data, counts')
-                .eq('bin_id', activeBinId)
-                .single();
-
-            let historyData = snap || { data: [0,0,0,0,0,0,0], counts: [0,0,0,0,0,0,0] };
-
-            // Update ONLY today's specific index
-            historyData.data[chartIndex] += currentLevel;
-            historyData.counts[chartIndex] += 1;
-
-            await supabase
-                .from('bin_history')
-                .upsert({
-                    bin_id: activeBinId,
-                    data: historyData.data,
-                    counts: historyData.counts
-                });
-            
-            const todayAvg = Math.round(historyData.data[chartIndex] / historyData.counts[chartIndex]);
-            updateEfficiencyUI(currentLevel, todayAvg);
-        })
-        .subscribe();
-}
-
-// --- 4. Helpers ---
-function getWeekNumber(d) {
-    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-}
-
-function parseStatus(val) {
-    const s = String(val).toLowerCase();
-    if (s === 'full') return 100;
-    if (s === 'filling') return 50;
-    if (s === 'available') return 0;
-    return parseInt(s.match(/\d+/) || 0);
-}
-
-function updateEfficiencyUI(current, avg) {
-    const title = document.getElementById('insightTitle');
-    const desc = document.getElementById('insightMessage');
-    if (!title || !desc) return;
-
-    if (current >= 90) {
-        title.textContent = 'High bin fill status';
-        desc.textContent = `Latest recorded fill status: ${current}%. Today's recorded average: ${avg}%.`;
-    } else {
-        title.textContent = current === 0 ? 'Bin status: Available' : 'Latest status recorded';
-        desc.textContent = `Latest recorded fill status: ${current}%. Today's recorded average: ${avg}%.`;
+    } catch (error) {
+        if (requestedBin !== activeBinId || requestedPeriod !== activePeriod) return;
+        console.error('Unable to load sensor readings:', error);
+        setChartState('error', 'Sensor readings could not be loaded. Try again.', () => fetchSensorStatistics(true));
+        setInsight('Statistics unavailable', 'An error prevented the recorded sensor readings from loading.');
     }
 }

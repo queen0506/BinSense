@@ -441,6 +441,26 @@ table {
     display: none;
 }
 
+.chart-container[data-state="offline"] canvas {
+    visibility: visible;
+}
+
+.chart-container[data-state="offline"] .chart-state {
+    inset: auto 8px 8px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 247, 230, 0.96);
+    color: #8a5a13;
+}
+
+.chart-container[data-state="offline"] .chart-state-icon {
+    display: none;
+}
+
 .chart-state p {
     max-width: 290px;
     font-size: 0.88rem;
