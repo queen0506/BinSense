@@ -603,3 +603,23 @@ table {
     max-width: 100%;
     overflow-x: auto;
 }
+
+.chart-status-overlay:not([hidden]) {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 16px;
+    border-radius: 8px;
+    background: rgba(240, 240, 240, 0.85);
+    color: #7d7d7d;
+    font-size: 0.85rem;
+    text-align: center;
+    white-space: pre-line;
+}
+
+.canvas-wrapper:has(> .chart-status-overlay:not([hidden])) > canvas {
+    filter: grayscale(1);
+}

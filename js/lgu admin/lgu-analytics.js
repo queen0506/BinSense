@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (request !== trendRequest) return;
             console.error('Unable to load bin readings:', error);
             renderTrend(days, new Map());
-            setTrendStatus('Unable to load bin readings. Reload this page to try again.');
+            setTrendStatus('Unable to load bin readings.\nReload this page to try again.');
         }
     };
 
