@@ -88,13 +88,14 @@
 .schedule-add-btn,
 .schedule-save-btn {
     border: 0;
-    border-radius: 8px;
-    padding: 11px 16px;
-    background: var(--lgu-dark-green);
-    color: #fff;
+    border-radius: 50px;
+    padding: 4px 10px;
+    border: 1px solid var(--lgu-dark-green);
+    color: var(--lgu-dark-green);
     font: inherit;
     font-weight: 700;
     cursor: pointer;
+    font-size: 0.9rem;
 }
 
 .lgu-schedule-list {
@@ -455,7 +456,7 @@
     }
 
     .schedule-add-btn {
-        padding: 10px 12px;
-        font-size: 0.9rem;
+        padding: 8px 10px;
+        font-size: 1rem;
     }
 }
