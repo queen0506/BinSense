@@ -226,7 +226,7 @@ table {
 
 .chart-container-box {
     background: var(--lgu-surface);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     padding: 20px;
     box-shadow: var(--lgu-shadow);
     margin-bottom: 25px;
@@ -298,7 +298,7 @@ table {
 .records-section {
     grid-column: 1 / -1; /* Sinesentro/Full width sa desktop grid */
     background: var(--lgu-surface);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     padding: 1cap;
     box-shadow: var(--lgu-shadow);
     margin-bottom: 25px;
