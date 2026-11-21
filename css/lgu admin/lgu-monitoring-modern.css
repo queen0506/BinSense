@@ -482,3 +482,14 @@
         font-size: 1rem;
     }
 }
+
+.schedule-form #scheduleDate,
+.schedule-form #scheduleTime {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
