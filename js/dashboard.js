@@ -1,4 +1,5 @@
 import { supabase } from './supabase-init.js';
+import { EAST_BAJAC_BAJAC, detectCurrentLocation, saveCitizenAddress } from './citizen-address.js';
 
 /* ============================
    BIN CONNECTED SUCCESS POP-UP
@@ -224,6 +225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadUserProfile(user); 
         initNotifications(user);
         initCalendar(user);
+        await initCitizenAddressSetup(user);
         
         // Only load bins if container exists (Dashboard page)
         const binContainer = document.getElementById('citizen-bins-container');
@@ -387,10 +389,176 @@ async function loadUserProfile(user) {
             const emailName = user.email.split('@')[0];
             nameDisplay.innerText = emailName;
         }
+
     } catch (error) {
         console.error("Error loading profile:", error);
         nameDisplay.innerText = "User"; // Fallback
     }
+}
+
+async function initCitizenAddressSetup(user) {
+    const role = String(localStorage.getItem('userRole') || '').toLowerCase();
+    if (role && role !== 'citizen') return;
+
+    const modal = document.getElementById('citizen-location-modal');
+    const status = document.getElementById('location-modal-status');
+    const preview = document.getElementById('location-address-preview');
+    const currentButton = document.getElementById('location-current-btn');
+    const manualButton = document.getElementById('location-manual-btn');
+    const confirmButton = document.getElementById('location-confirm-btn');
+    const serviceAreaConfirmation = document.getElementById('location-service-area-confirm');
+    const addressFieldIds = {
+        houseNumber: 'location-house',
+        streetName: 'location-street',
+        cityMunicipality: 'location-city',
+        province: 'location-province',
+        postalCode: 'location-postal'
+    };
+    const addressFields = Object.fromEntries(
+        Object.entries(addressFieldIds).map(([field, id]) => [field, document.getElementById(id)])
+    );
+    if (!modal || !status || !preview || !currentButton || !manualButton || !confirmButton ||
+        !serviceAreaConfirmation || Object.values(addressFields).some(field => !field)) {
+        console.error('Citizen location setup cannot initialize: required modal elements are missing.');
+        return;
+    }
+
+    let profile;
+    let error;
+    try {
+        const result = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+        profile = result.data;
+        error = result.error;
+    } catch (queryError) {
+        error = queryError;
+    }
+
+    if (error) {
+        modal.classList.add('show');
+        status.textContent = 'Could not load your saved address. Refresh and try again.';
+        currentButton.disabled = true;
+        manualButton.disabled = true;
+        confirmButton.disabled = true;
+        console.error('Citizen address profile query failed:', error);
+        return;
+    }
+
+    if (profile?.address_confirmed === true) return;
+
+    addressFields.houseNumber.value = profile?.house_number || '';
+    addressFields.streetName.value = profile?.street_name || '';
+    addressFields.cityMunicipality.value = profile?.city_municipality || '';
+    addressFields.province.value = profile?.province || '';
+    addressFields.postalCode.value = profile?.postal_code || '';
+
+    modal.classList.add('show');
+    status.textContent = '';
+    let activeDetection = 0;
+    const detectedAddressValues = {};
+
+    function showAddressPreview(address) {
+        preview.hidden = false;
+        currentButton.hidden = false;
+        currentButton.textContent = 'Retry Location';
+        currentButton.classList.remove('location-primary-btn');
+        currentButton.classList.add('location-secondary-btn', 'location-retry-btn');
+        manualButton.hidden = true;
+        confirmButton.hidden = false;
+        if (address) {
+            for (const [field, value] of Object.entries(address)) {
+                if (field === 'barangay' || !value || !addressFields[field]) continue;
+                const currentValue = addressFields[field].value.trim();
+                const previousDetectedValue = detectedAddressValues[field];
+                if (!currentValue || currentValue === previousDetectedValue) {
+                    addressFields[field].value = value;
+                    detectedAddressValues[field] = value;
+                }
+            }
+        }
+    }
+
+    currentButton.addEventListener('click', () => {
+        const detectionId = ++activeDetection;
+        currentButton.disabled = true;
+        status.textContent = 'Detecting your location...';
+        detectCurrentLocation(state => {
+            if (detectionId !== activeDetection) return;
+            if (state.type === 'request' || state.type === 'detecting') {
+                status.textContent = state.message;
+                return;
+            }
+
+            currentButton.disabled = false;
+            if (state.type === 'detected') {
+                showAddressPreview(state.address);
+                const hasMissingDetails = Object.values(addressFields).some(field => !field.value.trim());
+                if (state.mayBeOutsideServiceArea) {
+                    status.textContent = hasMissingDetails
+                        ? 'Detected location may be outside East Bajac-Bajac. Complete the missing address details.'
+                        : 'Detected location may be outside East Bajac-Bajac. Review your address.';
+                } else {
+                    status.textContent = hasMissingDetails
+                        ? 'Complete the missing address details.'
+                        : 'Location detected. Review your address.';
+                }
+            } else {
+                status.textContent = state.message;
+                showAddressPreview();
+            }
+        }, { serviceArea: EAST_BAJAC_BAJAC });
+    });
+
+    manualButton.addEventListener('click', () => {
+        activeDetection += 1;
+        currentButton.disabled = false;
+        showAddressPreview();
+        status.textContent = 'Complete your address manually.';
+        if (Object.values(addressFields).some(field => !field.value.trim())) {
+            status.textContent += ' Please complete the missing address details.';
+        }
+    });
+
+    confirmButton.addEventListener('click', async () => {
+        const address = {
+            houseNumber: addressFields.houseNumber.value.trim() || null,
+            streetName: addressFields.streetName.value.trim() || null,
+            barangay: EAST_BAJAC_BAJAC,
+            cityMunicipality: addressFields.cityMunicipality.value.trim() || null,
+            province: addressFields.province.value.trim() || null,
+            postalCode: addressFields.postalCode.value.trim() || null
+        };
+        if (!address.cityMunicipality || !address.province) {
+            status.textContent = 'Please complete the missing address details.';
+            (addressFields.cityMunicipality.value.trim()
+                ? addressFields.province
+                : addressFields.cityMunicipality).focus();
+            return;
+        }
+        if (!serviceAreaConfirmation.checked) {
+            status.textContent = 'Confirm your address is in East Bajac-Bajac.';
+            serviceAreaConfirmation.focus();
+            return;
+        }
+
+        confirmButton.disabled = true;
+        confirmButton.textContent = 'Saving...';
+        status.textContent = 'Saving address...';
+        const { error: saveError } = await saveCitizenAddress(user.id, address, true);
+        if (saveError) {
+            console.error('Address save error:', saveError);
+            status.textContent = 'Could not save. Try again.';
+            confirmButton.disabled = false;
+            confirmButton.textContent = 'Confirm Address';
+            return;
+        }
+        status.textContent = 'Address confirmed. GPS not verified.';
+        confirmButton.textContent = 'Address Saved';
+        setTimeout(() => modal.classList.remove('show'), 900);
+    });
 }
 
 function getDeviceOnlineStatus(lastSyncTimestamp, rawStatus) {
