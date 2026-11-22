@@ -1,6 +1,7 @@
 import { supabase } from '../supabase-init.js';
 let activeBinId = null;
 let registrationInProgress = false;
+let connectedCitizenLocationLabels = new Map();
 
 document.addEventListener('DOMContentLoaded', () => {
     // Open Modal
@@ -63,6 +64,77 @@ function getDeviceOnlineStatus(lastSyncTimestamp, rawStatus) {
     return (currentTime - lastSyncTime < OFFLINE_THRESHOLD) ? 'ACTIVE' : 'OFFLINE';
 }
 
+function getBinInstallationLocation(bin) {
+    const parts = [bin.street, bin.barangay]
+        .map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || 'Location not assigned';
+}
+
+function getConfirmedCitizenAddressLabel(profile) {
+    if (profile?.role !== 'citizen' || profile.address_confirmed !== true) return null;
+
+    const houseAndStreet = [profile.house_number, profile.street_name]
+        .map(value => String(value || '').trim())
+        .filter(Boolean)
+        .join(' ');
+    const parts = [
+        houseAndStreet,
+        profile.barangay,
+        profile.city_municipality,
+        profile.province
+    ].map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || null;
+}
+
+async function loadConnectedCitizenLocationLabels(binIds) {
+    const labels = new Map();
+    if (binIds.length === 0) return labels;
+
+    const { data: connections, error: connectionError } = await supabase
+        .from('user_connected_bins')
+        .select('bin_id, user_id')
+        .in('bin_id', binIds);
+    if (connectionError) throw connectionError;
+
+    const userIdsByBin = new Map();
+    for (const connection of connections || []) {
+        const userIds = userIdsByBin.get(connection.bin_id) || [];
+        userIds.push(connection.user_id);
+        userIdsByBin.set(connection.bin_id, userIds);
+    }
+
+    const uniqueUserIds = [...new Set(
+        [...userIdsByBin.values()]
+            .filter(userIds => userIds.length === 1)
+            .map(userIds => userIds[0])
+    )];
+    if (uniqueUserIds.length === 0) return labels;
+
+    const { data: profiles, error: profileError } = await supabase
+        .from('users')
+        .select('id, role, address_confirmed, house_number, street_name, barangay, city_municipality, province')
+        .in('id', uniqueUserIds);
+    if (profileError) throw profileError;
+
+    const profilesById = new Map((profiles || []).map(profile => [profile.id, profile]));
+    for (const [binId, userIds] of userIdsByBin) {
+        if (userIds.length !== 1) continue;
+
+        const addressLabel = getConfirmedCitizenAddressLabel(profilesById.get(userIds[0]));
+        if (addressLabel) labels.set(binId, addressLabel);
+    }
+
+    return labels;
+}
+
+function getBinLocationLabel(bin) {
+    return connectedCitizenLocationLabels.get(bin.id) || getBinInstallationLocation(bin);
+}
+
 async function loadRegisteredBins() {
     const list = document.getElementById('bins-list');
     if (!list) return;
@@ -75,8 +147,16 @@ async function loadRegisteredBins() {
         let total = 0, active = 0, offline = 0;
 
         if (!data || data.length === 0) {
+            connectedCitizenLocationLabels = new Map();
             updateSummary(0, 0, 0);
             return;
+        }
+
+        try {
+            connectedCitizenLocationLabels = await loadConnectedCitizenLocationLabels(data.map(bin => bin.id));
+        } catch (locationError) {
+            connectedCitizenLocationLabels = new Map();
+            console.error('Unable to load connected Citizen addresses:', locationError);
         }
 
         for (const bin of data) {
@@ -106,11 +186,12 @@ async function loadRegisteredBins() {
                 <div>
                     <h3 style="font-size: 0.95rem; color: #333;">Smart Bin #${binId.replace('bin_', '')}</h3>
                         <p id="list-status-${binId}" style="font-size: 0.8rem; color: ${statusColor};">
-                        ${bin.barangay || 'Unassigned'} ${bin.street ? '- ' + bin.street : ''} - ${displayStatus}
+                        <span class="bin-location"></span> - ${displayStatus}
                     </p>
                 </div>
                 <span style="color: #ccc; font-weight: bold;">›</span>
             `;
+            card.querySelector('.bin-location').textContent = getBinLocationLabel(bin);
             list.appendChild(card);
         }
         updateSummary(total, active, offline);
@@ -143,14 +224,14 @@ function startLiveUpdate(binId) {
                 if (statusBox) {
                         statusBox.innerHTML = `
                         <p class="sync-text">Location: <span>${bin.lat || '0'}, ${bin.lng || '0'}</span></p>
-                        <p class="sync-text">Barangay: <span>${bin.barangay || 'Unknown'}</span></p>
-                        <p class="sync-text">Street: <span>${bin.street || 'Not specified'}</span></p>
+                        <p class="sync-text">Installation location: <span class="bin-location"></span></p>
                         <p class="sync-text">Last Sync: <span>${bin.last_sync ? new Date(bin.last_sync).toLocaleTimeString() : 'Never'}</span></p>
                         <div class="connection-status" style="color: ${color}">
                             <div class="check-circle" style="background: ${color}">${isOffline ? '!' : '✓'}</div>
                             <span class="status-label">Live Status: ${currentStatus.toUpperCase()}</span>
                         </div>
                     `;
+                    statusBox.querySelector('.bin-location').textContent = getBinLocationLabel(bin);
                 }
             } else {
                 toggleView('list');
@@ -236,8 +317,6 @@ function closeRegisterModal() {
     if (modal) modal.style.display = 'none';
     
     if (document.getElementById('new-bin-id')) document.getElementById('new-bin-id').value = '';
-    if (document.getElementById('new-bin-barangay')) document.getElementById('new-bin-barangay').value = '';
-    if (document.getElementById('new-bin-street')) document.getElementById('new-bin-street').value = '';
     if (document.getElementById('new-bin-lat')) document.getElementById('new-bin-lat').value = '';
     if (document.getElementById('new-bin-lng')) document.getElementById('new-bin-lng').value = '';
 }
@@ -246,13 +325,11 @@ async function processRegistration() {
     if (registrationInProgress) return;
 
     const rawId = document.getElementById('new-bin-id')?.value.trim();
-    const barangay = document.getElementById('new-bin-barangay')?.value.trim();
-    const street = document.getElementById('new-bin-street')?.value.trim() || null; 
     const lat = document.getElementById('new-bin-lat')?.value.trim();
     const lng = document.getElementById('new-bin-lng')?.value.trim();
 
-    if (!rawId || !barangay || !lat || !lng) {
-        alert("Please fill in all fields (Bin ID, Barangay, Latitude, and Longitude).");
+    if (!rawId || !lat || !lng) {
+        alert("Please fill in all fields (Bin ID, Latitude, and Longitude).");
         return;
     }
 
@@ -265,8 +342,6 @@ async function processRegistration() {
 
     const newBinData = {
         id: rawId,
-        barangay: barangay,
-        street: street,
         status: "available",
         lat: latitude,
         lng: longitude,
@@ -280,10 +355,20 @@ async function processRegistration() {
     if (registerButton) registerButton.disabled = true;
 
     try {
-        const { error } = await supabase.from('bins').upsert([newBinData], { onConflict: 'id' });
+        const { data: existingBin, error: lookupError } = await supabase
+            .from('bins')
+            .select('id')
+            .eq('id', rawId)
+            .maybeSingle();
+        if (lookupError) throw lookupError;
+
+        const { id, ...binUpdates } = newBinData;
+        const { error } = existingBin
+            ? await supabase.from('bins').update(binUpdates).eq('id', id)
+            : await supabase.from('bins').insert([newBinData]);
         
         if (error) {
-            console.error("Database Insert Error:", error);
+            console.error("Database Save Error:", error);
             alert(`Database Error: ${error.message}`);
             return;
         }

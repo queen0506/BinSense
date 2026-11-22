@@ -73,6 +73,32 @@ function showBinNotice(title, message) {
 }
 let activeChannels = {};
 let modalChannel = null;
+let currentCitizenAddressLabel = 'Location not assigned';
+
+function getConfirmedCitizenAddressLabel(profile) {
+    if (profile?.address_confirmed !== true) return 'Location not assigned';
+
+    const houseAndStreet = [profile.house_number, profile.street_name]
+        .map(value => String(value || '').trim())
+        .filter(Boolean)
+        .join(' ');
+    const parts = [
+        houseAndStreet,
+        profile.barangay,
+        profile.city_municipality,
+        profile.province
+    ].map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || 'Location not assigned';
+}
+
+function refreshCitizenBinLocationLabels() {
+    document.querySelectorAll('.citizen-bin-card .bin-location, #detailsBody .bin-location')
+        .forEach(element => {
+            element.textContent = currentCitizenAddressLabel;
+        });
+}
 
 /* ============================
    REAL-TIME NOTIFICATION SYSTEM
@@ -447,6 +473,8 @@ async function initCitizenAddressSetup(user) {
         return;
     }
 
+    currentCitizenAddressLabel = getConfirmedCitizenAddressLabel(profile);
+
     if (profile?.address_confirmed === true) return;
 
     addressFields.houseNumber.value = profile?.house_number || '';
@@ -555,6 +583,11 @@ async function initCitizenAddressSetup(user) {
             confirmButton.textContent = 'Confirm Address';
             return;
         }
+        currentCitizenAddressLabel = getConfirmedCitizenAddressLabel({
+            ...address,
+            address_confirmed: true
+        });
+        refreshCitizenBinLocationLabels();
         status.textContent = 'Address confirmed. GPS not verified.';
         confirmButton.textContent = 'Address Saved';
         setTimeout(() => modal.classList.remove('show'), 900);
@@ -639,10 +672,11 @@ function updateCardUI(cardElement, id, data) {
         <div class="bin-info">
             <h3 style="margin:0;">Bin #${id.replace('bin_', '')}</h3>
             <p style="color: ${color}; font-weight: bold;">● ${displayStatus.toUpperCase()}</p>
-            <p style="font-size: 0.8rem; color: #666;">${data.barangay || 'Unassigned'}</p>
+            <p class="bin-location" style="font-size: 0.8rem; color: #666;"></p>
         </div>
         <div style="color: #ccc;">›</div>
     `;
+    cardElement.querySelector('.bin-location').textContent = currentCitizenAddressLabel;
 }
 
 async function showDetails(id) {
@@ -685,10 +719,11 @@ function renderDetailsModal(container, id, data) {
     container.innerHTML = `
         <p><strong>ID:</strong> ${id.replace('bin_', '')}</p>
         <p><strong>Status:</strong> <span style="color:${color}">${displayStatus.toUpperCase()}</span></p>
-        <p><strong>Barangay:</strong> ${data.barangay || 'N/A'}</p>
+        <p><strong>Location:</strong> <span class="bin-location"></span></p>
         <p><strong>Last Sync:</strong> ${data.last_sync ? new Date(data.last_sync).toLocaleTimeString() : 'Never'}</p>
         <button onclick="removeBin('${id}')" style="color:#FF3B30; background:none; border:1px solid #FF3B30; padding:10px; width:100%; margin-top:10px; border-radius:8px; cursor:pointer;">Disconnect</button>
     `;
+    container.querySelector('.bin-location').textContent = currentCitizenAddressLabel;
 }
 
 window.removeBin = async function(id) {
