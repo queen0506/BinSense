@@ -152,6 +152,49 @@
         </div>
     </div>
 
+    <!-- CITIZEN ADDRESS SETUP -->
+    <div class="location-overlay" id="citizen-location-modal" role="dialog" aria-modal="true" aria-labelledby="location-modal-title">
+        <div class="location-modal-box">
+            <div class="location-modal-body">
+                <div class="location-modal-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>
+                </div>
+                <h3 id="location-modal-title">Set Your Location</h3>
+                <p id="location-modal-description" class="location-modal-description">Detect your location to complete your address.</p>
+                <div id="location-modal-status" class="location-modal-status" role="status" aria-live="polite"></div>
+
+                <div id="location-address-preview" class="location-address-preview" hidden>
+                    <div class="address-grid">
+                        <label>House / Building No.<input id="location-house" type="text" autocomplete="address-line2"></label>
+                        <label>Street Name<input id="location-street" type="text" autocomplete="address-line1"></label>
+                        <div class="location-service-area" aria-label="Barangay service area">
+                            <span>Barangay · Service area</span>
+                            <strong>East Bajac-Bajac</strong>
+                        </div>
+                        <label>City / Municipality<input id="location-city" type="text" required></label>
+                        <label>Province<input id="location-province" type="text" required></label>
+                        <label>Postal Code<input id="location-postal" type="text" inputmode="numeric"></label>
+                    </div>
+                    <p class="location-address-note">GPS does not verify your residence.</p>
+                    <label class="location-service-area-confirm">
+                        <input id="location-service-area-confirm" type="checkbox" required>
+                        <span>I confirm my address is in East Bajac-Bajac.</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="location-modal-actions">
+                <button type="button" id="location-current-btn" class="location-primary-btn">Use My Current Location</button>
+                <button type="button" id="location-manual-btn" class="location-secondary-btn">Enter Address Manually</button>
+                <button type="button" id="location-confirm-btn" class="location-primary-btn" hidden>Confirm Address</button>
+                <p class="location-provider-note" aria-label="Location data, attribution, and privacy">
+                    <span>GPS lookup sends coordinates to Geoapify.</span>
+                    <span><a href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer">Powered by Geoapify</a> · <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a> · <a href="https://www.geoapify.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy</a></span>
+                </p>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="../js/dashboard.js"></script>
 </body>
 </html>

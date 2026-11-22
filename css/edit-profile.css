@@ -1,413 +1,222 @@
 :root {
-    --lgu-green: #99cc33;
-    --lgu-green-dark: #88b72e;
-    --lgu-dark-green: #48742C;
-    --lgu-text: #333;
-    --lgu-muted: #888;
-    --lgu-surface: #FFFFFF;
-    --lgu-page: #F0F0F0;
-    --lgu-border: #E2E8F0;
-    --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
-    --radius-sm: 12px;
-    --radius-md: 20px;
-    --radius-lg: 25px;
-    --radius-xl: 35px;
-    --radius-2xl: 35px;
+    --green: #99cc33;
+    --green-dark: #48742c;
+    --text: #263126;
+    --muted: #737d70;
+    --border: #dde4d8;
+    --page: #f4f7f1;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; }
 
 body {
-    font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
-    color: var(--lgu-text);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin: 0;
     min-height: 100vh;
     min-height: 100dvh;
-    overflow-x: hidden;
+    font-family: 'Reddit Sans', sans-serif;
+    color: var(--text);
+    background: var(--page);
 }
 
 .mobile-container {
-    width: 100%;
-    max-width: 414px;
-    height: 100vh;
-    height: 100dvh;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
 }
 
-/* --- TOP NAVIGATION --- */
 .top-nav {
-    background-color: var(--lgu-green);
-    padding: 35px 20px 15px 20px; 
-    border-bottom-left-radius: var(--radius-xl);
-    border-bottom-right-radius: var(--radius-xl);
-    flex-shrink: 0;
-}
-
-.header-content {
-    display: flex;
+    height: 72px;
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
     align-items: center;
-    justify-content: space-between; 
-    position: relative;
+    padding: 10px 18px;
+    background: #fff;
+    border-bottom: 1px solid #edf0ea;
 }
 
 .back-btn {
-    color: #ffffff;
-    font-size: 24px;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 12px;
+    background: #eff5e7;
+    color: var(--green-dark);
+    font-size: 22px;
     cursor: pointer;
-    background: none;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 8px;
-    transition: background 0.15s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
 }
 
 .page-title {
-    color: #ffffff;
-    font-size: 1.15rem;
-    font-weight: 700;
-    flex: 1;
-    text-align: center;
+    grid-column: 2;
     margin: 0;
-    margin-left: -32px; 
-}
-
-/* --- MAIN CONTENT --- */
-.main-content {
-    flex: 1;
-    padding: 20px 30px;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
-}
-
-/* Graphic */
-.graphic-section {
-    padding: 20px 0;
-    display: flex;
-    justify-content: center;
-}
-
-.center-graphic {
-    width: 110px;
-    height: auto;
-    object-fit: contain;
-}
-
-/* Current User Name */
-.current-user-name {
-    margin: 10px 0 20px 0;
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--lgu-dark-green);
     text-align: center;
+    font-size: 1.05rem;
 }
 
-/* --- FORM STYLING --- */
+.main-content {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+}
+
+.profile-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.profile-avatar {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: var(--green);
+    color: #fff;
+    font-weight: 700;
+}
+
+.profile-eyebrow {
+    margin: 0 0 2px;
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+
+.current-user-name {
+    margin: 0;
+    color: var(--green-dark);
+    font-size: 1.16rem;
+    font-weight: 700;
+}
+
 .edit-form {
-    width: 100%;
-    margin-top: 5px;
+    display: grid;
+    gap: 12px;
 }
 
-.input-group {
-    margin-bottom: 18px;
-    width: 100%;
+.form-section {
+    padding: 18px;
+    border: 1px solid #edf1e9;
+    border-radius: 18px;
+    background: #fff;
 }
+
+.form-section h2 {
+    margin: 0 0 14px;
+    color: var(--green-dark);
+    font-size: 1rem;
+}
+
+.section-heading-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.location-action {
+    min-height: 40px;
+    margin: -5px 0 10px;
+    padding: 8px 10px;
+    border: 1px solid #dce7cf;
+    border-radius: 10px;
+    background: #f7faf3;
+    color: var(--green-dark);
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.input-group { margin-bottom: 12px; }
+.address-grid .input-group { margin-bottom: 0; }
 
 .input-group label {
     display: block;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--lgu-dark-green);
     margin-bottom: 6px;
-}
-
-/* Inputs and Select Input */
-.input-group input, .select-input {
-    width: 100%;
-    height: 48px; 
-    padding: 0 15px; 
-    border-radius: var(--radius-sm);
-    border: 1px solid #C4C4C4;
-    background-color: white;
-    font-family: 'Reddit Sans', sans-serif;
-    font-size: 0.95rem;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-/* Specific styling for the select dropdown */
-.select-input {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2348742C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    background-size: 14px;
-    cursor: pointer;
-}
-
-.input-group input:focus, .select-input:focus {
-    border-color: var(--lgu-green);
-}
-
-/* Style the dropdown options to look cleaner */
-.select-input option {
-    background-color: #ffffff;
-    color: #333;
-    font-family: 'Reddit Sans', sans-serif;
-    font-size: 15px;
-    padding: 12px 15px;
-}
-
-/* Highlight the hovered option */
-.select-input option:hover,
-.select-input option:focus,
-.select-input option:checked {
-    background-color: #f0f7e6;
-    color: #48742C;
-    font-weight: 600;
-}
-
-/* Button */
-.btn-update {
-    width: 100%;
-    background-color: var(--lgu-green);
-    color: white;
-    border: none;
-    padding: 16px;
-    border-radius: var(--radius-lg);
-    font-family: 'Reddit Sans', sans-serif;
-    font-size: 1.05rem;
+    color: #48613c;
+    font-size: 0.82rem;
     font-weight: 700;
-    margin-top: 15px;
+}
+
+.input-group input,
+.select-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+    outline: none;
+}
+
+.input-group input:focus,
+.select-input:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(153, 204, 51, 0.12);
+}
+
+.input-group input[readonly] {
+    background: #f4f5f2;
+    color: #777;
+}
+
+.field-help,
+.address-disclaimer {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.address-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.btn-update {
+    min-height: 52px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--green);
+    color: #fff;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.2s;
-    box-shadow: 0 4px 10px rgba(153, 204, 51, 0.2);
 }
 
-.btn-update:hover {
-    background-color: var(--lgu-green-dark);
-}
+.btn-update:disabled,
+.location-action:disabled { opacity: 0.65; cursor: wait; }
 
-/* Toast styling */
 .toast {
     visibility: hidden;
-    min-width: 250px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 10px;
-    padding: 16px;
     position: fixed;
-    z-index: 1000;
-    bottom: 30px;
     left: 50%;
+    bottom: 24px;
+    z-index: 100;
+    max-width: calc(100% - 32px);
     transform: translateX(-50%);
-    font-size: 0.9rem;
+    padding: 13px 16px;
+    border-radius: 10px;
+    background: var(--green-dark);
+    color: #fff;
+    font-size: 0.86rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,.14);
 }
 
-.toast.show {
-    visibility: visible;
-    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+.toast.show { visibility: visible; }
+.toast.error { background: #b43d3d; }
+
+@media (max-width: 520px) {
+    .address-grid { grid-template-columns: 1fr; }
+    .section-heading-row { align-items: flex-start; flex-direction: column; }
+    .location-action { width: 100%; }
 }
 
-@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-/* =========================================
-   TABLET (601px – 1023px)
-   ========================================= */
-@media (min-width: 601px) and (max-width: 1023px) {
-    body { 
-        align-items: center; 
-        padding: 20px; 
-    }
-    .mobile-container { 
-        width: min(100%, 860px); 
-        max-width: 860px; 
-        min-height: 90vh; 
-        border-radius: var(--radius-md); 
-        box-shadow: 0 14px 35px rgba(0,0,0,0.15); 
-    }
-    .main-content {
-        padding: 30px 40px;
-    }
-}
-
-/* =========================================
-   DESKTOP (1024px+)
-   ========================================= */
-@media (min-width: 1024px) {
-    body {
-        background-color: #f8faf8;
-        display: block;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-    }
-
-    .mobile-container {
-        max-width: 100% !important;
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-        box-shadow: none;
-        background-color: transparent;
-        display: grid;
-        grid-template-columns: 140px minmax(0, 1fr);
-        grid-template-rows: auto minmax(0, 1fr);
-        overflow: visible;
-    }
-
-    /* Sidebar pill */
-    .bottom-nav {
-        grid-column: 1 / 2;
-        grid-row: 1 / 3;
-        position: relative;
-        height: calc(100vh - 80px);
-        width: 85px;
-        background: var(--lgu-green);
-        margin: 40px auto;
-        padding: 0;
-        border-radius: 100px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
-    }
-
-    .nav-icons-container {
-        display: flex;
-        flex-direction: column;
-        gap: 35px;
-        align-items: center;
-    }
-
-    .nav-link.active {
-        background-color: #fff !important;
-        border-radius: 50%;
-        width: 55px;
-        height: 55px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .icon-30 {
-        width: 30px !important;
-        height: 30px !important;
-    }
-
-    .nav-link.active .icon-30 {
-        filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
-    }
-
-    .nav-icons-container a:not(.active) .icon-30 {
-        filter: brightness(0) invert(1);
-    }
-
-    /* Header - Hidden on desktop */
-    .top-nav {
-        display: none; 
-    }
-
-    /* Main Content */
-    .main-content {
-        grid-column: 2 / 3;
-        grid-row: 1 / 3; 
-        padding: 40px 60px;
-        overflow-y: auto;
-        display: flex;
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh;
-        background: transparent;
-    }
-
-    /* Form Card */
-    .edit-form {
-        width: 100%;
-        max-width: 480px; 
-        background: #fff;
-        padding: 40px;
-        border-radius: 24px;
-        border: 1px solid #f0f0f0;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-    }
-
-    /* Show graphic on desktop */
-    .graphic-section {
-        display: flex;
-        padding: 0 0 10px 0;
-    }
-
-    .center-graphic {
-        width: 90px;
-    }
-
-    .current-user-name {
-        font-size: 1.4rem;
-        margin-bottom: 25px;
-    }
-
-    /* Inputs */
-    .input-group {
-        margin-bottom: 20px;
-    }
-
-    .input-group input, .select-input {
-        height: 50px;
-        padding: 0 18px;
-        border-radius: var(--radius-sm);
-        background: #fafafa;
-        border: 1px solid #ddd;
-        transition: 0.2s;
-    }
-
-    .input-group input:focus, .select-input:focus {
-        border-color: var(--lgu-green);
-        background: #fff;
-        box-shadow: 0 0 0 3px rgba(153, 204, 51, 0.1);
-    }
-
-    /* Button */
-    .btn-update {
-        padding: 16px;
-        border-radius: var(--radius-sm);
-        font-size: 1rem;
-        margin-top: 15px;
-        box-shadow: 0 4px 15px rgba(153, 204, 51, 0.3);
-        transition: 0.2s;
-    }
-
-    .btn-update:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(153, 204, 51, 0.4);
-    }
+@media (min-width: 900px) {
+    .main-content { padding: 34px 24px 60px; }
+    .mobile-container { min-height: 100vh; }
 }

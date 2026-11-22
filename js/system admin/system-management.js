@@ -108,8 +108,8 @@ async function loadRegisteredBins() {
             card.innerHTML = `
                 <div>
                     <h3 style="font-size: 0.95rem; color: #333;">Smart Bin #${binId.replace('bin_', '')}</h3>
-                    <p id="list-status-${binId}" style="font-size: 0.8rem; color: ${statusColor};">
-                        ${bin.barangay || 'Unassigned'} - ${displayStatus}
+                        <p id="list-status-${binId}" style="font-size: 0.8rem; color: ${statusColor};">
+                        ${bin.barangay || 'Unassigned'} ${bin.street ? '- ' + bin.street : ''} - ${displayStatus}
                     </p>
                 </div>
                 <span style="color: #ccc; font-weight: bold;">›</span>
@@ -144,9 +144,10 @@ function startLiveUpdate(binId) {
                 const color = isOffline ? '#999999' : (currentStatus === 'full' ? '#FF3B30' : '#99CC33');
                 
                 if (statusBox) {
-                    statusBox.innerHTML = `
+                        statusBox.innerHTML = `
                         <p class="sync-text">Location: <span>${bin.lat || '0'}, ${bin.lng || '0'}</span></p>
                         <p class="sync-text">Barangay: <span>${bin.barangay || 'Unknown'}</span></p>
+                        <p class="sync-text">Street: <span>${bin.street || 'Not specified'}</span></p>
                         <p class="sync-text">Last Sync: <span>${bin.last_sync ? new Date(bin.last_sync).toLocaleTimeString() : 'Never'}</span></p>
                         <div class="connection-status" style="color: ${color}">
                             <div class="check-circle" style="background: ${color}">${isOffline ? '!' : '✓'}</div>
@@ -244,6 +245,7 @@ function closeRegisterModal() {
     
     if (document.getElementById('new-bin-id')) document.getElementById('new-bin-id').value = '';
     if (document.getElementById('new-bin-barangay')) document.getElementById('new-bin-barangay').value = '';
+    if (document.getElementById('new-bin-street')) document.getElementById('new-bin-street').value = '';
     if (document.getElementById('new-bin-lat')) document.getElementById('new-bin-lat').value = '';
     if (document.getElementById('new-bin-lng')) document.getElementById('new-bin-lng').value = '';
 }
@@ -253,6 +255,7 @@ async function processRegistration() {
 
     const rawId = document.getElementById('new-bin-id')?.value.trim();
     const barangay = document.getElementById('new-bin-barangay')?.value.trim();
+    const street = document.getElementById('new-bin-street')?.value.trim() || null; 
     const lat = document.getElementById('new-bin-lat')?.value.trim();
     const lng = document.getElementById('new-bin-lng')?.value.trim();
 
@@ -271,6 +274,7 @@ async function processRegistration() {
     const newBinData = {
         id: rawId,
         barangay: barangay,
+        street: street,
         status: "available",
         lat: latitude,
         lng: longitude,
