@@ -37,12 +37,17 @@
                 <div class="records-header">
                     <h3 class="section-label" style="margin-bottom: 0;">Collection Log</h3>
 
-                    <select id="dateFilter" class="records-filter">
-                        <option value="all">All Time</option>
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month">This Month</option>
-                    </select>
+                    <div class="records-actions">
+                        <select id="dateFilter" class="records-filter" aria-label="Collection log period">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                        <button id="exportCollectionCsvBtn" class="export-csv-btn" type="button" disabled>
+                            Export CSV
+                        </button>
+                    </div>
                 </div>
 
                 <div class="records-table-container">

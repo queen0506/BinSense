@@ -46,7 +46,7 @@
             <section class="collection-schedule-section" aria-labelledby="collectionScheduleTitle">
                 <div class="collection-schedule-header">
                     <h3 class="section-label" id="collectionScheduleTitle">Collection Schedule</h3>
-                    <button type="button" class="schedule-add-btn" id="addCollectionSchedule">Add Schedule</button>
+                    <button type="button" class="schedule-add-btn" id="addCollectionSchedule">Add</button>
                 </div>
                 <div id="lguScheduleList" class="lgu-schedule-list">
                     <p class="schedule-empty">Loading collection schedules...</p>
@@ -82,10 +82,12 @@
             </div>
             <form id="collectionScheduleForm" class="schedule-form">
                 <label for="scheduleDate">Collection date</label>
-                <input id="scheduleDate" type="date" required>
+                <input id="scheduleDate" type="date" aria-describedby="scheduleDateError" required>
+                <p id="scheduleDateError" class="schedule-field-error" role="alert" hidden></p>
 
                 <label for="scheduleTime">Collection time</label>
-                <input id="scheduleTime" type="time" required>
+                <input id="scheduleTime" type="time" aria-describedby="scheduleTimeError" required>
+                <p id="scheduleTimeError" class="schedule-field-error" role="alert" hidden></p>
 
                 <label for="scheduleType">Schedule type</label>
                 <select id="scheduleType" required>

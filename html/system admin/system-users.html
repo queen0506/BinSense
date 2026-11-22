@@ -11,7 +11,7 @@
 
 <div class="mobile-container" id="app-container">
     <header class="top-nav">
-        <!-- FIXED: Added Back Button in Header -->
+        <!-- Added Back Button in Header -->
         <button class="header-back-arrow" id="back-button" onclick="showRolesView()" style="display: none;">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
@@ -55,6 +55,16 @@
                     <button onclick="restoreSystemData()" class="white-card selectable btn-primary">Restore Data</button>
                     <span id="restore-status" class="status-msg">Restoration complete.</span>
                 </div>
+
+                <!-- Operations Report  -->
+                <div class="white-card maintenance-card" style="margin-top: 15px;">
+                    <h3 class="role-name">System Reports</h3>
+                    <p class="maintenance-desc">Generate and export the daily waste collection audit logs.</p>
+                    <a href="system-reports.html" style="text-decoration: none;">
+                        <button class="white-card selectable btn-primary" style="width: 100%; margin-top: 10px;">Operations Reports</button>
+                    </a>
+                </div>
+
             </div>
         </section>
 

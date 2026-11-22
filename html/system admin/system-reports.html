@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSense - Collection Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/system admin/system-reports.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="mobile-container">
+    <header class="top-nav">
+        <a href="system-users.html" class="report-back-button" aria-label="Back to System Reports">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6"></path>
+            </svg>
+        </a>
+        <h1 class="dashboard-title">Collection Report</h1>
+    </header>
+
+    <main class="main-content">
+        <!-- Filter & Exports -->
+        <div class="filter-row">
+            <label class="filter-label" for="timeFilter">Report period</label>
+            <select id="timeFilter" class="filter-dropdown">
+                <option value="daily">Today</option>
+                <option value="weekly">This Week</option>
+                <option value="monthly">This Month</option>
+                <option value="all">All Time</option>
+            </select>
+            
+            <div class="export-buttons">
+                <button id="exportCsvBtn" class="btn-icon" title="Export CSV" aria-label="Export report as CSV" type="button" disabled>CSV</button>
+                <button id="exportPdfBtn" class="btn-icon" title="Export PDF" aria-label="Export report as PDF" type="button" disabled>PDF</button>
+            </div>
+        </div>
+
+        <div id="web-view">
+            <div class="summary-grid-4">
+                <div class="summary-card">
+                    <span id="totalCollections" class="summary-val">0</span>
+                    <p class="summary-label">All Records</p>
+                </div>
+                <div class="summary-card">
+                    <span id="completedCollections" class="summary-val" style="color: #4CAF50;">0</span>
+                    <p class="summary-label">Collected</p>
+                </div>
+                <div class="summary-card">
+                    <span id="pendingCollections" class="summary-val" style="color: #FFC107;">0</span>
+                    <p class="summary-label">For Collection</p>
+                </div>
+                <div class="summary-card">
+                    <span id="missedCollections" class="summary-val" style="color: #F44336;">0</span>
+                    <p class="summary-label">Uncollected</p>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="section-title">Collections by Period</h3>
+                <div class="chart-container">
+                    <canvas id="collectionsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="report-card">
+                <h3 class="section-title">Collection Activity</h3>
+                <div class="table-wrapper">
+                    <table id="reportTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Barangay</th>
+                                <th>Bin ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportBody">
+                            <tr><td colspan="4" class="loading-text">Loading collection records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination" aria-label="Report table pagination">
+                    <button id="reportPrevPage" class="page-button" type="button" disabled>Previous</button>
+                    <p id="reportPageInfo" class="page-info" aria-live="polite">Loading records...</p>
+                    <button id="reportNextPage" class="page-button" type="button" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bottom-nav">
+        <div class="nav-icons-container">
+            <a href="system-management.html" class="nav-link"><img src="../../logo/Home.png" class="icon-30"></a>
+            <a href="system-users.html" class="nav-link active" aria-label="User Access Control"><img src="../../logo/Bar chart-2.png" class="icon-30"></a>
+            <a href="system-logs.html" class="nav-link" aria-label="System Logs"><img src="../../logo/Activity History.png" class="icon-30"></a>
+            <a href="system-menu.html" class="nav-link"><img src="../../logo/Menu.png" class="icon-30"></a>
+        </div>
+    </footer>
+</div>
+
+<div id="pdf-template" style="display: none; font-family: 'Times New Roman', serif; color: #000; padding: 40px; background: #fff; width: 800px;">
+    <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 24px;">BINSENSE COLLECTION REPORT</h1>
+        <p style="margin: 5px 0 0 0; font-size: 14px;">Waste Collection Record</p>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+        <div>
+            <strong>Report Date:</strong> <span id="pdf-generated-date"></span><br>
+            <strong>Report Period:</strong> <span id="pdf-filter-type"></span>
+        </div>
+        <div style="text-align: right;">
+            <strong>Prepared By:</strong> <span id="pdf-admin-name"></span><br>
+            <strong>Record Type:</strong> Waste Collection
+        </div>
+    </div>
+
+    <h2 style="font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">Collection Summary</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
+        <tr style="background: #f0f0f0;">
+            <th style="border: 1px solid #000; padding: 8px; text-align: left;">Metric</th>
+            <th style="border: 1px solid #000; padding: 8px; text-align: right;">Count</th>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px;">All Collection Records</td>
+            <td id="pdf-total" style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">0</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px;">Collected</td>
+            <td id="pdf-completed" style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">0</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px;">For Collection</td>
+            <td id="pdf-pending" style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">0</td>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #000; padding: 8px;">Uncollected</td>
+            <td id="pdf-missed" style="border: 1px solid #000; padding: 8px; text-align: right; font-weight: bold;">0</td>
+        </tr>
+    </table>
+
+    <h2 style="font-size: 16px; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">Collection Activity Details</h2>
+    <table id="pdf-table" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <thead>
+            <tr style="background: #f0f0f0;">
+                <th style="border: 1px solid #000; padding: 6px; text-align: left;">Date &amp; Time</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: left;">Barangay</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: left;">Bin ID</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: left;">Status</th>
+            </tr>
+        </thead>
+        <tbody id="pdf-table-body"></tbody>
+    </table>
+
+    <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 14px;">
+        <div style="text-align: center; width: 200px;">
+            <div style="border-bottom: 1px solid #000; height: 30px;"></div>
+            <p style="margin-top: 5px;">Prepared by</p>
+        </div>
+        <div style="text-align: center; width: 200px;">
+            <div style="border-bottom: 1px solid #000; height: 30px;"></div>
+            <p style="margin-top: 5px;">Checked by</p>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../../js/system admin/system-reports.js"></script>
+</body>
+</html>
