@@ -59,11 +59,20 @@
         <div class="white-card modal-content">
             <h2 class="group-title">Register New Smart Bin</h2>
             
-            <input type="text" id="new-bin-id" placeholder="Bin ID (e.g., 01)" class="modal-input">
+            <div class="registration-field">
+                <input type="text" id="new-bin-id" placeholder="Bin ID (e.g., 01)" class="modal-input">
+                <p id="new-bin-id-error" class="registration-field-error" role="alert" hidden></p>
+            </div>
             
             <div class="coord-inputs">
-                <input type="number" id="new-bin-lat" placeholder="Latitude" step="any" class="modal-input">
-                <input type="number" id="new-bin-lng" placeholder="Longitude" step="any" class="modal-input">
+                <div class="registration-field">
+                    <input type="number" id="new-bin-lat" placeholder="Latitude" step="any" class="modal-input">
+                    <p id="new-bin-lat-error" class="registration-field-error" role="alert" hidden></p>
+                </div>
+                <div class="registration-field">
+                    <input type="number" id="new-bin-lng" placeholder="Longitude" step="any" class="modal-input">
+                    <p id="new-bin-lng-error" class="registration-field-error" role="alert" hidden></p>
+                </div>
             </div>
 
             <div class="modal-actions">
@@ -72,6 +81,7 @@
             </div>
         </div>
     </div>
+    <div id="register-toast" class="registration-toast" role="status" aria-live="polite" hidden></div>
 
     <footer class="bottom-nav">
         <div class="nav-icons-container">

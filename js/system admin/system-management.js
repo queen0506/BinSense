@@ -3,6 +3,9 @@ import { supabase } from '../supabase-init.js';
 let activeBinId = null;
 let registrationInProgress = false;
 let connectedCitizenLocationLabels = new Map();
+let duplicateCheckTimer = null;
+let duplicateCheckVersion = 0;
+let registrationToastTimer = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     // Open Modal
@@ -22,6 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
             processRegistration();
         };
     }
+
+    ['new-bin-id', 'new-bin-lat', 'new-bin-lng'].forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) input.addEventListener('input', scheduleDuplicateCheck);
+    });
 
     // Attach click listener to cancel button
     const cancelBtn = document.querySelector('#register-modal .cancel-btn');
@@ -323,28 +331,144 @@ function toggleView(view) {
 function closeRegisterModal() {
     const modal = document.getElementById('register-modal');
     if (modal) modal.style.display = 'none';
-    
-    if (document.getElementById('new-bin-id')) document.getElementById('new-bin-id').value = '';
-    if (document.getElementById('new-bin-lat')) document.getElementById('new-bin-lat').value = '';
-    if (document.getElementById('new-bin-lng')) document.getElementById('new-bin-lng').value = '';
+
+    clearTimeout(duplicateCheckTimer);
+    duplicateCheckVersion++;
+    ['new-bin-id', 'new-bin-lat', 'new-bin-lng'].forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) input.value = '';
+    });
+    clearRegistrationFieldErrors();
+}
+
+function setRegistrationFieldError(inputId, message) {
+    const input = document.getElementById(inputId);
+    const error = document.getElementById(`${inputId}-error`);
+    if (!input || !error) return;
+
+    error.textContent = message;
+    error.hidden = !message;
+    if (message) {
+        input.setAttribute('aria-invalid', 'true');
+        input.setAttribute('aria-describedby', error.id);
+    } else {
+        input.removeAttribute('aria-invalid');
+        input.removeAttribute('aria-describedby');
+    }
+}
+
+function clearRegistrationFieldErrors() {
+    setRegistrationFieldError('new-bin-id', '');
+    setRegistrationFieldError('new-bin-lat', '');
+    setRegistrationFieldError('new-bin-lng', '');
+}
+
+function showRegistrationToast(message, isError = false) {
+    const toast = document.getElementById('register-toast');
+    if (!toast) return;
+
+    clearTimeout(registrationToastTimer);
+    toast.textContent = message;
+    toast.classList.toggle('error', isError);
+    toast.setAttribute('role', isError ? 'alert' : 'status');
+    toast.setAttribute('aria-live', isError ? 'assertive' : 'polite');
+    toast.hidden = false;
+    registrationToastTimer = setTimeout(() => {
+        toast.hidden = true;
+    }, 4000);
+}
+
+function getRegistrationValues() {
+    return {
+        rawId: document.getElementById('new-bin-id')?.value.trim() || '',
+        lat: document.getElementById('new-bin-lat')?.value.trim() || '',
+        lng: document.getElementById('new-bin-lng')?.value.trim() || ''
+    };
+}
+
+async function findExistingBinData(rawId, lat, lng) {
+    const binNumber = rawId.replace(/^bin_/, '');
+    const latitude = Number(lat);
+    const longitude = Number(lng);
+    const hasValidCoordinates = lat !== '' && lng !== '' &&
+        Number.isFinite(latitude) && Number.isFinite(longitude) &&
+        Math.abs(latitude) <= 90 && Math.abs(longitude) <= 180;
+
+    if (!binNumber && !hasValidCoordinates) {
+        return { duplicateId: false, duplicateCoordinates: false };
+    }
+
+    const idCandidates = [binNumber, `bin_${binNumber}`];
+    const idLookup = binNumber
+        ? supabase.from('bins').select('id').in('id', idCandidates).limit(1)
+        : Promise.resolve({ data: [], error: null });
+    const coordinateLookup = hasValidCoordinates
+        ? supabase.from('bins').select('id').eq('lat', latitude).eq('lng', longitude).limit(1)
+        : Promise.resolve({ data: [], error: null });
+    const [idResult, coordinateResult] = await Promise.all([idLookup, coordinateLookup]);
+    if (idResult.error) throw idResult.error;
+    if (coordinateResult.error) throw coordinateResult.error;
+
+    return {
+        duplicateId: Boolean(idResult.data?.length),
+        duplicateCoordinates: Boolean(coordinateResult.data?.length)
+    };
+}
+
+function showDuplicateErrors(duplicateId, duplicateCoordinates) {
+    setRegistrationFieldError('new-bin-id', duplicateId ? 'This Bin ID exists.' : '');
+    const coordinateMessage = duplicateCoordinates ? 'Coordinates exist.' : '';
+    setRegistrationFieldError('new-bin-lat', coordinateMessage);
+    setRegistrationFieldError('new-bin-lng', coordinateMessage);
+}
+
+function scheduleDuplicateCheck() {
+    clearTimeout(duplicateCheckTimer);
+    const version = ++duplicateCheckVersion;
+    clearRegistrationFieldErrors();
+
+    duplicateCheckTimer = setTimeout(async () => {
+        const { rawId, lat, lng } = getRegistrationValues();
+        try {
+            const { duplicateId, duplicateCoordinates } = await findExistingBinData(rawId, lat, lng);
+            if (version === duplicateCheckVersion) {
+                showDuplicateErrors(duplicateId, duplicateCoordinates);
+            }
+        } catch (error) {
+            console.error('Unable to check for existing bin data:', error);
+        }
+    }, 250);
 }
 
 async function processRegistration() {
     if (registrationInProgress) return;
 
-    const rawId = document.getElementById('new-bin-id')?.value.trim();
-    const lat = document.getElementById('new-bin-lat')?.value.trim();
-    const lng = document.getElementById('new-bin-lng')?.value.trim();
+    const { rawId, lat, lng } = getRegistrationValues();
 
+    clearRegistrationFieldErrors();
     if (!rawId || !lat || !lng) {
-        alert("Please fill in all fields (Bin ID, Latitude, and Longitude).");
+        if (!rawId) setRegistrationFieldError('new-bin-id', 'Enter a Bin ID.');
+        if (!lat) setRegistrationFieldError('new-bin-lat', 'Enter a latitude.');
+        if (!lng) setRegistrationFieldError('new-bin-lng', 'Enter a longitude.');
+        document.querySelector('#register-modal [aria-invalid="true"]')?.focus();
+        return;
+    }
+
+    const binNumber = rawId.replace(/^bin_/, '');
+    if (!binNumber) {
+        setRegistrationFieldError('new-bin-id', 'Enter a valid Bin ID.');
+        document.getElementById('new-bin-id')?.focus();
         return;
     }
 
     const latitude = Number(lat);
     const longitude = Number(lng);
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-        alert("Latitude and longitude must be valid numbers.");
+    const invalidLatitude = !Number.isFinite(latitude) || Math.abs(latitude) > 90;
+    const invalidLongitude = !Number.isFinite(longitude) || Math.abs(longitude) > 180;
+    if (invalidLatitude || invalidLongitude) {
+        if (invalidLatitude) setRegistrationFieldError('new-bin-lat', 'Enter a latitude from -90 to 90.');
+        if (invalidLongitude) setRegistrationFieldError('new-bin-lng', 'Enter a longitude from -180 to 180.');
+        document.querySelector('#register-modal [aria-invalid="true"]')?.focus();
         return;
     }
 
@@ -354,8 +478,7 @@ async function processRegistration() {
         lat: latitude,
         lng: longitude,
         level: 0,
-        volume: 0,
-        last_sync: new Date().toISOString() // Dynamic current timestamp
+        volume: 0
     };
 
     const registerButton = document.querySelector('#register-modal .confirm-btn');
@@ -363,30 +486,30 @@ async function processRegistration() {
     if (registerButton) registerButton.disabled = true;
 
     try {
-        const { data: existingBin, error: lookupError } = await supabase
-            .from('bins')
-            .select('id')
-            .eq('id', rawId)
-            .maybeSingle();
-        if (lookupError) throw lookupError;
-
-        const { id, ...binUpdates } = newBinData;
-        const { error } = existingBin
-            ? await supabase.from('bins').update(binUpdates).eq('id', id)
-            : await supabase.from('bins').insert([newBinData]);
-        
-        if (error) {
-            console.error("Database Save Error:", error);
-            alert(`Database Error: ${error.message}`);
+        const { duplicateId, duplicateCoordinates } = await findExistingBinData(rawId, lat, lng);
+        if (duplicateId || duplicateCoordinates) {
+            showDuplicateErrors(duplicateId, duplicateCoordinates);
             return;
         }
 
-        alert(`Smart Bin #${rawId} successfully registered!`);
+        const { error } = await supabase.from('bins').insert([newBinData]);
+        if (error?.code === '23505') {
+            setRegistrationFieldError('new-bin-id', 'This Bin ID exists.');
+            return;
+        }
+
+        if (error) {
+            console.error("Database Save Error:", error);
+            showRegistrationToast(`Database Error: ${error.message}`, true);
+            return;
+        }
+
+        showRegistrationToast(`Smart Bin #${rawId} successfully registered.`);
         closeRegisterModal();
         await loadRegisteredBins();
     } catch (error) {
         console.error("Registration Error Details:", error);
-        alert(`Unable to register the bin: ${error.message}`);
+        showRegistrationToast(`Unable to register the bin: ${error.message}`, true);
     } finally {
         registrationInProgress = false;
         if (registerButton) registerButton.disabled = false;
