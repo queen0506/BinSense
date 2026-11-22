@@ -3,13 +3,19 @@ import { supabase } from '../supabase-init.js';
 
 let map, truckMarker, routeLine;
 let binMarkers = [];
+let binMarkerById = new Map();
 let fullBinMarkers = [];
+let dispatchedBinIds = new Set();
+let fullBinsChannel;
+let refreshFullBinsFn = null;
 let currentTruckPos = null;
 let activeBinWaypoints = [];
 let pendingBinId = null; 
 let routeRequestId = 0;
 let dispatchChannel;
-let fullBinsChannel;
+let lastRouteOrigin = null;
+let lastRouteAt = 0;
+let lastFitKey = '';
 let routeAddressLookupKey = '';
 let routeAddressLookupExpiresAt = 0;
 let routeAddressLabels = new Map();
@@ -159,7 +165,10 @@ function trackTruckLocation() {
         }
 
         if (activeBinWaypoints.length > 0) {
-            calculateSmartGPSRoute(currentTruckPos, activeBinWaypoints);
+            const movedMeters = lastRouteOrigin ? distanceMeters(lastRouteOrigin, currentTruckPos) : Infinity;
+            if (movedMeters > 75 || Date.now() - lastRouteAt > 60_000) {
+                calculateSmartGPSRoute(currentTruckPos, activeBinWaypoints);
+            }
         }
     }, (error) => {
         console.warn('Unable to get collector location:', error.message);
@@ -170,6 +179,15 @@ function trackTruckLocation() {
         maximumAge: 10000,
         timeout: 15000
     });
+}
+
+function distanceMeters(a, b) {
+    const toRad = deg => (deg * Math.PI) / 180;
+    const dLat = toRad(b.lat - a.lat);
+    const dLng = toRad(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * 6371000 * Math.asin(Math.sqrt(h));
 }
 
 function listenForAdminDispatch() {
@@ -184,6 +202,8 @@ function listenForAdminDispatch() {
 
         if (dispatchError) return console.error('Dispatch sync failed:', dispatchError);
 
+        dispatchedBinIds = new Set(dispatchData?.bin_ids || []);
+
         if (!dispatchData || !dispatchData.bin_ids?.length) {
             activeBinWaypoints = [];
             routeAddressLookupKey = '';
@@ -191,7 +211,8 @@ function listenForAdminDispatch() {
             routeAddressLabels = new Map();
             clearMap();
             setEtaPanel('No active collection route.');
-            showMapMessage('✅ No active collection dispatch.');
+            showMapMessage('No active dispatch. Full bins are shown and wait for the LGU Admin to dispatch a route.');
+            if (refreshFullBinsFn) refreshFullBinsFn();
             return;
         }
 
@@ -234,18 +255,23 @@ function listenForAdminDispatch() {
             activeBinWaypoints.push({
                 ...position,
                 binId,
-                barangay: bin.barangay || 'Unknown',
+                barangay: bin.barangay || '',
                 street: bin.street || '',
                 locationLabel: routeAddressLabels.get(binId) || getBinInstallationAddress(bin)
             });
 
             const marker = L.marker([position.lat, position.lng], {
                 icon: createBinIcon(35),
-                title: `Brgy. ${bin.barangay || 'Unknown'} — Full bin`
+                title: `${routeAddressLabels.get(binId) || getBinInstallationAddress(bin)} — Dispatched bin`
             }).addTo(map);
 
-            marker.bindPopup(createCollectionPopup(bin));
+            marker.bindPopup(createCollectionPopup({
+                ...bin,
+                id: binId,
+                locationLabel: routeAddressLabels.get(binId) || getBinInstallationAddress(bin)
+            }));
             binMarkers.push(marker);
+            binMarkerById.set(binId, marker);
         });
 
         if (activeBinWaypoints.length > 0) {
@@ -262,6 +288,8 @@ function listenForAdminDispatch() {
             setEtaPanel('No full bins remain in the active dispatch.');
             showMapMessage('No full bins remain in the active dispatch.');
         }
+
+        if (refreshFullBinsFn) refreshFullBinsFn();
     };
 
     refreshDispatch();
@@ -302,18 +330,11 @@ function createCollectionPopup(bin, etaText = 'Calculating ETA…') {
     wrapper.className = 'bin-popup';
     wrapper.style.cssText = 'padding:8px; font-family:sans-serif; text-align:center;';
 
+    // Confirmed citizen address first, then the bin's own street/barangay.
     const heading = document.createElement('h4');
-    heading.textContent = `Brgy. ${bin.barangay || 'Unknown'}`;
-    heading.style.cssText = 'margin:0 0 2px 0;';
-
-    if (bin.street) {
-        const streetInfo = document.createElement('p');
-        streetInfo.textContent = bin.street;
-        streetInfo.style.cssText = 'margin:0 0 8px 0; font-size:0.85rem; color:#555; font-weight:600;';
-        wrapper.append(heading, streetInfo); 
-    } else {
-        wrapper.append(heading);
-    }
+    heading.textContent = bin.locationLabel || getBinInstallationAddress(bin);
+    heading.style.cssText = 'margin:0 0 8px 0;';
+    wrapper.append(heading);
 
     const eta = document.createElement('p');
     eta.className = 'bin-eta';
@@ -431,7 +452,7 @@ async function calculateSmartGPSRoute(origin, binLocations) {
     const locations = [origin, ...binLocations];
     const coordinates = locations.map(point => `${point.lng},${point.lat}`).join(';');
     const requestId = ++routeRequestId;
-    const routeUrl = `https://router.project-osrm.org/trip/v1/driving/${coordinates}?roundtrip=false&source=first&destination=last&geometries=geojson&overview=full&steps=false`;
+    const routeUrl = `https://router.project-osrm.org/trip/v1/driving/${coordinates}?roundtrip=false&source=first&destination=any&geometries=geojson&overview=full&steps=false`;
 
     try {
         const response = await fetch(routeUrl);
@@ -451,25 +472,35 @@ async function calculateSmartGPSRoute(origin, binLocations) {
         }).addTo(map);
 
         hideMapMessage();
-        const bounds = routeLine.getBounds();
-        if (bounds.isValid()) map.fitBounds(bounds.pad(0.15), { maxZoom: 16 });
+        lastRouteOrigin = { lat: origin.lat, lng: origin.lng };
+        lastRouteAt = Date.now();
+        const fitKey = binLocations.map(bin => bin.binId).sort().join('|');
+        if (fitKey !== lastFitKey) {
+            lastFitKey = fitKey;
+            const bounds = routeLine.getBounds();
+            if (bounds.isValid()) map.fitBounds(bounds.pad(0.15), { maxZoom: 16 });
+        }
 
         const trip = result.trips[0];
         const orderedBins = binLocations
             .map((bin, index) => ({ bin, order: result.waypoints?.[index + 1]?.waypoint_index ?? index + 1 }))
             .sort((a, b) => a.order - b.order);
         
-        const rawDriveSeconds = Number(trip.duration);
-        const totalDriveSeconds = rawDriveSeconds * 1.5; 
-        
+        const TRAFFIC_BUFFER = 1.5;
+        const legSeconds = (trip.legs || []).map(leg => Number(leg.duration) * TRAFFIC_BUFFER);
+        const hasLegTimes = legSeconds.length === orderedBins.length && legSeconds.every(Number.isFinite);
+        const totalDriveSeconds = hasLegTimes
+            ? legSeconds.reduce((sum, seconds) => sum + seconds, 0)
+            : Number(trip.duration) * TRAFFIC_BUFFER;
+
         const serviceTimePerStopSeconds = 5 * 60; // 5 mins
         const avgDriveSecondsPerStop = totalDriveSeconds / orderedBins.length;
-        
+
         let etaAt = Date.now();
         const etaStops = [];
 
         orderedBins.forEach(({ bin }, index) => {
-            etaAt += avgDriveSecondsPerStop * 1000;
+            etaAt += (hasLegTimes ? legSeconds[index] : avgDriveSecondsPerStop) * 1000;
             
             
             if (index < orderedBins.length - 1) {
@@ -478,17 +509,19 @@ async function calculateSmartGPSRoute(origin, binLocations) {
             
             const etaText = new Date(etaAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             etaStops.push({
-                barangay: bin.barangay || 'Unknown',
+                barangay: bin.barangay || '',
                 street: bin.street || '',
                 locationLabel: bin.locationLabel || getBinInstallationAddress(bin),
                 eta: etaText
             });
 
-            const marker = binMarkers.find(candidate => {
-                const position = candidate.getLatLng();
-                return Math.abs(position.lat - bin.lat) < 0.0001 && Math.abs(position.lng - bin.lng) < 0.0001;
-            });
-            if (marker) marker.setPopupContent(createCollectionPopup({ id: bin.binId, barangay: bin.barangay }, etaText));
+            const marker = binMarkerById.get(bin.binId);
+            if (marker) {
+                marker.setPopupContent(createCollectionPopup(
+                    { id: bin.binId, barangay: bin.barangay, street: bin.street, locationLabel: bin.locationLabel },
+                    etaText
+                ));
+            }
         });
         
         const totalDriveTime = document.getElementById('totalDriveTime');
@@ -533,10 +566,13 @@ async function calculateSmartGPSRoute(origin, binLocations) {
 function clearMarkers() {
     binMarkers.forEach(marker => marker.remove());
     binMarkers = [];
+    binMarkerById = new Map();
 }
 
 function clearRoute() {
-    routeRequestId += 1; 
+    routeRequestId += 1;
+    lastRouteOrigin = null;
+    lastFitKey = '';
     if (routeLine) {
         routeLine.remove();
         routeLine = null;
@@ -569,19 +605,14 @@ function listenForFullBins() {
 
         (allBins || []).forEach(bin => {
             if (bin.status?.toLowerCase() !== 'full') return;
+            // Dispatched bins already have their own route marker with ETA.
+            if (dispatchedBinIds.has(bin.id)) return;
             const position = getValidBinPosition(bin);
             if (!position) return;
 
-            const isDispatched = binMarkers.some(marker => {
-                const markerPosition = marker.getLatLng();
-                return Math.abs(markerPosition.lat - position.lat) < 0.0001 &&
-                    Math.abs(markerPosition.lng - position.lng) < 0.0001;
-            });
-            if (isDispatched) return;
-
             const marker = L.marker([position.lat, position.lng], {
                 icon: createBinIcon(30),
-                title: `Full Bin - Brgy. ${bin.barangay || 'Unknown'}`
+                title: `Full Bin - ${getBinInstallationAddress(bin)}`
             }).addTo(map);
 
             const popup = document.createElement('div');
@@ -589,18 +620,14 @@ function listenForFullBins() {
             const heading = document.createElement('h4');
             heading.textContent = '⚠️ BIN FULL';
             heading.style.cssText = 'margin:0 0 5px 0; color:#FF3B30;';
-            const barangay = document.createElement('p');
-            barangay.textContent = `Brgy. ${bin.barangay || 'Unknown'}`;
-            barangay.style.cssText = 'margin:0 0 2px 0;';
+            const location = document.createElement('p');
+            location.textContent = getBinInstallationAddress(bin);
+            location.style.cssText = 'margin:0 0 8px 0; font-size:0.85rem; color:#555; font-weight:600;';
+            popup.append(heading, location);
 
-            const street = document.createElement('p');
-            street.textContent = bin.street || '';
-            street.style.cssText = 'margin:0 0 8px 0; font-size:0.85rem; color:#555; font-weight:600;';
-
-            if(!bin.street) street.style.display = 'none';
             const note = document.createElement('small');
             note.textContent = 'Awaiting Admin Dispatch';
-            popup.append(heading, barangay, street, note);
+            popup.append(note);
             marker.bindPopup(popup);
             fullBinMarkers.push(marker);
         });
@@ -608,6 +635,7 @@ function listenForFullBins() {
         if (!activeBinWaypoints.length) fitMapToMarkers();
     };
 
+    refreshFullBinsFn = refreshFullBins;
     refreshFullBins();
     if (fullBinsChannel) supabase.removeChannel(fullBinsChannel);
     fullBinsChannel = supabase.channel('collector-full-bins')

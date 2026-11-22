@@ -1,7 +1,9 @@
 import { supabase } from '../supabase-init.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
-let currentOptimizedPath = [];
+let currentOptimizedPath = []; // ALL full bins (dispatched or not), in optimized stop order
+let dispatchedBinIds = new Set();
+let lastFitKey = '';
 let currentComplianceScore = 0;
 let etaRequestId = 0;
 let etaRefreshTimer = null;
@@ -16,6 +18,15 @@ function escapeHtml(value) {
         '"': '&quot;',
         "'": '&#39;'
     })[character]);
+}
+
+// Same fallback the Waste Collector map uses: the bin's own street/barangay.
+function getBinInstallationAddress(bin) {
+    const parts = [bin.street, bin.barangay]
+        .map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || UNASSIGNED_LOCATION_LABEL;
 }
 
 async function loadRouteLocationLabels(path) {
@@ -118,6 +129,18 @@ async function writeLog(action, message) {
     }
 }
 
+async function fetchActiveDispatch() {
+    const { data, error } = await supabase
+        .from('active_dispatch')
+        .select('*')
+        .eq('status', 'In Progress')
+        .order('dispatched_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+    if (error) throw error;
+    return data;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map', { zoomControl: false }).setView([14.8350, 120.2840], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -130,6 +153,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const { data: bins, error } = await supabase.from('bins').select('*');
         if (error) return console.error('Bin sync failed:', error);
 
+        // Bins already sent to the collector must not be offered for dispatch again.
+        let dispatchedIds = new Set();
+        try {
+            const activeDispatch = await fetchActiveDispatch();
+            dispatchedIds = new Set(activeDispatch?.bin_ids || []);
+        } catch (dispatchError) {
+            console.error('Active dispatch sync failed:', dispatchError);
+        }
+        dispatchedBinIds = dispatchedIds;
+
+        // Dispatched full bins stay on the map until the collector marks them collected.
         currentOptimizedPath = bins
             .filter(bin => bin.status?.toLowerCase() === 'full')
             .sort((a, b) => (Number(b.level) || 0) - (Number(a.level) || 0));
@@ -145,34 +179,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     supabase.channel('lgu-collection-bins')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'bins' }, refreshBins)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'active_dispatch' }, refreshBins)
         .subscribe();
 
     const dispatchBtn = document.getElementById('dispatchBtn');
     if (dispatchBtn) {
         dispatchBtn.onclick = async () => {
-            if (currentOptimizedPath.length === 0) {
+            // Only bins not already sent to the collector are dispatched.
+            const routeBins = currentOptimizedPath.filter(bin => !dispatchedBinIds.has(bin.id));
+            if (routeBins.length === 0) {
                 showDispatchAlert({
                     type: 'warning',
                     title: 'No Route Available',
-                    message: 'There are no full bins to collect right now, so there is nothing to dispatch.'
+                    message: 'There are no undispatched full bins to collect right now, so there is nothing to dispatch.'
                 });
                 return;
             }
 
-            try {
-                const { error } = await supabase.from('active_dispatch').insert({
-                    bin_ids: currentOptimizedPath.map(b => b.id),
-                    dispatched_at: new Date().toISOString(),
-                    compliance_score: currentComplianceScore,
-                    status: 'In Progress'
-                });
-                if (error) throw error;
+            dispatchBtn.disabled = true;
+            const routeIds = routeBins.map(b => b.id);
 
-                await writeLog("Dispatch Route", `LGU Personnel dispatched route for ${currentOptimizedPath.length} bins.`);
+            try {
+                // The collector reads only ONE "In Progress" dispatch, so add to it
+                // instead of inserting a second row that would hide the first.
+                const existing = await fetchActiveDispatch();
+                if (existing) {
+                    const mergedIds = [...new Set([...(existing.bin_ids || []), ...routeIds])];
+                    const { error } = await supabase.from('active_dispatch').update({
+                        bin_ids: mergedIds,
+                        dispatched_at: new Date().toISOString(),
+                        compliance_score: currentComplianceScore
+                    }).eq('id', existing.id);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabase.from('active_dispatch').insert({
+                        bin_ids: routeIds,
+                        dispatched_at: new Date().toISOString(),
+                        compliance_score: currentComplianceScore,
+                        status: 'In Progress'
+                    });
+                    if (error) throw error;
+                }
+
+                await writeLog("Dispatch Route", `LGU Personnel dispatched route for ${routeIds.length} bins.`);
                 showDispatchAlert({
                     type: 'success',
                     title: 'Route Dispatched',
-                    message: `Route for ${currentOptimizedPath.length} bin${currentOptimizedPath.length === 1 ? '' : 's'} was successfully sent to the waste collector.`,
+                    message: `Route for ${routeIds.length} bin${routeIds.length === 1 ? '' : 's'} was successfully sent to the waste collector.`,
                     stat: { label: 'Compliance Rate', value: `${currentComplianceScore}%` }
                 });
             } catch (error) {
@@ -182,6 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: 'Dispatch Failed',
                     message: 'We could not dispatch the route. Please check your connection and try again.'
                 });
+            } finally {
+                dispatchBtn.disabled = false;
             }
         };
     }
@@ -195,21 +250,34 @@ async function updateDashboardUI(path, score, markerLayer, map) {
     const requestId = ++etaRequestId;
     let etaTimes = null;
     let routeGeometry = null;
+    let orderedPath = path;
+
     if (path.length) {
         try {
-            const coords = [LGU_DISPATCH_ORIGIN, ...path.map(bin => ({
+            // Use the same optimizer as the collector map (OSRM /trip) so the stop
+            // order previewed here matches the route the collector receives.
+            const points = [LGU_DISPATCH_ORIGIN, ...path.map(bin => ({
                 lng: Number(bin.lng) || LGU_DISPATCH_ORIGIN.lng,
                 lat: Number(bin.lat) || LGU_DISPATCH_ORIGIN.lat
-            }))].map(point => `${point.lng},${point.lat}`).join(';');
-            const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`);
+            }))];
+            const coords = points.map(point => `${point.lng},${point.lat}`).join(';');
+            const response = await fetch(`https://router.project-osrm.org/trip/v1/driving/${coords}?roundtrip=false&source=first&destination=any&overview=full&geometries=geojson&steps=false`);
             if (!response.ok) throw new Error(`Routing service returned HTTP ${response.status}`);
             const result = await response.json();
-            const route = result.routes?.[0];
-            const legs = route?.legs;
-            if (result.code !== 'Ok' || !legs || legs.length !== path.length || legs.some(leg => !Number.isFinite(Number(leg.duration)))) {
+            const trip = result.trips?.[0];
+            const legs = trip?.legs;
+            if (result.code !== 'Ok' || !legs || legs.length !== path.length ||
+                legs.some(leg => !Number.isFinite(Number(leg.duration))) ||
+                !Array.isArray(result.waypoints) || result.waypoints.length !== path.length + 1) {
                 throw new Error('Per-bin route durations are unavailable.');
             }
-            routeGeometry = route.geometry;
+
+            orderedPath = path
+                .map((bin, index) => ({ bin, order: result.waypoints[index + 1].waypoint_index }))
+                .sort((a, b) => a.order - b.order)
+                .map(entry => entry.bin);
+
+            routeGeometry = trip.geometry;
             let arrivalAt = Date.now();
             etaTimes = legs.map((leg, index) => {
                 arrivalAt += Number(leg.duration) * 1000;
@@ -223,17 +291,24 @@ async function updateDashboardUI(path, score, markerLayer, map) {
     }
     if (requestId !== etaRequestId) return;
 
-    const locationLabels = await loadRouteLocationLabels(path);
+    const locationLabels = await loadRouteLocationLabels(orderedPath);
     if (requestId !== etaRequestId) return;
+
+    // Keep the module-level list in the order that will actually be dispatched.
+    currentOptimizedPath = orderedPath;
 
     markerLayer.clearLayers();
     if (routeGeometry) {
         L.geoJSON(routeGeometry, { style: { color: '#4285F4', weight: 5, opacity: 0.8 } }).addTo(markerLayer);
     }
 
-    document.getElementById('binsToCollect').innerText = path.length;
+    const pendingCount = orderedPath.filter(bin => !dispatchedBinIds.has(bin.id)).length;
+
+    document.getElementById('binsToCollect').innerText = orderedPath.length;
     document.getElementById('complianceScore').innerText = `${score}%`;
-    document.getElementById('route-status').innerText = path.length > 0 ? "Optimization Active" : "All Clear";
+    document.getElementById('route-status').innerText = orderedPath.length === 0
+        ? "All Clear"
+        : (pendingCount > 0 ? "Optimization Active" : "Dispatched");
 
     const container = document.getElementById('routeContainer');
     const dispatchBtn = document.getElementById('dispatchBtn');
@@ -241,26 +316,29 @@ async function updateDashboardUI(path, score, markerLayer, map) {
 
     container.innerHTML = "";
 
-    if (path.length === 0) {
+    if (orderedPath.length === 0) {
         container.innerHTML = `<p style="text-align:center; padding:20px; color:#999; font-size:0.8rem;">
              All communities compliant. No urgent routes detected.
         </p>`;
         dispatchBtn.style.display = 'none';
         if (etaSummary) etaSummary.textContent = 'No route ETA: there are no bins to collect.';
+        lastFitKey = '';
         return;
     }
 
-    dispatchBtn.style.display = 'block';
+    // Nothing left to send once every full bin is already with the collector.
+    dispatchBtn.style.display = pendingCount > 0 ? 'block' : 'none';
     if (etaSummary) {
         etaSummary.textContent = etaTimes?.length
             ? `Estimated Final Arrival: ${etaTimes[etaTimes.length - 1]}`
             : 'Route ETA is unavailable. Check the routing connection.';
     }
 
-    path.forEach((bin, index) => {
+    const boundsPoints = [];
+    orderedPath.forEach((bin, index) => {
         const stopNum = index + 1;
         const locationLabel = escapeHtml(
-            locationLabels.get(bin.id) || UNASSIGNED_LOCATION_LABEL
+            locationLabels.get(bin.id) || getBinInstallationAddress(bin)
         );
 
         const markerColor = (bin.level || bin.volume || 0) >= 90 ? '#ff4444' : '#fc1111';
@@ -279,7 +357,11 @@ async function updateDashboardUI(path, score, markerLayer, map) {
             popupAnchor: [0, -32]
         });
 
-        L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
+        const lat = Number(bin.lat) || LGU_DISPATCH_ORIGIN.lat;
+        const lng = Number(bin.lng) || LGU_DISPATCH_ORIGIN.lng;
+        boundsPoints.push([lat, lng]);
+
+        L.marker([lat, lng], { icon: binIcon })
             .addTo(markerLayer)
             .bindPopup(`<b>Stop #${stopNum}:</b> ${locationLabel}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
 
@@ -288,13 +370,21 @@ async function updateDashboardUI(path, score, markerLayer, map) {
                 <div class="stop-number">${stopNum}</div>
                 <div class="card-details">
                     <h4>${locationLabel}</h4>
-                    <p>Status: ${bin.status || 'Active'}</p>
+                    <p>Status: ${escapeHtml(bin.status || 'Active')}${dispatchedBinIds.has(bin.id) ? ' · Dispatched' : ''}</p>
                     <p style="font-size:0.8em; color:#666; margin-top:4px;">Estimated Time of Arrival: <b>${etaTimes?.[index] || 'Unavailable'}</b></p>
                 </div>
                 <div class="load-tag">${bin.level || bin.volume || 0}%</div>
             </div>
         `;
     });
+
+    // Frame the route once per set of stops so the 60s refresh doesn't reset the admin's panning.
+    const fitKey = orderedPath.map(bin => bin.id).join('|');
+    if (fitKey !== lastFitKey) {
+        lastFitKey = fitKey;
+        const bounds = L.latLngBounds([[LGU_DISPATCH_ORIGIN.lat, LGU_DISPATCH_ORIGIN.lng], ...boundsPoints]);
+        if (bounds.isValid()) map.fitBounds(bounds.pad(0.15), { maxZoom: 16 });
+    }
 
     etaRefreshTimer = setInterval(() => {
         updateDashboardUI(currentOptimizedPath, currentComplianceScore, markerLayer, map);
