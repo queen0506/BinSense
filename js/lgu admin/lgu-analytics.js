@@ -4,6 +4,7 @@ import { initializeLguNotifications } from './lgu-notifications.js';
 let wasteChart;
 let trendRequestId = 0;
 let trendRefreshTimer;
+let currentFilter = 'all';
 
 const manilaDate = new Intl.DateTimeFormat('en', {
     timeZone: 'Asia/Manila',
@@ -21,6 +22,69 @@ initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
 });
 
+function setCollectionCsvAvailability(available) {
+    const button = document.getElementById('exportCollectionCsvBtn');
+    if (button) button.disabled = !available;
+}
+
+function escapeCsvField(value) {
+    let text = String(value ?? '').replace(/\s+/g, ' ').trim();
+    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+}
+
+function getLocalDateStamp(date = new Date()) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function getCollectionTimeframe(filterType) {
+    const labels = {
+        today: 'Daily',
+        week: 'Weekly',
+        month: 'Monthly',
+        all: 'AllTime'
+    };
+    return labels[filterType] || (filterType.charAt(0).toUpperCase() + filterType.slice(1));
+}
+
+function exportCollectionCsv() {
+    const tableBody = document.getElementById('collectionRecordsBody');
+    if (!tableBody) return;
+
+    const dataRows = Array.from(tableBody.querySelectorAll('tr')).filter(row =>
+        row.querySelectorAll('td').length === 4
+    );
+
+    if (dataRows.length === 0) {
+        alert('No collection records to export.');
+        return;
+    }
+
+    const headers = ['Bin / Barangay', 'Date & Time', 'Actual Collector', 'Registered To'];
+    const rows = dataRows.map(row =>
+        Array.from(row.querySelectorAll('td'))
+            .map(cell => (cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim())
+            .map(escapeCsvField)
+            .join(',')
+    );
+
+    const csvContent = '\uFEFF' + [
+        headers.map(escapeCsvField).join(','),
+        ...rows
+    ].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    const timeframe = getCollectionTimeframe(currentFilter);
+    link.download = `BinSense_CollectionLog_${timeframe}_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof Chart !== 'function') {
         setTrendStatus('Chart.js was not loaded. Reload this page to try again.');
@@ -37,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadCollectionRecords = async () => {
         const dateFilter = document.getElementById('dateFilter').value;
         const tbody = document.getElementById('collectionRecordsBody');
+        setCollectionCsvAvailability(false);
         tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888; padding: 20px;">Loading records...</td></tr>';
 
         const from = (currentPage - 1) * pageSize;
@@ -108,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 </tr>
             `;
         }).join('');
+
+        setCollectionCsvAvailability(true);
     };
 
     const updatePaginationUI = () => {
@@ -134,8 +201,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('dateFilter').addEventListener('change', () => {
         currentPage = 1;
+        currentFilter = document.getElementById('dateFilter').value;
         loadCollectionRecords();
     });
+
+    document.getElementById('exportCollectionCsvBtn')?.addEventListener('click', exportCollectionCsv);
 
     loadCollectionRecords();
 
