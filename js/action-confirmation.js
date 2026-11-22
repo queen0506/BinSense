@@ -60,8 +60,8 @@ export function confirmAccountDeletion() {
     return confirmAction({
         title: 'Permanently delete your account?',
         message: 'Account deletion is permanent and cannot be undone. You’ll need to verify your password to continue.',
-        action: 'Continue to Verification',
-        cancel: 'Keep Account',
+        action: 'Continue',
+        cancel: 'Cancel',
         tone: 'danger'
     });
 }

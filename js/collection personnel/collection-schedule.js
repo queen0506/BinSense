@@ -163,8 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!await confirmAction({
             title: 'Remove this completed schedule?',
             message: 'The schedule will be hidden from your collection list.',
-            action: 'Remove from List',
-            cancel: 'Keep Schedule'
+            action: 'Remove',
+            cancel: 'Cancel'
         })) return;
 
         try {

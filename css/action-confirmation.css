@@ -1,5 +1,5 @@
 .action-confirmation {
-    --confirmation-accent: #835017;
+    --confirmation-accent: #b42318;
     --confirmation-tint: #fff3e1;
     box-sizing: border-box;
     width: min(400px, calc(100% - 32px));

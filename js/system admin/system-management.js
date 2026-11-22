@@ -177,8 +177,8 @@ async function removeBin(binId, e) {
     if (!await confirmAction({
         title: `Remove Smart Bin #${binIdToDelete.replace('bin_', '')}?`,
         message: 'This removes the bin from BinSense and may affect users linked to it.',
-        action: 'Remove Bin',
-        cancel: 'Keep Bin',
+        action: 'Remove',
+        cancel: 'Cancel',
         tone: 'danger'
     })) return;
 
