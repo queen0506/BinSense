@@ -1,9 +1,8 @@
-import { getBinLocationLabel, getValidBinPosition } from '../bin-location.js';
-import { reverseGeocode } from '../citizen-address.js';
 import { confirmAction, confirmDiscard } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 let activeBinId = null;
 let registrationInProgress = false;
+let connectedCitizenLocationLabels = new Map();
 
 document.addEventListener('DOMContentLoaded', () => {
     // Open Modal
@@ -68,6 +67,77 @@ function getDeviceOnlineStatus(lastSyncTimestamp, rawStatus) {
     return (currentTime - lastSyncTime < OFFLINE_THRESHOLD) ? 'ACTIVE' : 'OFFLINE';
 }
 
+function getBinInstallationLocation(bin) {
+    const parts = [bin.street, bin.barangay]
+        .map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || 'Location not assigned';
+}
+
+function getConfirmedCitizenAddressLabel(profile) {
+    if (profile?.role !== 'citizen' || profile.address_confirmed !== true) return null;
+
+    const houseAndStreet = [profile.house_number, profile.street_name]
+        .map(value => String(value || '').trim())
+        .filter(Boolean)
+        .join(' ');
+    const parts = [
+        houseAndStreet,
+        profile.barangay,
+        profile.city_municipality,
+        profile.province
+    ].map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || null;
+}
+
+async function loadConnectedCitizenLocationLabels(binIds) {
+    const labels = new Map();
+    if (binIds.length === 0) return labels;
+
+    const { data: connections, error: connectionError } = await supabase
+        .from('user_connected_bins')
+        .select('bin_id, user_id')
+        .in('bin_id', binIds);
+    if (connectionError) throw connectionError;
+
+    const userIdsByBin = new Map();
+    for (const connection of connections || []) {
+        const userIds = userIdsByBin.get(connection.bin_id) || [];
+        userIds.push(connection.user_id);
+        userIdsByBin.set(connection.bin_id, userIds);
+    }
+
+    const uniqueUserIds = [...new Set(
+        [...userIdsByBin.values()]
+            .filter(userIds => userIds.length === 1)
+            .map(userIds => userIds[0])
+    )];
+    if (uniqueUserIds.length === 0) return labels;
+
+    const { data: profiles, error: profileError } = await supabase
+        .from('users')
+        .select('id, role, address_confirmed, house_number, street_name, barangay, city_municipality, province')
+        .in('id', uniqueUserIds);
+    if (profileError) throw profileError;
+
+    const profilesById = new Map((profiles || []).map(profile => [profile.id, profile]));
+    for (const [binId, userIds] of userIdsByBin) {
+        if (userIds.length !== 1) continue;
+
+        const addressLabel = getConfirmedCitizenAddressLabel(profilesById.get(userIds[0]));
+        if (addressLabel) labels.set(binId, addressLabel);
+    }
+
+    return labels;
+}
+
+function getBinLocationLabel(bin) {
+    return connectedCitizenLocationLabels.get(bin.id) || getBinInstallationLocation(bin);
+}
+
 async function loadRegisteredBins() {
     const list = document.getElementById('bins-list');
     if (!list) return;
@@ -80,8 +150,16 @@ async function loadRegisteredBins() {
         let total = 0, active = 0, offline = 0;
 
         if (!data || data.length === 0) {
+            connectedCitizenLocationLabels = new Map();
             updateSummary(0, 0, 0);
             return;
+        }
+
+        try {
+            connectedCitizenLocationLabels = await loadConnectedCitizenLocationLabels(data.map(bin => bin.id));
+        } catch (locationError) {
+            connectedCitizenLocationLabels = new Map();
+            console.error('Unable to load connected Citizen addresses:', locationError);
         }
 
         for (const bin of data) {
@@ -148,7 +226,7 @@ function startLiveUpdate(binId) {
                 
                 if (statusBox) {
                         statusBox.innerHTML = `
-                        <p class="sync-text">Coordinates: <span>${getValidBinPosition(bin) ? `${bin.lat}, ${bin.lng}` : 'Not assigned'}</span></p>
+                        <p class="sync-text">Location: <span>${bin.lat || '0'}, ${bin.lng || '0'}</span></p>
                         <p class="sync-text">Installation location: <span class="bin-location"></span></p>
                         <p class="sync-text">Last Sync: <span>${bin.last_sync ? new Date(bin.last_sync).toLocaleTimeString() : 'Never'}</span></p>
                         <div class="connection-status" style="color: ${color}">
@@ -265,10 +343,20 @@ async function processRegistration() {
 
     const latitude = Number(lat);
     const longitude = Number(lng);
-    if (!getValidBinPosition({ lat: latitude, lng: longitude })) {
-        alert('Enter a latitude from −90 to 90 and a longitude from −180 to 180.');
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        alert("Latitude and longitude must be valid numbers.");
         return;
     }
+
+    const newBinData = {
+        id: rawId,
+        status: "available",
+        lat: latitude,
+        lng: longitude,
+        level: 0,
+        volume: 0,
+        last_sync: new Date().toISOString() // Dynamic current timestamp
+    };
 
     const registerButton = document.querySelector('#register-modal .confirm-btn');
     registrationInProgress = true;
@@ -277,39 +365,23 @@ async function processRegistration() {
     try {
         const { data: existingBin, error: lookupError } = await supabase
             .from('bins')
-            .select('id, lat, lng')
+            .select('id')
             .eq('id', rawId)
             .maybeSingle();
         if (lookupError) throw lookupError;
 
-        const location = { lat: latitude, lng: longitude };
-        let addressFound = false;
-        try {
-            const address = await reverseGeocode(latitude, longitude);
-            location.barangay = address.barangay || 'Unassigned';
-            location.street = address.streetName || null;
-            addressFound = Boolean(address.barangay || address.streetName);
-        } catch (error) {
-            console.warn('Bin address lookup failed:', error);
-            const previous = existingBin && getValidBinPosition(existingBin);
-            if (!previous || previous.lat !== latitude || previous.lng !== longitude) {
-                location.barangay = 'Unassigned';
-                location.street = null;
-            }
-        }
-
+        const { id, ...binUpdates } = newBinData;
         const { error } = existingBin
-            ? await supabase.from('bins').update(location).eq('id', rawId)
-            : await supabase.from('bins').insert([{ id: rawId, status: 'available', level: 0, volume: 0, ...location }]);
+            ? await supabase.from('bins').update(binUpdates).eq('id', id)
+            : await supabase.from('bins').insert([newBinData]);
+        
         if (error) {
             console.error("Database Save Error:", error);
             alert(`Database Error: ${error.message}`);
             return;
         }
 
-        const savedMessage = existingBin ? 'installation location updated' : 'successfully registered';
-        const lookupMessage = addressFound ? '' : '\nNo new street or barangay was found for these coordinates.';
-        alert(`Smart Bin #${rawId} ${savedMessage}!${lookupMessage}`);
+        alert(`Smart Bin #${rawId} successfully registered!`);
         closeRegisterModal();
         await loadRegisteredBins();
     } catch (error) {
