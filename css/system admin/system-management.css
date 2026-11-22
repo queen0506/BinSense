@@ -332,7 +332,7 @@ img {
 .modal-input {
     width: 100%;
     padding: 12px 15px;
-    margin-bottom: 12px;
+    margin-bottom: 0;
     border-radius: var(--radius-sm);
     border: 1px solid #E0E0E0;
     font-family: inherit;
@@ -351,11 +351,50 @@ img {
 .coord-inputs {
     display: flex;
     gap: 10px;
+    margin-bottom: 12px;
+}
+
+.registration-field {
+    margin-bottom: 12px;
+}
+
+.coord-inputs .registration-field {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
 }
 
 .coord-inputs .modal-input {
-    flex: 1;
     min-width: 0;
+}
+
+.registration-field-error {
+    margin: 4px 0 0;
+    color: #b42318;
+    font-size: 0.7rem;
+    line-height: 1.2;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.registration-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 90px;
+    z-index: 2101;
+    width: min(90vw, 420px);
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: #2f7d32;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+    text-align: center;
+    transform: translateX(-50%);
+}
+
+.registration-toast.error {
+    background: #b42318;
 }
 
 .modal-actions {
