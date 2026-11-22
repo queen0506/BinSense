@@ -80,7 +80,7 @@ function setEtaPanel(message, stops = [], visible = true) {
     
     list.replaceChildren(...stops.map(stop => {
         const item = document.createElement('li');
-        item.textContent = `${stop.barangay}: ${stop.eta}`;
+        item.textContent = `${stop.street ? stop.street + ', ' : ''}${stop.barangay}: ${stop.eta}`;
         return item;
     }));
 }
@@ -198,7 +198,7 @@ function listenForAdminDispatch() {
             const position = getValidBinPosition(bin);
             if (!position) return;
 
-            activeBinWaypoints.push({ ...position, binId, barangay: bin.barangay || 'Unknown' });
+            activeBinWaypoints.push({ ...position, binId, barangay: bin.barangay || 'Unknown', street: bin.street || '' });
 
             const marker = L.marker([position.lat, position.lng], {
                 icon: createBinIcon(35),
@@ -265,7 +265,16 @@ function createCollectionPopup(bin, etaText = 'Calculating ETA…') {
 
     const heading = document.createElement('h4');
     heading.textContent = `Brgy. ${bin.barangay || 'Unknown'}`;
-    heading.style.cssText = 'margin:0 0 8px 0;';
+    heading.style.cssText = 'margin:0 0 2px 0;';
+
+    if (bin.street) {
+        const streetInfo = document.createElement('p');
+        streetInfo.textContent = bin.street;
+        streetInfo.style.cssText = 'margin:0 0 8px 0; font-size:0.85rem; color:#555; font-weight:600;';
+        wrapper.append(heading, streetInfo); 
+    } else {
+        wrapper.append(heading);
+    }
 
     const eta = document.createElement('p');
     eta.className = 'bin-eta';
@@ -278,7 +287,7 @@ function createCollectionPopup(bin, etaText = 'Calculating ETA…') {
     button.style.cssText = 'background:#99cc33; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; font-weight:bold;';
     button.addEventListener('click', () => window.showConfirmationModal(bin.id));
 
-    wrapper.append(heading, eta, button);
+    wrapper.append(eta, button);
     return wrapper;
 }
 
@@ -429,7 +438,7 @@ async function calculateSmartGPSRoute(origin, binLocations) {
             }
             
             const etaText = new Date(etaAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            etaStops.push({ barangay: bin.barangay || 'Unknown', eta: etaText });
+            etaStops.push({ barangay: bin.barangay || 'Unknown', street: bin.street || '', eta: etaText });
 
             const marker = binMarkers.find(candidate => {
                 const position = candidate.getLatLng();
@@ -538,10 +547,16 @@ function listenForFullBins() {
             heading.style.cssText = 'margin:0 0 5px 0; color:#FF3B30;';
             const barangay = document.createElement('p');
             barangay.textContent = `Brgy. ${bin.barangay || 'Unknown'}`;
-            barangay.style.cssText = 'margin:0 0 8px 0;';
+            barangay.style.cssText = 'margin:0 0 2px 0;';
+
+            const street = document.createElement('p');
+            street.textContent = bin.street || '';
+            street.style.cssText = 'margin:0 0 8px 0; font-size:0.85rem; color:#555; font-weight:600;';
+
+            if(!bin.street) street.style.display = 'none';
             const note = document.createElement('small');
             note.textContent = 'Awaiting Admin Dispatch';
-            popup.append(heading, barangay, note);
+            popup.append(heading, barangay, street, note);
             marker.bindPopup(popup);
             fullBinMarkers.push(marker);
         });
