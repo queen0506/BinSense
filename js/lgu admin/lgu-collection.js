@@ -1,3 +1,4 @@
+import { getBinLocationLabel, getValidBinPosition } from '../bin-location.js';
 import { supabase } from '../supabase-init.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (error) return console.error('Bin sync failed:', error);
         
         currentOptimizedPath = bins
-            .filter(bin => bin.status?.toLowerCase() === 'full')
+            .filter(bin => bin.status?.toLowerCase() === 'full' && getValidBinPosition(bin))
             .sort((a, b) => (Number(b.level) || 0) - (Number(a.level) || 0));
 
         const total = bins.length;
@@ -92,10 +93,7 @@ async function updateDashboardUI(path, score, markerLayer, map) {
     let routeGeometry = null;
     if (path.length) {
         try {
-            const coords = [LGU_DISPATCH_ORIGIN, ...path.map(bin => ({
-                lng: Number(bin.lng) || LGU_DISPATCH_ORIGIN.lng,
-                lat: Number(bin.lat) || LGU_DISPATCH_ORIGIN.lat
-            }))].map(point => `${point.lng},${point.lat}`).join(';');
+            const coords = [LGU_DISPATCH_ORIGIN, ...path.map(getValidBinPosition)].map(point => `${point.lng},${point.lat}`).join(';');
             const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`);
             if (!response.ok) throw new Error(`Routing service returned HTTP ${response.status}`);
             const result = await response.json();
@@ -169,23 +167,26 @@ const binIcon = L.divIcon({
     popupAnchor: [0, -32]
 });
 
-L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
-    .addTo(markerLayer)
-    .bindPopup(`<b>Stop #${stopNum}:</b> Brgy. ${bin.barangay}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
+        const { lat, lng } = getValidBinPosition(bin);
+        const locationLabel = getBinLocationLabel(bin);
+        const popup = document.createElement('div');
+        popup.textContent = `Stop #${stopNum}: ${locationLabel} — Estimated Time of Arrival: ${etaTimes?.[index] || 'Unavailable'}`;
+        L.marker([lat, lng], { icon: binIcon }).addTo(markerLayer).bindPopup(popup);
 
-
-
-        container.innerHTML += `
+        const stopCard = document.createElement('div');
+        stopCard.innerHTML = `
             <div class="route-card" style="border-left: 5px solid ${markerColor}">
                 <div class="stop-number">${stopNum}</div>
                 <div class="card-details">
-                    <h4>Brgy. ${bin.barangay || 'Unknown'}</h4>
+                    <h4></h4>
                     <p>Status: ${bin.status || 'Active'}</p>
                     <p style="font-size:0.8em; color:#666; margin-top:4px;">Estimated Time of Arrival: <b>${etaTimes?.[index] || 'Unavailable'}</b></p>
                 </div>
                 <div class="load-tag">${bin.level || bin.volume || 0}%</div>
             </div>
         `;
+        stopCard.querySelector('h4').textContent = locationLabel;
+        container.append(stopCard.firstElementChild);
     });
 
     etaRefreshTimer = setInterval(() => {

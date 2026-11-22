@@ -1,3 +1,4 @@
+import { getBinLocationLabel } from './bin-location.js';
 import { confirmAction, confirmDiscard } from './action-confirmation.js';
 import { supabase } from './supabase-init.js';
 import { EAST_BAJAC_BAJAC, detectCurrentLocation, saveCitizenAddress } from './citizen-address.js';
@@ -42,33 +43,6 @@ function showBinNotice(title, message) {
 }
 let activeChannels = {};
 let modalChannel = null;
-let currentCitizenAddressLabel = 'Location not assigned';
-
-function getConfirmedCitizenAddressLabel(profile) {
-    if (profile?.address_confirmed !== true) return 'Location not assigned';
-
-    const houseAndStreet = [profile.house_number, profile.street_name]
-        .map(value => String(value || '').trim())
-        .filter(Boolean)
-        .join(' ');
-    const parts = [
-        houseAndStreet,
-        profile.barangay,
-        profile.city_municipality,
-        profile.province
-    ].map(value => String(value || '').trim())
-        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
-
-    return parts.join(', ') || 'Location not assigned';
-}
-
-function refreshCitizenBinLocationLabels() {
-    document.querySelectorAll('.citizen-bin-card .bin-location, #detailsBody .bin-location')
-        .forEach(element => {
-            element.textContent = currentCitizenAddressLabel;
-        });
-}
-
 /* ============================
    REAL-TIME NOTIFICATION SYSTEM
 ============================ */
@@ -447,8 +421,6 @@ async function initCitizenAddressSetup(user) {
         return;
     }
 
-    currentCitizenAddressLabel = getConfirmedCitizenAddressLabel(profile);
-
     if (profile?.address_confirmed === true) return;
 
     addressFields.houseNumber.value = profile?.house_number || '';
@@ -557,11 +529,6 @@ async function initCitizenAddressSetup(user) {
             confirmButton.textContent = 'Confirm Address';
             return;
         }
-        currentCitizenAddressLabel = getConfirmedCitizenAddressLabel({
-            ...address,
-            address_confirmed: true
-        });
-        refreshCitizenBinLocationLabels();
         status.textContent = 'Address confirmed. GPS not verified.';
         confirmButton.textContent = 'Address Saved';
         setTimeout(() => modal.classList.remove('show'), 900);
@@ -650,7 +617,7 @@ function updateCardUI(cardElement, id, data) {
         </div>
         <div style="color: #ccc;">›</div>
     `;
-    cardElement.querySelector('.bin-location').textContent = currentCitizenAddressLabel;
+    cardElement.querySelector('.bin-location').textContent = getBinLocationLabel(data);
 }
 
 async function showDetails(id) {
@@ -697,7 +664,7 @@ function renderDetailsModal(container, id, data) {
         <p><strong>Last Sync:</strong> ${data.last_sync ? new Date(data.last_sync).toLocaleTimeString() : 'Never'}</p>
         <button onclick="removeBin('${id}')" style="color:#FF3B30; background:none; border:1px solid #FF3B30; padding:10px; width:100%; margin-top:10px; border-radius:8px; cursor:pointer;">Disconnect</button>
     `;
-    container.querySelector('.bin-location').textContent = currentCitizenAddressLabel;
+    container.querySelector('.bin-location').textContent = getBinLocationLabel(data);
 }
 
 window.removeBin = async function(id) {
