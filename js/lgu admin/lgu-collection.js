@@ -48,6 +48,61 @@ initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
 });
 
+/* ===== Dispatch alert ===== */
+const ALERT_ICONS = {
+    success: '<path d="M5 13l4 4L19 7"/>',
+    error: '<path d="M6 6l12 12M18 6L6 18"/>',
+    warning: '<path d="M12 8v5M12 17h.01"/>'
+};
+
+function showDispatchAlert({ type = 'success', title, message, stat }) {
+    document.querySelector('.dispatch-alert-overlay')?.remove();
+    const opener = document.activeElement;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'dispatch-alert-overlay';
+    overlay.innerHTML = `
+        <div class="dispatch-alert" data-type="${type}" role="alertdialog" aria-modal="true"
+             aria-labelledby="dispatch-alert-title" aria-describedby="dispatch-alert-message">
+            <div class="dispatch-alert-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">${ALERT_ICONS[type] || ALERT_ICONS.success}</svg>
+            </div>
+            <h2 class="dispatch-alert-title" id="dispatch-alert-title"></h2>
+            <p class="dispatch-alert-message" id="dispatch-alert-message"></p>
+            <div class="dispatch-alert-stat" hidden><span></span><strong></strong></div>
+            <button type="button" class="dispatch-alert-btn">Got It</button>
+        </div>
+    `;
+
+    overlay.querySelector('.dispatch-alert-title').textContent = title;
+    overlay.querySelector('.dispatch-alert-message').textContent = message;
+    if (stat) {
+        const statEl = overlay.querySelector('.dispatch-alert-stat');
+        statEl.hidden = false;
+        statEl.querySelector('span').textContent = stat.label;
+        statEl.querySelector('strong').textContent = stat.value;
+    }
+
+    const close = () => {
+        document.removeEventListener('keydown', onKey);
+        overlay.classList.remove('is-open');
+        setTimeout(() => {
+            overlay.remove();
+            if (opener?.isConnected) opener.focus();
+        }, 200);
+    };
+    const onKey = e => { if (e.key === 'Escape') close(); };
+
+    const button = overlay.querySelector('.dispatch-alert-btn');
+    button.addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', onKey);
+
+    document.body.append(overlay);
+    requestAnimationFrame(() => overlay.classList.add('is-open'));
+    button.focus();
+}
+
 async function writeLog(action, message) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -58,8 +113,8 @@ async function writeLog(action, message) {
             message,
             timestamp: new Date().toISOString()
         });
-    } catch (err) { 
-        console.error("Log error:", err); 
+    } catch (err) {
+        console.error("Log error:", err);
     }
 }
 
@@ -74,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshBins = async () => {
         const { data: bins, error } = await supabase.from('bins').select('*');
         if (error) return console.error('Bin sync failed:', error);
-        
+
         currentOptimizedPath = bins
             .filter(bin => bin.status?.toLowerCase() === 'full')
             .sort((a, b) => (Number(b.level) || 0) - (Number(a.level) || 0));
@@ -85,9 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateDashboardUI(currentOptimizedPath, currentComplianceScore, markerLayer, map);
     };
-    
+
     refreshBins();
-    
+
     supabase.channel('lgu-collection-bins')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'bins' }, refreshBins)
         .subscribe();
@@ -96,7 +151,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dispatchBtn) {
         dispatchBtn.onclick = async () => {
             if (currentOptimizedPath.length === 0) {
-                alert("No route available for dispatch.");
+                showDispatchAlert({
+                    type: 'warning',
+                    title: 'No Route Available',
+                    message: 'There are no full bins to collect right now, so there is nothing to dispatch.'
+                });
                 return;
             }
 
@@ -110,10 +169,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (error) throw error;
 
                 await writeLog("Dispatch Route", `LGU Personnel dispatched route for ${currentOptimizedPath.length} bins.`);
-                alert(`Route successfully dispatched to Personnel.\nCompliance Rate: ${currentComplianceScore}%`);
+                showDispatchAlert({
+                    type: 'success',
+                    title: 'Route Dispatched',
+                    message: `Route for ${currentOptimizedPath.length} bin${currentOptimizedPath.length === 1 ? '' : 's'} was successfully sent to the waste collector.`,
+                    stat: { label: 'Compliance Rate', value: `${currentComplianceScore}%` }
+                });
             } catch (error) {
                 console.error("Dispatch Error:", error);
-                alert("Failed to dispatch route. Please check your connection.");
+                showDispatchAlert({
+                    type: 'error',
+                    title: 'Dispatch Failed',
+                    message: 'We could not dispatch the route. Please check your connection and try again.'
+                });
             }
         };
     }
@@ -162,7 +230,7 @@ async function updateDashboardUI(path, score, markerLayer, map) {
     if (routeGeometry) {
         L.geoJSON(routeGeometry, { style: { color: '#4285F4', weight: 5, opacity: 0.8 } }).addTo(markerLayer);
     }
-    
+
     document.getElementById('binsToCollect').innerText = path.length;
     document.getElementById('complianceScore').innerText = `${score}%`;
     document.getElementById('route-status').innerText = path.length > 0 ? "Optimization Active" : "All Clear";
@@ -170,7 +238,7 @@ async function updateDashboardUI(path, score, markerLayer, map) {
     const container = document.getElementById('routeContainer');
     const dispatchBtn = document.getElementById('dispatchBtn');
     const etaSummary = document.getElementById('etaSummary');
-    
+
     container.innerHTML = "";
 
     if (path.length === 0) {
@@ -194,29 +262,26 @@ async function updateDashboardUI(path, score, markerLayer, map) {
         const locationLabel = escapeHtml(
             locationLabels.get(bin.id) || UNASSIGNED_LOCATION_LABEL
         );
-        
+
         const markerColor = (bin.level || bin.volume || 0) >= 90 ? '#ff4444' : '#fc1111';
 
-       
-const binIcon = L.divIcon({
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-             width="36" height="36" aria-label="Waste bin">
-        <path d="M8 3h8l1 2h4v2H3V5h4l1-2Zm-3 5h14l-1 13H6L5 8Z"
-              fill="#e53935"/>
-        <path d="M9 10v8m6-8v8" fill="none" stroke="#fff"
-              stroke-width="1.5" stroke-linecap="round"/>
-    </svg>`,
-    className: "",
-    iconSize: [36, 36],
-    iconAnchor: [18, 32],
-    popupAnchor: [0, -32]
-});
+        const binIcon = L.divIcon({
+            html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                     width="36" height="36" aria-label="Waste bin">
+                <path d="M8 3h8l1 2h4v2H3V5h4l1-2Zm-3 5h14l-1 13H6L5 8Z"
+                      fill="#e53935"/>
+                <path d="M9 10v8m6-8v8" fill="none" stroke="#fff"
+                      stroke-width="1.5" stroke-linecap="round"/>
+            </svg>`,
+            className: "",
+            iconSize: [36, 36],
+            iconAnchor: [18, 32],
+            popupAnchor: [0, -32]
+        });
 
-L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
-    .addTo(markerLayer)
-    .bindPopup(`<b>Stop #${stopNum}:</b> ${locationLabel}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
-
-
+        L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
+            .addTo(markerLayer)
+            .bindPopup(`<b>Stop #${stopNum}:</b> ${locationLabel}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
 
         container.innerHTML += `
             <div class="route-card" style="border-left: 5px solid ${markerColor}">
