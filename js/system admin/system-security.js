@@ -1,3 +1,4 @@
+import { showAccountDeletionUnavailable } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -64,22 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
     const deleteBtn = document.getElementById("delete-account-trigger");
 
-    deleteBtn?.addEventListener("click", async () => {
-
-        const confirm1 = confirm("Are you sure you want to delete your account?");
-        if (!confirm1) return;
-
-        const confirm2 = confirm("This action is permanent. Continue?");
-        if (!confirm2) return;
-
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            alert("No user logged in.");
-            return;
-        }
-
-        alert('Account deletion requires a secure server-side Supabase account-deletion workflow and is not available from this browser.');
-    });
+    deleteBtn?.addEventListener('click', () => showAccountDeletionUnavailable());
 
 });

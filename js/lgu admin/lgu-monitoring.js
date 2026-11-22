@@ -1,3 +1,4 @@
+import { confirmAction, confirmDiscard } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
@@ -94,6 +95,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const officeStartMinutes = 8 * 60;
     const officeEndMinutes = 17 * 60;
     let editingScheduleId = null;
+    let initialScheduleValues;
+    const getScheduleValues = () => [
+        scheduleDateInput.value,
+        scheduleTimeInput.value,
+        document.getElementById('scheduleType').value
+    ];
+    const dismissScheduleModal = async () => {
+        const changed = getScheduleValues().some((value, index) => value !== initialScheduleValues[index]);
+        if (changed && !await confirmDiscard('Your unsaved collection schedule changes will be lost.')) return;
+        closeScheduleModal();
+    };
 
     const updateScheduleConstraints = () => {
         const now = new Date();
@@ -154,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveScheduleBtn.textContent = 'Save Schedule';
         }
         updateScheduleConstraints();
+        initialScheduleValues = getScheduleValues();
         scheduleModal.classList.add('open');
     };
 
@@ -233,7 +246,13 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteButton.className = 'schedule-delete-btn';
             deleteButton.textContent = 'Delete';
             deleteButton.addEventListener('click', async () => {
-                if (!window.confirm('Delete this collection schedule?')) return;
+                if (!await confirmAction({
+                    title: 'Delete this collection schedule?',
+                    message: 'The schedule will be removed from the collection list.',
+                    action: 'Delete Schedule',
+                    cancel: 'Keep Schedule',
+                    tone: 'danger'
+                })) return;
                 try {
                     const { data: deletedSchedule, error: deleteError } = await supabase.from('notifications')
                         .delete()
@@ -260,10 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('addCollectionSchedule').addEventListener('click', () => openScheduleModal());
-    document.getElementById('closeScheduleModal').addEventListener('click', closeScheduleModal);
-    document.getElementById('cancelScheduleEdit').addEventListener('click', closeScheduleModal);
+    document.getElementById('closeScheduleModal').addEventListener('click', dismissScheduleModal);
+    document.getElementById('cancelScheduleEdit').addEventListener('click', dismissScheduleModal);
     scheduleModal.addEventListener('click', event => {
-        if (event.target === scheduleModal) closeScheduleModal();
+        if (event.target === scheduleModal) dismissScheduleModal();
     });
 
     scheduleForm.addEventListener('submit', async event => {

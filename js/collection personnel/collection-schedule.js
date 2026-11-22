@@ -1,3 +1,4 @@
+import { confirmAction, confirmDiscard } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -60,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const deleteBg = document.createElement('div');
         deleteBg.className = 'delete-bg';
-        deleteBg.innerHTML = '<span>Delete</span>';
+        deleteBg.innerHTML = '<span>Remove</span>';
 
         const item = document.createElement('article');
         item.className = 'schedule-item';
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const desktopDeleteBtn = document.createElement('button');
             desktopDeleteBtn.className = 'delete-btn-desktop';
             desktopDeleteBtn.innerHTML = '&#128465;'; // Trash can icon
-            desktopDeleteBtn.title = "Delete Schedule";
+            desktopDeleteBtn.title = "Remove Completed Schedule";
             desktopDeleteBtn.onclick = (e) => {
                 e.stopPropagation();
                 confirmDelete(schedule);
@@ -158,73 +159,60 @@ document.addEventListener('DOMContentLoaded', () => {
         scheduleList.appendChild(wrapper);
     };
 
-        const confirmDelete = (schedule) => {
-        Swal.fire({
-            title: 'Delete Schedule?',
-            text: "You are about to delete this completed schedule permanently.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, Delete',
-            cancelButtonText: 'Cancel',
-            buttonsStyling: false, /* VERY IMPORTANT: Disables default SweetAlert styles */
-            customClass: {
-                popup: 'binsense-swal',
-                title: 'binsense-title',
-                htmlContainer: 'binsense-text',
-                actions: 'binsense-actions',
-                confirmButton: 'binsense-confirm-btn',
-                cancelButton: 'binsense-cancel-btn'
-            }
-                }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    // Kukunin ang mga existing na nakatago
-                    let hiddenIds = JSON.parse(localStorage.getItem('hidden_collection_schedules') || '[]');
-                    
-                    // Idadagdag ang ID ng bagong tinatanggal
-                    if (!hiddenIds.includes(schedule.id)) {
-                        hiddenIds.push(schedule.id);
-                        localStorage.setItem('hidden_collection_schedules', JSON.stringify(hiddenIds));
-                    }
+    const confirmDelete = async schedule => {
+        if (!await confirmAction({
+            title: 'Remove this completed schedule?',
+            message: 'The schedule will be hidden from your collection list.',
+            action: 'Remove',
+            cancel: 'Cancel'
+        })) return;
 
-                    Swal.fire({
-                        title: 'Removed!',
-                        text: 'The schedule has been removed from your list.',
-                        icon: 'success',
-                        iconColor: '#99cc33',
-                        confirmButtonText: 'Great!',
-                        buttonsStyling: false,
-                        customClass: {
-                            popup: 'binsense-swal',
-                            title: 'binsense-title',
-                            htmlContainer: 'binsense-text',
-                            actions: 'binsense-actions',
-                            confirmButton: 'binsense-success-btn'
-                        }
-                    });
-                    await loadSchedules();
-                } catch (error) {
-                    console.error('Hide failed:', error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Failed to remove the schedule. Please try again.',
-                        icon: 'error',
-                        iconColor: '#ff4444',
-                        confirmButtonText: 'Okay',
-                        buttonsStyling: false,
-                        customClass: {
-                            popup: 'binsense-swal',
-                            title: 'binsense-title',
-                            htmlContainer: 'binsense-text',
-                            actions: 'binsense-actions',
-                            confirmButton: 'binsense-error-btn'
-                        }
-                    });
-                }
+        try {
+            // Kukunin ang mga existing na nakatago
+            let hiddenIds = JSON.parse(localStorage.getItem('hidden_collection_schedules') || '[]');
+
+            // Idadagdag ang ID ng bagong tinatanggal
+            if (!hiddenIds.includes(schedule.id)) {
+                hiddenIds.push(schedule.id);
+                localStorage.setItem('hidden_collection_schedules', JSON.stringify(hiddenIds));
             }
-        });
+
+            Swal.fire({
+                title: 'Removed!',
+                text: 'The schedule has been removed from your list.',
+                icon: 'success',
+                iconColor: '#99cc33',
+                confirmButtonText: 'Great!',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'binsense-swal',
+                    title: 'binsense-title',
+                    htmlContainer: 'binsense-text',
+                    actions: 'binsense-actions',
+                    confirmButton: 'binsense-success-btn'
+                }
+            });
+            await loadSchedules();
+        } catch (error) {
+            console.error('Hide failed:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Failed to remove the schedule. Please try again.',
+                icon: 'error',
+                iconColor: '#ff4444',
+                confirmButtonText: 'Okay',
+                buttonsStyling: false,
+                customClass: {
+                    popup: 'binsense-swal',
+                    title: 'binsense-title',
+                    htmlContainer: 'binsense-text',
+                    actions: 'binsense-actions',
+                    confirmButton: 'binsense-error-btn'
+                }
+            });
+        }
     };
-        const loadSchedules = async () => {
+    const loadSchedules = async () => {
         const { data, error } = await supabase.from('notifications')
             .select('*')
             .eq('type', 'collection')
@@ -268,12 +256,20 @@ document.addEventListener('DOMContentLoaded', () => {
         oneTimeSchedules.forEach(renderItem);
     };
 
-    document.getElementById('cancelDoneBtn').addEventListener('click', closeCompletionModal);
+    const dismissCompletionModal = async () => {
+        if (confirmDoneBtn.disabled) return;
+        if (collectorNameInput.value !== currentCollectorName &&
+            !await confirmDiscard('Your changes to the collector name will be lost.')) return;
+        closeCompletionModal();
+    };
+
+    document.getElementById('cancelDoneBtn').addEventListener('click', dismissCompletionModal);
     doneConfirmModal.addEventListener('click', event => {
-        if (event.target === doneConfirmModal) closeCompletionModal();
+        if (event.target === doneConfirmModal) dismissCompletionModal();
     });
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && doneConfirmModal.classList.contains('open')) closeCompletionModal();
+        if (event.key === 'Escape' && doneConfirmModal.classList.contains('open') &&
+            !document.querySelector('.action-confirmation[open]')) dismissCompletionModal();
     });
         confirmDoneBtn.addEventListener('click', async () => {
         if (!activeSchedule) return;

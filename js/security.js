@@ -1,3 +1,4 @@
+import { confirmAccountDeletion } from './action-confirmation.js';
 import { supabase } from './supabase-init.js';
 
 /* ==========================================================================
@@ -111,11 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const deleteBtn = document.getElementById("delete-account-trigger");
 
     deleteBtn?.addEventListener("click", async () => {
-        const confirm1 = confirm("Are you sure you want to delete your account?");
-        if (!confirm1) return;
-
-        const confirm2 = confirm("This action is permanent and cannot be undone. Continue?");
-        if (!confirm2) return;
+        if (!await confirmAccountDeletion()) return;
 
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user?.email) {

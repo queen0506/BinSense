@@ -1,3 +1,4 @@
+import { confirmDiscard } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 
 // POP UP ICONS
@@ -69,8 +70,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 3. CLOSE MODALS ---
-    document.getElementById('cancelBtn')?.addEventListener('click', () => feedbackModal.style.display = 'none');
-    document.getElementById('cancelBug')?.addEventListener('click', () => bugModal.style.display = 'none');
+    const dismissFeedback = async () => {
+        const comment = feedbackModal.querySelector('textarea');
+        if ((currentRating || comment.value) && !await confirmDiscard('Your unsent feedback will be lost.')) return;
+        comment.value = '';
+        currentRating = 0;
+        stars.forEach(star => {
+            star.classList.remove('active');
+            star.style.removeProperty('color');
+        });
+        feedbackModal.style.display = 'none';
+    };
+
+    const dismissBugReport = async () => {
+        const fields = [...bugModal.querySelectorAll('input[type="text"], textarea')];
+        const severity = bugModal.querySelector('select');
+        const hasDraft = fields.some(field => field.value) || severity.selectedIndex > 0;
+        if (hasDraft && !await confirmDiscard('Your unsent bug report will be lost.')) return;
+        fields.forEach(field => { field.value = ''; });
+        severity.selectedIndex = 0;
+        bugModal.style.display = 'none';
+    };
+
+    document.getElementById('cancelBtn')?.addEventListener('click', dismissFeedback);
+    document.getElementById('cancelBug')?.addEventListener('click', dismissBugReport);
     document.getElementById('cancelLogout')?.addEventListener('click', () => logoutModal.style.display = 'none');
 
     // --- 4. STAR RATING LOGIC ---
@@ -203,8 +226,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 8. CLICK OUTSIDE TO CLOSE ---
     window.addEventListener('click', (e) => {
-        if (e.target === feedbackModal) feedbackModal.style.display = 'none';
-        if (e.target === bugModal) bugModal.style.display = 'none';
+        if (e.target === feedbackModal) dismissFeedback();
+        if (e.target === bugModal) dismissBugReport();
         if (e.target === logoutModal) logoutModal.style.display = 'none';
     });
 });

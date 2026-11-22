@@ -1,3 +1,4 @@
+import { confirmAction, confirmDiscard } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 let activeBinId = null;
 let registrationInProgress = false;
@@ -25,8 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach click listener to cancel button
     const cancelBtn = document.querySelector('#register-modal .cancel-btn');
     if (cancelBtn) {
-        cancelBtn.onclick = (e) => {
+        cancelBtn.onclick = async (e) => {
             e.preventDefault();
+            const hasDraft = [...document.querySelectorAll('#register-modal input')].some(input => input.value);
+            if (hasDraft && !await confirmDiscard('The bin registration details you entered will be lost.')) return;
             closeRegisterModal();
         };
     }
@@ -253,8 +256,13 @@ async function removeBin(binId, e) {
     let binIdToDelete = String(binId || '').trim();
     if (!binIdToDelete) return;
 
-    const confirmDelete = confirm(`Are you sure you want to remove Smart Bin #${binIdToDelete.replace('bin_', '')}?`);
-    if (!confirmDelete) return;
+    if (!await confirmAction({
+        title: `Remove Smart Bin #${binIdToDelete.replace('bin_', '')}?`,
+        message: 'This removes the bin from BinSense and may affect users linked to it.',
+        action: 'Remove',
+        cancel: 'Cancel',
+        tone: 'danger'
+    })) return;
 
     try {
         if (!binIdToDelete.startsWith('bin_')) {

@@ -1,3 +1,4 @@
+import { confirmDiscard } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -45,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== FEEDBACK MODAL =====
     const feedbackModal = document.getElementById('feedbackModal');
     const openFeedback = document.getElementById('openFeedback');
-    const cancelFeedback = document.getElementById('cancelBtn');
     const feedbackSubmit = feedbackModal?.querySelector('.btn-submit');
     const feedbackText = feedbackModal?.querySelector('textarea'); 
     const stars = document.querySelectorAll('.star');
@@ -59,11 +59,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (cancelFeedback) {
-        cancelFeedback.addEventListener('click', () => {
-            feedbackModal.style.display = 'none';
+    const dismissFeedback = async () => {
+        const comment = feedbackModal.querySelector('textarea');
+        if ((rating || comment.value) && !await confirmDiscard('Your unsent feedback will be lost.')) return;
+        comment.value = '';
+        rating = 0;
+        stars.forEach(star => {
+            star.classList.remove('active');
+            star.style.removeProperty('color');
         });
-    }
+        feedbackModal.style.display = 'none';
+    };
+
+    const dismissBugReport = async () => {
+        const fields = [...bugModal.querySelectorAll('input[type="text"], textarea')];
+        const severity = bugModal.querySelector('select');
+        const hasDraft = fields.some(field => field.value) || severity.selectedIndex > 0;
+        if (hasDraft && !await confirmDiscard('Your unsent bug report will be lost.')) return;
+        fields.forEach(field => { field.value = ''; });
+        severity.selectedIndex = 0;
+        bugModal.style.display = 'none';
+    };
+
+    document.getElementById('cancelBtn')?.addEventListener('click', dismissFeedback);
+    document.getElementById('cancelBug')?.addEventListener('click', dismissBugReport);
 
     if (feedbackSubmit) {
         feedbackSubmit.addEventListener('click', async () => {
@@ -111,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== BUG MODAL =====
     const bugModal = document.getElementById('bugModal');
     const openBug = document.getElementById('openBug');
-    const cancelBug = document.getElementById('cancelBug');
     const bugSubmit = bugModal?.querySelector('.btn-submit');
     
     const bugTitle = bugModal?.querySelector('.bug-input');
@@ -125,11 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (cancelBug) {
-        cancelBug.addEventListener('click', () => {
-            bugModal.style.display = 'none';
-        });
-    }
 
     if (bugSubmit) {
         bugSubmit.addEventListener('click', async () => {
@@ -166,8 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== CLICK OUTSIDE =====
     window.addEventListener('click', (e) => {
-        if (e.target === feedbackModal) feedbackModal.style.display = 'none';
-        if (e.target === bugModal) bugModal.style.display = 'none';
+        if (e.target === feedbackModal) dismissFeedback();
+        if (e.target === bugModal) dismissBugReport();
         if (e.target === logoutModal) logoutModal.style.display = 'none';
     });
 

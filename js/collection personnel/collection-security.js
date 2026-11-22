@@ -1,3 +1,4 @@
+import { showAccountDeletionUnavailable } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 
 async function writeLog(action, message, category = 'logs') {
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const changeBtn = document.getElementById("change-password-btn");
-    const deleteBtn = document.getElementById("delete-account-btn");
+    const deleteBtn = document.getElementById("delete-account-trigger");
 
     changeBtn?.addEventListener("click", async () => {
         const currentPass = document.getElementById("current-password").value;
@@ -43,14 +44,5 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) { alert("Error: " + error.message); }
     });
 
-    deleteBtn?.addEventListener("click", async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        const password = prompt("Enter password to confirm account deletion:");
-        if (!password) return;
-
-        try {
-            await writeLog("Account Deleted", `User ${user.email} removed their profile.`, "audit");
-            alert("Account deletion requires an administrator-managed server endpoint.");
-        } catch (error) { alert("Error: " + error.message); }
-    });
+    deleteBtn?.addEventListener('click', () => showAccountDeletionUnavailable());
 });
