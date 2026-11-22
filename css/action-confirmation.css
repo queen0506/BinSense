@@ -1,0 +1,88 @@
+.action-confirmation {
+    --confirmation-accent: #835017;
+    --confirmation-tint: #fff3e1;
+    box-sizing: border-box;
+    width: min(400px, calc(100% - 32px));
+    max-height: calc(100% - 32px);
+    margin: auto;
+    padding: 28px 24px 24px;
+    border: 0;
+    border-top: 5px solid var(--confirmation-accent);
+    border-radius: 24px;
+    background: #fff;
+    color: #282d26;
+    font: 1rem/1.5 'Reddit Sans', system-ui, sans-serif;
+    text-align: center;
+    box-shadow: 0 20px 50px rgb(0 0 0 / 25%);
+}
+
+.action-confirmation[data-tone="danger"] {
+    --confirmation-accent: #b42318;
+    --confirmation-tint: #ffebe9;
+}
+
+.action-confirmation[data-tone="info"] {
+    --confirmation-accent: #48742c;
+    --confirmation-tint: #edf5e3;
+}
+
+.action-confirmation::backdrop {
+    background: rgb(20 27 16 / 55%);
+}
+
+.action-confirmation .action-confirmation-icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--confirmation-tint);
+    color: var(--confirmation-accent);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.action-confirmation h2 {
+    margin: 0 0 8px;
+    color: var(--confirmation-accent);
+    font-size: 1.25rem;
+    line-height: 1.25;
+}
+
+.action-confirmation p {
+    margin: 0 0 20px;
+    color: #555d52;
+    font-size: 0.9rem;
+}
+
+.action-confirmation form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.action-confirmation button {
+    flex: 1 1 125px;
+    width: auto;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 14px;
+    background: #eef1eb;
+    color: #282d26;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.action-confirmation button[value="confirm"] {
+    background: var(--confirmation-accent);
+    color: #fff;
+}
+
+.action-confirmation button:focus-visible {
+    outline: 2px solid #282d26;
+    outline-offset: 3px;
+}
