@@ -10,6 +10,9 @@ let pendingBinId = null;
 let routeRequestId = 0;
 let dispatchChannel;
 let fullBinsChannel;
+let routeAddressLookupKey = '';
+let routeAddressLookupExpiresAt = 0;
+let routeAddressLabels = new Map();
 
 const DEFAULT_MAP_CENTER = [14.8354, 120.2842]; // Olongapo City
 
@@ -80,9 +83,18 @@ function setEtaPanel(message, stops = [], visible = true) {
     
     list.replaceChildren(...stops.map(stop => {
         const item = document.createElement('li');
-        item.textContent = `${stop.street ? stop.street + ', ' : ''}${stop.barangay}: ${stop.eta}`;
+        const locationLabel = stop.locationLabel || getBinInstallationAddress(stop);
+        item.textContent = `${locationLabel}: ${stop.eta}`;
         return item;
     }));
+}
+
+function getBinInstallationAddress(bin) {
+    const parts = [bin.street, bin.barangay]
+        .map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || 'Location not assigned';
 }
 
 function initEtaPanelToggle() {
@@ -174,6 +186,9 @@ function listenForAdminDispatch() {
 
         if (!dispatchData || !dispatchData.bin_ids?.length) {
             activeBinWaypoints = [];
+            routeAddressLookupKey = '';
+            routeAddressLookupExpiresAt = 0;
+            routeAddressLabels = new Map();
             clearMap();
             setEtaPanel('No active collection route.');
             showMapMessage('✅ No active collection dispatch.');
@@ -188,6 +203,24 @@ function listenForAdminDispatch() {
         if (binsError) return console.error('Bin sync failed:', binsError);
 
         const allBins = new Map((bins || []).map(bin => [bin.id, bin]));
+        const addressLookupKey = JSON.stringify([dispatchData.id, dispatchData.bin_ids]);
+        if (addressLookupKey !== routeAddressLookupKey || Date.now() >= routeAddressLookupExpiresAt) {
+            let addressLabels = new Map();
+            try {
+                const { data: addresses, error: addressError } = await supabase.rpc(
+                    'get_collector_route_bin_addresses',
+                    { p_bin_ids: dispatchData.bin_ids }
+                );
+                if (addressError) throw addressError;
+                addressLabels = new Map((addresses || []).map(row => [row.bin_id, row.location_label]));
+            } catch (addressError) {
+                console.error('Collection route address lookup failed:', addressError);
+            }
+            routeAddressLabels = addressLabels;
+            routeAddressLookupKey = addressLookupKey;
+            routeAddressLookupExpiresAt = Date.now() + 60_000;
+        }
+
         activeBinWaypoints = [];
         clearMarkers();
 
@@ -198,7 +231,13 @@ function listenForAdminDispatch() {
             const position = getValidBinPosition(bin);
             if (!position) return;
 
-            activeBinWaypoints.push({ ...position, binId, barangay: bin.barangay || 'Unknown', street: bin.street || '' });
+            activeBinWaypoints.push({
+                ...position,
+                binId,
+                barangay: bin.barangay || 'Unknown',
+                street: bin.street || '',
+                locationLabel: routeAddressLabels.get(binId) || getBinInstallationAddress(bin)
+            });
 
             const marker = L.marker([position.lat, position.lng], {
                 icon: createBinIcon(35),
@@ -438,7 +477,12 @@ async function calculateSmartGPSRoute(origin, binLocations) {
             }
             
             const etaText = new Date(etaAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            etaStops.push({ barangay: bin.barangay || 'Unknown', street: bin.street || '', eta: etaText });
+            etaStops.push({
+                barangay: bin.barangay || 'Unknown',
+                street: bin.street || '',
+                locationLabel: bin.locationLabel || getBinInstallationAddress(bin),
+                eta: etaText
+            });
 
             const marker = binMarkers.find(candidate => {
                 const position = candidate.getLatLng();

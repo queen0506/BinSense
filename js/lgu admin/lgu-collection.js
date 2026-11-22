@@ -6,6 +6,43 @@ let currentComplianceScore = 0;
 let etaRequestId = 0;
 let etaRefreshTimer = null;
 const LGU_DISPATCH_ORIGIN = { lat: 14.8350, lng: 120.2840 };
+const UNASSIGNED_LOCATION_LABEL = 'Location not assigned';
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
+}
+
+async function loadRouteLocationLabels(path) {
+    const binIds = [...new Set(path
+        .map(bin => bin.id)
+        .filter(binId => typeof binId === 'string' && binId.trim()))];
+    if (binIds.length === 0) return new Map();
+
+    try {
+        const { data, error } = await supabase.rpc('get_lgu_collection_bin_addresses', {
+            p_bin_ids: binIds
+        });
+        if (error) {
+            console.error('Unable to load confirmed Citizen addresses for the LGU route:', error);
+            return new Map();
+        }
+
+        return new Map((data || [])
+            .filter(row => binIds.includes(row.bin_id) &&
+                typeof row.location_label === 'string' &&
+                row.location_label.trim())
+            .map(row => [row.bin_id, row.location_label.trim()]));
+    } catch (error) {
+        console.error('Unable to load confirmed Citizen addresses for the LGU route:', error);
+        return new Map();
+    }
+}
 
 initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
@@ -118,6 +155,9 @@ async function updateDashboardUI(path, score, markerLayer, map) {
     }
     if (requestId !== etaRequestId) return;
 
+    const locationLabels = await loadRouteLocationLabels(path);
+    if (requestId !== etaRequestId) return;
+
     markerLayer.clearLayers();
     if (routeGeometry) {
         L.geoJSON(routeGeometry, { style: { color: '#4285F4', weight: 5, opacity: 0.8 } }).addTo(markerLayer);
@@ -151,6 +191,9 @@ async function updateDashboardUI(path, score, markerLayer, map) {
 
     path.forEach((bin, index) => {
         const stopNum = index + 1;
+        const locationLabel = escapeHtml(
+            locationLabels.get(bin.id) || UNASSIGNED_LOCATION_LABEL
+        );
         
         const markerColor = (bin.level || bin.volume || 0) >= 90 ? '#ff4444' : '#fc1111';
 
@@ -171,7 +214,7 @@ const binIcon = L.divIcon({
 
 L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
     .addTo(markerLayer)
-    .bindPopup(`<b>Stop #${stopNum}:</b> Brgy. ${bin.barangay}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
+    .bindPopup(`<b>Stop #${stopNum}:</b> ${locationLabel}<br><b>Estimated Time of Arrival:</b> ${etaTimes?.[index] || 'Unavailable'}`);
 
 
 
@@ -179,7 +222,7 @@ L.marker([bin.lat || 14.8350, bin.lng || 120.2840], { icon: binIcon })
             <div class="route-card" style="border-left: 5px solid ${markerColor}">
                 <div class="stop-number">${stopNum}</div>
                 <div class="card-details">
-                    <h4>Brgy. ${bin.barangay || 'Unknown'}</h4>
+                    <h4>${locationLabel}</h4>
                     <p>Status: ${bin.status || 'Active'}</p>
                     <p style="font-size:0.8em; color:#666; margin-top:4px;">Estimated Time of Arrival: <b>${etaTimes?.[index] || 'Unavailable'}</b></p>
                 </div>
