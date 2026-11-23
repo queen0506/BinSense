@@ -106,19 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const from = (currentPage - 1) * pageSize;
         const to = from + pageSize - 1;
-        let query = supabase.from('collection_records')
-            .select(`
-                *,
-                bins (barangay),
-                notifications (barangay)
-            `, { count: 'exact' })
-            .order('created_at', { ascending: false })
-            .range(from, to);
+        let startDate = null;
 
         if (dateFilter !== 'all') {
             const now = new Date();
-            let startDate;
-
             if (dateFilter === 'today') {
                 startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
             } else if (dateFilter === 'week') {
@@ -129,18 +120,20 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (dateFilter === 'month') {
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
             }
-
-            if (startDate) query = query.gte('created_at', startDate);
         }
 
-        const { data, error, count } = await query;
+        const { data, error } = await supabase.rpc('get_lgu_collection_log', {
+            p_start: startDate,
+            p_limit: pageSize,
+            p_offset: from
+        });
         if (error) {
             console.error('Failed to load records:', error);
             tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ff4444;">Failed to load records.</td></tr>';
             return;
         }
 
-        totalRecords = count || 0;
+        totalRecords = Number(data?.[0]?.total_count) || 0;
         updatePaginationUI();
 
         if (!data?.length) {
@@ -149,18 +142,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         tbody.innerHTML = data.map(rec => {
-            let binInfo = 'Unassigned';
+            const brgyName = escapeHtml(rec.barangay || '');
+            const binInfo = rec.bin_id
+                ? `${escapeHtml(rec.bin_id)} <br><span style="color:#888; font-size:0.75rem;">${brgyName}</span>`
+                : (brgyName ? `<span style="color:#48742C;">Brgy. ${brgyName}</span>` : 'Unassigned');
 
-            if (rec.bin_id) {
-                const brgyName = rec.barangay || (rec.bins ? rec.bins.barangay : '');
-                binInfo = `${rec.bin_id} <br><span style="color:#888; font-size:0.75rem;">${brgyName}</span>`;
-            } else if (rec.barangay) {
-                binInfo = `<span style="color:#48742C;">Brgy. ${rec.barangay}</span>`;
-            } else if (rec.notifications?.barangay) {
-                binInfo = `<span style="color:#48742C;">Brgy. ${rec.notifications.barangay}</span>`;
-            }
-
-            const dateObj = new Date(rec.created_at);
+            const dateObj = new Date(rec.collected_at);
             const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
@@ -168,8 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tr>
                     <td style="font-weight: 600;">${binInfo}</td>
                     <td>${dateStr} <br><span style="color:#888; font-size:0.75rem;">${timeStr}</span></td>
-                    <td><span class="actual-name">${rec.actual_collector_name}</span></td>
-                    <td><span class="registered-name">${rec.registered_collector_name}</span></td>
+                    <td><span class="actual-name">${escapeHtml(rec.actual_collector_name)}</span></td>
+                    <td><span class="registered-name">${escapeHtml(rec.registered_to)}</span></td>
                 </tr>
             `;
         }).join('');
@@ -211,9 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     supabase.channel('lgu-analytics-sync')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_bin_peaks' }, scheduleTrendRefresh)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_records' }, loadCollectionRecords)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'collection_logs' }, loadCollectionRecords)
         .subscribe();
 });
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[char]));
+}
 
 function getManilaDate(timestamp) {
     const parts = Object.fromEntries(manilaDate.formatToParts(timestamp).map(({ type, value }) => [type, value]));
