@@ -71,13 +71,12 @@ body {
 
 /* --- MAIN CONTENT & GRAPHIC --- */
 .main-content {
-    flex: 1;
-    padding: 30px;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+        display: flex;
+        flex-direction: column; 
+        justify-content: flex-start;
+        align-items: center; 
+        padding: 40px 30px;
+    }
 
 .graphic-section {
     padding: 40px 0;
@@ -159,31 +158,6 @@ body {
 }
 
 
-/* --- EDIT PROFILE DESKTOP REFINEMENT --- */
-@media (min-width: 1024px) {
-    /* ... Copy Sidebar & Grid styles from Section 1 ... */
-
-    .top-nav {
-        background-color: transparent;
-        padding: 40px 40px 0 10px;
-    }
-
-    .back-btn { color: #99cc33; position: static; margin-right: 20px; }
-    .page-title { color: #2d3436; font-size: 1.8rem; text-align: left; }
-
-    .main-content {
-        max-width: 600px; /* Constrain form width for desktop */
-        margin-left: 0;
-    }
-
-    .edit-form {
-        background: white;
-        padding: 40px;
-        border-radius: 30px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-}
-
 @media (min-width: 1024px) {
 
     /* ===== CLEAN BACKGROUND ===== */
@@ -193,69 +167,115 @@ body {
         padding: 40px 20px;
     }
 
-    /* ===== CONTAINER (KEEP STRUCTURE, FIX WIDTH) ===== */
+    /* ===== CONTAINER ===== */
     .mobile-container {
         width: 100%;
         max-width: 1000px;
         height: auto;
+        min-height: 90vh;
         border-radius: 16px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.08);
         overflow: hidden;
+        background-color: #ffffff; /* Puting background para sa buong container */
     }
 
-    /* ===== HEADER (SIMPLE & CLEAN) ===== */
+    /* ===== HEADER (Centered Title, Styled Back Button) ===== */
     .top-nav {
         padding: 20px 30px;
         border-bottom: 1px solid #eee;
         border-radius: 0;
+        position: relative;
+        background-color: #ffffff;
     }
 
     .header-content {
-        justify-content: flex-start;
+        justify-content: center;
     }
 
     .back-btn {
-        position: static;
-        color: #99cc33;
-        margin-right: 10px;
+        position: absolute;
+        left: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #48742C; /* Dark green arrow */
+        background-color: #f4f7f2; /* Light green/gray background */
+        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin-right: 0;
+        border: 1px solid #e2e8f0;
+    }
+
+    .back-btn svg {
+        width: 20px;
+        height: 20px;
+        stroke-width: 2;
     }
 
     .page-title {
         color: #2d3436;
         font-size: 1.4rem;
+        text-align: center;
     }
 
     /* ===== MAIN CONTENT ===== */
     .main-content {
         display: flex;
-        justify-content: center;
-        padding: 20px 30px;
+        justify-content: center; /* Centers the account-content */
+        align-items: flex-start;
+        padding: 40px 30px;
+    }
+
+    /* ===== ACCOUNT CONTENT WRAPPER (Naka-center at may max-width) ===== */
+    .account-content {
+        width: 100%;
+        max-width: 520px;
+        display: flex;
+        flex-direction: column;
+        margin: 0 auto; 
+    }
+
+    /* ===== PROFILE HEADING CARD (Yung "Binsoy" box) ===== */
+    .profile-heading {
+        background-color: #f4f7f2; 
+        padding: 24px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+        border: 1px solid #e2e8f0;
+        width: 100%;
+    }
+
+    .profile-eyebrow {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #48742C;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+
+    .current-user-name {
+        margin: 0;
+        text-align: left;
+        font-size: 1.5rem;
+        color: #1e293b;
+        font-weight: 700;
     }
 
     /* ===== FORM CARD (KEEP IT SIMPLE) ===== */
     .edit-form {
         width: 100%;
-        max-width: 520px;
+        max-width: 100%; /* Sumasabay sa lapad ng account-content */
         background: #fff;
         padding: 30px;
-
         border-radius: 16px;
         border: 1px solid #eee;
-
-        /* LIGHT shadow only */
         box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    /* REMOVE GRAPHIC FOR CLEAN LOOK */
-    .graphic-section {
-        display: none;
-    }
-
-    /* ===== NAME ===== */
-    .current-user-name {
-        text-align: center;
-        font-size: 1.4rem;
-        margin-bottom: 25px;
+        margin: 0;
     }
 
     /* ===== INPUTS ===== */
@@ -282,8 +302,6 @@ body {
         border-radius: 10px;
         font-size: 1rem;
         margin-top: 10px;
-
-        /* subtle shadow */
         box-shadow: 0 4px 10px rgba(153, 204, 51, 0.2);
         transition: 0.2s;
     }
