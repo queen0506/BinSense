@@ -217,14 +217,16 @@ export async function initializeLguNotifications(supabase) {
             : { table: 'incident_reports', id: notification.incident_report_id };
         activeReport = reportReference;
 
-        const markResult = notification.is_read ? true : await markAsRead(notification.id);
-        if (!markResult) {
-            statusMessage.textContent = 'The report is open, but its notification could not be marked as read.';
-        }
         const loadingMessage = document.createElement('p');
         loadingMessage.className = 'lgu-notification-empty';
         loadingMessage.textContent = 'Loading report details...';
         detailBody.appendChild(loadingMessage);
+
+        const markResult = notification.is_read ? true : await markAsRead(notification.id);
+        if (activeReport !== reportReference) return;
+        if (!markResult) {
+            statusMessage.textContent = 'The report is open, but its notification could not be marked as read.';
+        }
 
         const { data: report, error } = await supabase
             .from(reportReference.table)
@@ -241,6 +243,7 @@ export async function initializeLguNotifications(supabase) {
             return;
         }
 
+        loadingMessage.remove();
         const reportTitle = reportReference.table === 'reports' ? report.issue : report.title;
         detailLayer.querySelector('#lguReportDetailTitle').textContent = reportTitle || 'Incident report';
         statusSelect.value = REPORT_STATUSES.includes(report.status) ? report.status : 'Pending';
