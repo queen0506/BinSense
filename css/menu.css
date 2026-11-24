@@ -1008,6 +1008,20 @@ textarea:focus,
     .citizen-settings-menu .menu-section-title:not(:first-child) {
         margin-top: 16px;
     }
+    .citizen-settings-menu .top-nav {
+        padding-top: 60px !important; 
+        padding-bottom: 20px !important;
+    }
+
+    .citizen-settings-menu .top-nav > div {
+        margin: 0 auto !important;      
+        text-align: center !important; 
+        border-left: none !important;   
+        padding: 0 !important;          
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
