@@ -11,8 +11,8 @@
 
     <div class="mobile-container">
         <header class="top-nav">
+            <button id="backToList" class="back-link" type="button" aria-label="Back to bin list" hidden>‹</button>
             <h1 class="dashboard-title">Bin Update & Reports</h1>
-            
         </header>
 
         <main class="main-content">
@@ -30,8 +30,6 @@
                 </div>
 
                 <div id="binDetailView" style="display: none;">
-                    <button id="backToList" class="back-link">‹ Back to list</button>
-
                     <section class="info-section">
                         <h3 class="section-label">Bin Information</h3>
                         <div class="status-card">
@@ -48,10 +46,7 @@
                         <h3 class="section-label">Incident Report</h3>
                         <div class="report-card">
                             <p class="report-prompt">Report Issue:</p>
-                            <label class="radio-option">
-                                <input type="radio" name="issue" value="Overflowing">
-                                <span class="radio-custom"></span> Overflowing Trash
-                            </label>
+                           
                             <label class="radio-option">
                                 <input type="radio" name="issue" value="Damaged">
                                 <span class="radio-custom"></span> Damaged Bin

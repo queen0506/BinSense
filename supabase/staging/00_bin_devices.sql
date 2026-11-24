@@ -15,6 +15,6 @@ CREATE TABLE IF NOT EXISTS public.bin_devices (
 
 ALTER TABLE public.bin_devices ENABLE ROW LEVEL SECURITY;
 
-REVOKE ALL ON TABLE public.bin_devices FROM anon, authenticated;
+REVOKE ALL ON TABLE public.bin_devices FROM PUBLIC, anon, authenticated;
 
 COMMIT;

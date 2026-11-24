@@ -20,11 +20,13 @@ CREATE TABLE IF NOT EXISTS public.bins (
     id TEXT PRIMARY KEY,
     status TEXT NOT NULL DEFAULT 'available',
     barangay TEXT NOT NULL DEFAULT 'Unassigned',
+    street TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Ensure all mandatory bin columns exist
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS barangay TEXT DEFAULT 'Unassigned';
+ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS street TEXT;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS level INT NOT NULL DEFAULT 0;
