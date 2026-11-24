@@ -40,6 +40,22 @@ function showBinNotice(title, message) {
     };
     btn.addEventListener('click', close);
 }
+
+function setCitizenBinIdError(input, message) {
+    const error = document.getElementById('binIdError');
+    if (!input || !error) return;
+
+    error.textContent = message;
+    error.hidden = !message;
+    if (message) {
+        input.setAttribute('aria-invalid', 'true');
+        input.setAttribute('aria-describedby', error.id);
+    } else {
+        input.removeAttribute('aria-invalid');
+        input.removeAttribute('aria-describedby');
+    }
+}
+
 let activeChannels = {};
 let modalChannel = null;
 let currentCitizenAddressLabel = 'Location not assigned';
@@ -267,9 +283,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const openBtn = document.getElementById('openModalBtn');
     const binModal = document.getElementById('binModal');
     const cancelBtn = document.getElementById('cancelBtn');
+    const binIdInput = document.getElementById('binIdInput');
+
+    if (binIdInput) {
+        binIdInput.addEventListener('input', () => setCitizenBinIdError(binIdInput, ''));
+    }
 
     if (openBtn && binModal) {
-        openBtn.onclick = () => binModal.style.display = "flex";
+        openBtn.onclick = () => {
+            setCitizenBinIdError(binIdInput, '');
+            binModal.style.display = "flex";
+        };
     }
 
     if (cancelBtn && binModal) {
@@ -277,6 +301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const input = document.getElementById('binIdInput');
             if (input.value && !await confirmDiscard('The Bin ID you entered will be cleared.')) return;
             input.value = '';
+            setCitizenBinIdError(input, '');
             binModal.style.display = 'none';
         };
     }
@@ -296,42 +321,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     const confirmAdd = document.getElementById('confirmAddBtn');
     if (confirmAdd) {
         confirmAdd.onclick = async () => {
-            const input = document.getElementById('binIdInput');
+            const input = binIdInput;
             const rawId = input?.value.trim();
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (!user) {
-                alert("Please log in to connect a bin.");
+            if (!rawId) {
+                setCitizenBinIdError(input, 'Enter a Bin ID.');
+                input?.focus();
                 return;
             }
 
-            if (!rawId) {
-                alert("Please enter a Bin ID.");
+            const cleanRaw = rawId.replace(/^bin_/i, '');
+            if (!/^[A-Za-z0-9_-]{1,64}$/.test(rawId) || !/[A-Za-z0-9]/.test(cleanRaw)) {
+                setCitizenBinIdError(input, 'Use a valid Bin ID (letters, numbers, hyphens, or underscores only).');
+                input?.focus();
                 return;
             }
 
             confirmAdd.disabled = true;
 
-            // Formulate search values for raw '01', prefixed 'bin_01', or exact input
-            const cleanRaw = rawId.replace('bin_', '');
-            const cleanPrefixed = `bin_${cleanRaw}`;
-
             try {
-                // Check if the bin exists in public.bins
-                const { data: binData, error: binError } = await supabase
-                    .from('bins')
-                    .select('id')
-                    .or(`id.eq.${rawId},id.eq.${cleanRaw},id.eq.${cleanPrefixed}`)
-                    .maybeSingle();
-
-                if (binError) throw binError;
-                
-                if (!binData) {
-                    showBinNotice("Invalid Bin ID", "Ask the system administrator to register it first.");
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                if (authError) throw authError;
+                if (!user) {
+                    showBinNotice("Sign In Required", "Please log in to connect a bin.");
                     return;
                 }
 
-                const targetBinId = binData.id;
+                const idCandidates = [...new Set([rawId, cleanRaw, `bin_${cleanRaw}`])];
+                // Check if the bin exists in public.bins
+                const { data: matchingBins, error: binError } = await supabase
+                    .from('bins')
+                    .select('id')
+                    .in('id', idCandidates)
+                    .limit(2);
+
+                if (binError) throw binError;
+                if (!matchingBins?.length) {
+                    showBinNotice("Invalid Bin ID", "Ask the system administrator to register it first.");
+                    return;
+                }
+                if (matchingBins.length > 1) {
+                    showBinNotice("Ambiguous Bin ID", "This Bin ID matches more than one registered bin. Contact the system administrator.");
+                    return;
+                }
+
+                const targetBinId = matchingBins[0].id;
 
                 // Insert into user_connected_bins using the exact matched DB primary key
                 const { error: insertError } = await supabase
@@ -353,7 +386,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 if (binModal) binModal.style.display = "none";
                 if (input) input.value = '';
-                showBinSuccess(targetBinId.replace('bin_', ''));
+                setCitizenBinIdError(input, '');
+                showBinSuccess(targetBinId.replace(/^bin_/i, ''));
 
             } catch (error) {
                 console.error("Add Bin Error:", error);

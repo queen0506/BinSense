@@ -94,7 +94,8 @@
             <div id="binModal" class="modal">
                 <div class="modal-content">
                     <h3>Connect Smart Bin</h3>
-                    <input type="text" id="binIdInput" placeholder="Enter Bin ID (e.g., 01)">
+                    <input type="text" id="binIdInput" placeholder="Enter Bin ID (01 or bin_01)" maxlength="64" autocomplete="off" aria-describedby="binIdError">
+                    <p id="binIdError" class="bin-id-error" role="alert" hidden></p>
                     <div class="modal-actions">
                         <button id="cancelBtn" class="secondary-btn">Cancel</button>
                         <button id="confirmAddBtn" class="primary-btn">Connect</button>
