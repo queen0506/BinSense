@@ -1,5 +1,5 @@
 import { supabase } from './supabase-init.js';
-import { fillAddressForm, readAddressForm, saveCitizenAddress, detectCurrentLocation, BARANGAYS } from './citizen-address.js';
+import { fillAddressForm, readAddressForm, saveCitizenAddress, detectCurrentLocation } from './citizen-address.js';
 
 async function writeLog(action, message) {
     const { data: { user } } = await supabase.auth.getUser();
@@ -81,12 +81,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     form?.addEventListener('submit', async event => {
         event.preventDefault();
         const address = readAddressForm();
-        if (!address.barangay || !BARANGAYS.includes(address.barangay)) {
-            showNotification('Please select a valid Barangay.', true);
-            document.getElementById('barangay').focus();
-            return;
-        }
-
         updateButton.disabled = true;
         updateButton.textContent = 'Saving...';
         try {

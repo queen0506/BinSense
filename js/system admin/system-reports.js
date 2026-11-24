@@ -1,4 +1,5 @@
 import { supabase } from '../supabase-init.js';
+import { EAST_BAJAC_BAJAC } from '../citizen-address.js';
 
 let allLogs = []; 
 let filteredLogs = []; 
@@ -186,7 +187,7 @@ function renderTable() {
 
             return `<tr>
                 <td>${escapeHtml(dateStr)}</td>
-                <td>${escapeHtml(log.barangay || 'Unknown')}</td>
+                <td>${escapeHtml(formatBarangay(log.barangay))}</td>
                 <td>${escapeHtml(binIdStr)}</td>
                 <td><span style="color: ${statusColor}; font-weight: bold;">${escapeHtml(action)}</span></td>
             </tr>`;
@@ -392,6 +393,13 @@ function formatBinId(value) {
     const text = String(value || '').trim();
     if (!text) return 'Unknown';
     return text.startsWith('bin_') ? `Bin #${text.replace(/^bin_/, '')}` : `Bin #${text}`;
+}
+
+function formatBarangay(value) {
+    const barangay = String(value || '').trim();
+    return !barangay || /^(unknown|global|unassigned|n\/a|not specified)$/i.test(barangay)
+        ? EAST_BAJAC_BAJAC
+        : barangay;
 }
 
 function escapeHtml(value) {
@@ -623,7 +631,7 @@ function exportCSV() {
             const dateTime = formatDate(log.collected_at, true);
             const binId = formatBinId(log.bin_id);
             const action = normalizeAction(log.action);
-            return [dateTime, log.barangay || 'Unknown', binId, action].map(toCsvField).join(',');
+            return [dateTime, formatBarangay(log.barangay), binId, action].map(toCsvField).join(',');
         });
 
         const csvContent = '\uFEFF' + [headers.map(toCsvField).join(','), ...rows].join('\r\n');
@@ -744,7 +752,7 @@ async function exportPDF() {
 
             return `<tr style="break-inside: avoid; page-break-inside: avoid;">
                 <td style="border: 1px solid #000; padding: 5px 6px;">${escapeHtml(dateTime)}</td>
-                <td style="border: 1px solid #000; padding: 5px 6px;">${escapeHtml(log.barangay || 'Unknown')}</td>
+                <td style="border: 1px solid #000; padding: 5px 6px;">${escapeHtml(formatBarangay(log.barangay))}</td>
                 <td style="border: 1px solid #000; padding: 5px 6px;">${escapeHtml(binId)}</td>
                 <td style="border: 1px solid #000; padding: 5px 6px;">${escapeHtml(action)}</td>
             </tr>`;
@@ -897,7 +905,7 @@ async function exportPDF() {
         recordsForPdf.forEach((log, rowIndex) => {
             const rowValues = [
                 formatDate(log.collected_at, true),
-                log.barangay || 'Unknown',
+                formatBarangay(log.barangay),
                 formatBinId(log.bin_id),
                 normalizeAction(log.action)
             ];

@@ -24,7 +24,7 @@ export function fillAddressForm(address = {}) {
     const fields = getAddressElements();
     if (address.houseNumber && fields.house) fields.house.value = address.houseNumber;
     if (address.streetName && fields.street) fields.street.value = address.streetName;
-    if (address.barangay && fields.barangay) fields.barangay.value = address.barangay;
+    if (fields.barangay) fields.barangay.value = EAST_BAJAC_BAJAC;
     if (address.cityMunicipality && fields.city) fields.city.value = address.cityMunicipality;
     if (address.province && fields.province) fields.province.value = address.province;
     if (address.postalCode && fields.postal) fields.postal.value = address.postalCode;
@@ -35,7 +35,7 @@ export function readAddressForm() {
     return {
         houseNumber: fields.house?.value.trim() || null,
         streetName: fields.street?.value.trim() || null,
-        barangay: fields.barangay?.value.trim() || null,
+        barangay: EAST_BAJAC_BAJAC,
         cityMunicipality: fields.city?.value.trim() || null,
         province: fields.province?.value.trim() || null,
         postalCode: fields.postal?.value.trim() || null
@@ -45,7 +45,7 @@ export function readAddressForm() {
 export async function saveCitizenAddress(userId, address, confirmed = true) {
     const payload = {
         id: userId,
-        barangay: address.barangay,
+        barangay: EAST_BAJAC_BAJAC,
         house_number: address.houseNumber,
         street_name: address.streetName,
         city_municipality: address.cityMunicipality,
