@@ -109,60 +109,99 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // =========================
+        // =========================
     // 🗑 DELETE ACCOUNT
     // =========================
     const deleteBtn = document.getElementById("delete-account-trigger");
+    const deleteModal = document.getElementById("deleteAccountModal");
+    const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    const deletePasswordInput = document.getElementById("deleteConfirmPassword");
+    const deleteModalError = document.getElementById("deleteModalError");
 
-    deleteBtn?.addEventListener("click", async () => {
-        if (!await confirmAccountDeletion()) return;
+    if (deleteBtn && deleteModal) {
+        // 1. Buksan ang Custom Modal
+        deleteBtn.addEventListener("click", async () => {
+            // Dito muna yung unang confirmation (kung meron ka nang confirmAccountDeletion)
+            if (!await confirmAccountDeletion()) return;
 
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user?.email) {
-            alert("No user logged in.");
-            return;
-        }
+            // Ipakita ang modal
+            deletePasswordInput.value = ""; 
+            deleteModalError.style.display = "none";
+            deleteModal.classList.add("show");
+            deletePasswordInput.focus();
+        });
 
-        const password = prompt("Enter your password to confirm account deletion:");
-        if (!password) {
-            alert("Password required to delete account.");
-            return;
-        }
+        // 2. Isara ang Modal kapag Cancel
+        cancelDeleteBtn.addEventListener("click", () => {
+            deleteModal.classList.remove("show");
+        });
 
-        try {
-            const { error: signInError } = await supabase.auth.signInWithPassword({
-                email: user.email,
-                password
-            });
-            if (signInError) throw signInError;
+        // 3. Magpatuloy sa Deletion
+        confirmDeleteBtn.addEventListener("click", async () => {
+            const password = deletePasswordInput.value.trim();
 
-            await writeLog("Account Deletion", "User permanently deleted their account and data", "audit");
-
-            const { error: deleteError } = await supabase.rpc('delete_own_account');
-            if (deleteError) {
-                throw new Error('Account deletion is not configured. Add the delete_own_account server-side function before enabling this action.');
+            if (!password) {
+                deleteModalError.textContent = "Password is required.";
+                deleteModalError.style.display = "block";
+                return;
             }
 
-            alert("Account deleted successfully.");
+            // Loading state sa button
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.textContent = "Verifying...";
+            deleteModalError.style.display = "none";
 
-            // Clear all stored data
-            localStorage.clear();
-            sessionStorage.clear();
-
-            setTimeout(() => {
-                window.location.href = "login.html";
-            }, 2000);
-
-        } catch (error) {
-            // ✅ AUDIT LOG: FAILED DELETION ATTEMPT
-            await writeLog("Failed Account Deletion", `Attempt failed: ${error.message || 'unknown error'}`, "audit");
-
-            if (error.message?.toLowerCase().includes('invalid login credentials')) {
-                alert("Incorrect password. Account deletion cancelled.");
-            } else {
-                alert("Error: " + error.message);
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            
+            if (userError || !user?.email) {
+                deleteModalError.textContent = "No user logged in.";
+                deleteModalError.style.display = "block";
+                confirmDeleteBtn.disabled = false;
+                confirmDeleteBtn.textContent = "Delete Account";
+                return;
             }
-        }
-    });
+
+            try {
+                // I-verify ang password
+                const { error: signInError } = await supabase.auth.signInWithPassword({
+                    email: user.email,
+                    password
+                });
+                if (signInError) throw signInError;
+
+                await writeLog("Account Deletion", "User permanently deleted their account and data", "audit");
+
+                const { error: deleteError } = await supabase.rpc('delete_own_account');
+                if (deleteError) {
+                    throw new Error('Account deletion is not configured. Add the delete_own_account server-side function before enabling this action.');
+                }
+
+                deleteModal.classList.remove("show");
+                alert("Account deleted successfully.");
+
+                localStorage.clear();
+                sessionStorage.clear();
+
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2000);
+
+            } catch (error) {
+                await writeLog("Failed Account Deletion", `Attempt failed: ${error.message || 'unknown error'}`, "audit");
+
+                // I-reset ang button at ipakita ang error sa loob ng modal
+                confirmDeleteBtn.disabled = false;
+                confirmDeleteBtn.textContent = "Delete Account";
+
+                if (error.message?.toLowerCase().includes('invalid login credentials')) {
+                    deleteModalError.textContent = "Incorrect password. Please try again.";
+                } else {
+                    deleteModalError.textContent = error.message || "An error occurred.";
+                }
+                deleteModalError.style.display = "block";
+            }
+        });
+    }
 
 });
