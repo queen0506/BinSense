@@ -22,19 +22,22 @@ body {
     background-color: var(--lgu-page);
     display: flex; 
     justify-content: center; 
-    min-height: 100vh;
-    overflow-x: hidden; 
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden; 
 }
 
 .mobile-container {
     width: 100%; 
     max-width: 414px; 
     height: 100vh;
+    height: 100dvh;
     background-color: var(--lgu-page); 
     display: flex; 
     flex-direction: column;
     overflow: hidden;
 }
+
 
 /* --- Header & Top Navigation --- */
 .top-nav {
@@ -59,8 +62,10 @@ body {
 /* --- Main Content Area --- */
 .main-content { 
     flex: 1; 
+    min-height: 0;
     padding: 20px; 
     overflow-y: auto; 
+    -webkit-overflow-scrolling: touch;
 }
 
 .calendar-main-title {
