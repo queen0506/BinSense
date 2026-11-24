@@ -41,13 +41,39 @@ body {
     position: relative;
     z-index: 10;
     flex-shrink: 0;
+    min-height: 79px;
 }
 
 .dashboard-title { 
+    position: absolute;
+    top: 50%;
+    width: max-content;
+    max-width: calc(100% - 144px);
     color: white;
     font-size: 1.5rem;
     font-weight: 700; 
-    padding-left: 8px;
+    padding-left: 0;
+}
+
+#backToList[hidden] + .dashboard-title {
+    left: 20px;
+    width: calc(100% - 40px);
+    max-width: none;
+    transform: translateY(-50%);
+    text-align: left;
+}
+
+#backToList:not([hidden]) + .dashboard-title {
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+@media (min-width: 900px) {
+    #backToList[hidden] + .dashboard-title {
+        left: 10px;
+        width: calc(100% - 50px);
+    }
 }
 
 

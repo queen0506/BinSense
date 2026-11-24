@@ -392,24 +392,70 @@ function updateHotspots() {
     }
 }
 
-window.openDetails = (status) => {
+let detailsModalRequestId = 0;
+let activeDetailsStatus = null;
+
+function getBinFallbackLocation(bin) {
+    const parts = [bin.street, bin.barangay]
+        .map(value => String(value || '').trim())
+        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+
+    return parts.join(', ') || 'Location not assigned';
+}
+
+window.openDetails = async (status) => {
     const modal = document.getElementById('detailsModal');
     const container = document.getElementById('binCardsContainer');
     if (!modal || !container) return;
 
+    const requestId = ++detailsModalRequestId;
+    activeDetailsStatus = status;
     const matches = allBins.filter(b => b.status?.toLowerCase() === status);
+    const locationLabels = new Map();
+    const renderCards = () => {
+        container.innerHTML = matches.map(bin => `
+            <div class="bin-id-card">
+                <h4>Smart Bin ID: ${escapeHtml(String(bin.id || '').replace('bin_', ''))}</h4>
+                <p>Location: ${escapeHtml(locationLabels.get(bin.id) || getBinFallbackLocation(bin))}</p>
+            </div>
+        `).join('');
+    };
 
     document.getElementById('modalTitle').innerText = `${status.toUpperCase()} Bins`;
-    container.innerHTML = matches.map(b => `
-        <div class="bin-id-card">
-            <h4>Smart Bin ID: ${escapeHtml(String(b.id || '').replace('bin_', ''))}</h4>
-            <p>Barangay: ${escapeHtml(getBinBarangay(b))}</p>
-        </div>
-    `).join('');
     modal.style.display = "flex";
+    renderCards();
+
+    const binIds = [...new Set(matches
+        .map(bin => bin.id)
+        .filter(binId => typeof binId === 'string' && binId.trim()))];
+    if (!binIds.length) return;
+
+    try {
+        const { data, error } = await supabase.rpc('get_lgu_collection_log_bin_addresses', {
+            p_bin_ids: binIds
+        });
+        if (error) throw error;
+
+        if (requestId !== detailsModalRequestId ||
+            activeDetailsStatus !== status ||
+            modal.style.display !== 'flex') return;
+
+        (data || []).forEach(row => {
+            if (binIds.includes(row?.bin_id) &&
+                typeof row.location_label === 'string' &&
+                row.location_label.trim()) {
+                locationLabels.set(row.bin_id, row.location_label.trim());
+            }
+        });
+        renderCards();
+    } catch (error) {
+        console.warn('Unable to load confirmed Citizen addresses for bin details:', error);
+    }
 };
 
 window.closeModal = () => {
     const modal = document.getElementById('detailsModal');
+    detailsModalRequestId += 1;
+    activeDetailsStatus = null;
     if (modal) modal.style.display = "none";
 };
