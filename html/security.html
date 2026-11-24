@@ -134,5 +134,28 @@
 
 </div>
 
+    <!-- DELETE ACCOUNT CUSTOM MODAL -->
+    <div id="deleteAccountModal" class="custom-modal-overlay">
+        <div class="custom-modal-box">
+            <div class="custom-modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                </svg>
+            </div>
+            <h2 class="custom-modal-title">Confirm Deletion</h2>
+            <p class="custom-modal-desc">Enter your password to permanently delete your account. This action cannot be undone.</p>
+            
+            <div class="custom-modal-input-group">
+                <input type="password" id="deleteConfirmPassword" placeholder="Enter your password">
+                <p id="deleteModalError" class="error-text" style="display: none;">Incorrect password. Please try again.</p>
+            </div>
+
+            <div class="custom-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="cancelDeleteBtn">Cancel</button>
+                <button type="button" class="btn-modal-danger" id="confirmDeleteBtn">Delete Account</button>
+            </div>
+        </div>
+    </div>
+    
 </body>
 </html>

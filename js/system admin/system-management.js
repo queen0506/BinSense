@@ -1,4 +1,4 @@
-import { confirmAction, confirmDiscard } from '../action-confirmation.js';
+import { confirmAction, confirmDiscard, showSuccessAlert, showErrorAlert } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
 let activeBinId = null;
 let registrationInProgress = false;
@@ -311,13 +311,13 @@ async function removeBin(binId, e) {
         const { error } = await supabase.from('bins').delete().eq('id', binIdToDelete);
         if (error) throw error;
 
-        alert("Bin removed successfully.");
-        activeBinId = null;
+                activeBinId = null;
         toggleView('list');
         await loadRegisteredBins();
+        await showSuccessAlert('Bin removed', 'The smart bin was removed successfully.');
     } catch (error) {
         console.error("Removal Error:", error);
-        alert("Failed to remove bin: " + (error.message || "An error occurred while removing the bin."));
+        await showErrorAlert('Failed to remove bin', error.message || 'An error occurred while removing the bin.');
     }
 }
 
