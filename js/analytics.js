@@ -149,8 +149,6 @@ const insightTitle = document.getElementById('insightTitle');
 const insightMessage = document.getElementById('insightMessage');
 const chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MANILA_OFFSET_MS = 8 * 60 * 60 * 1000;
-const statisticsBinPicker = document.getElementById('statisticsBinPicker');
-const statisticsBin = document.getElementById('statisticsBin');
 let activeBinId = null;
 let statisticsChannel = null;
 let statisticsRequest = 0;
@@ -318,10 +316,7 @@ async function loadStatistics() {
             return;
         }
 
-        statisticsBin.replaceChildren(...connectedBins.map(({ bin_id }) => new Option(`Smart Bin #${bin_id.replace(/^bin_/i, '')}`, bin_id)));
-        if (connectedBins.some(({ bin_id }) => bin_id === activeBinId)) statisticsBin.value = activeBinId;
-        statisticsBinPicker.hidden = false;
-        await startTracking(statisticsBin.value);
+        await startTracking(connectedBins[0].bin_id);
     } catch (error) {
         if (error?.name === 'AuthSessionMissingError') {
             setChartState('empty', 'Sign in to view connected-bin statistics.');
@@ -336,8 +331,6 @@ async function loadStatistics() {
 }
 
 // --- 3. Persistent Data Logic ---
-statisticsBin.addEventListener('change', () => startTracking(statisticsBin.value));
-
 const statisticsRefreshTimer = window.setInterval(() => {
     if (!document.hidden) fetchSensorStatistics();
 }, 30000);
