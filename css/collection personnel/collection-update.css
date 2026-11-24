@@ -1,14 +1,26 @@
+:root {
+    --lgu-green: #99cc33;
+    --lgu-dark-green: #48742C;
+    --lgu-text: #1E293B;
+    --lgu-muted: #64748B;
+    --lgu-surface: #FFFFFF;
+    --lgu-page: #F4F7F2;
+    --lgu-border: #E2E8F0;
+    --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--lgu-page);
     display: flex; justify-content: center; align-items: center; min-height: 100vh;
 }
 
 .mobile-container {
     width: 100%; max-width: 414px; height: 100vh;
-    background-color: white; display: flex; flex-direction: column;
+    background-color: var(--lgu-page); display: flex; flex-direction: column;
     overflow: hidden; position: relative;
 }
 
@@ -35,30 +47,32 @@ body {
 
 .page-section { width: 100%; max-width: 800px; margin-right: auto; margin-left: auto; }
 .incident-reports-section { margin-top: 24px; padding-top: 18px; border-top: 1px solid #edf0e9; }
-.section-heading { color: #48742C; font-size: 1.05rem; font-weight: 700; margin: 0 0 12px 4px; }
-.section-message { padding: 18px 12px; color: #888; font-size: 0.88rem; text-align: center; }
+.section-heading { color: var(--lgu-text); font-size: 1.05rem; font-weight: 700; margin: 0 0 12px 4px; }
+.section-message { padding: 18px 12px; color: var(--lgu-muted); font-size: 0.88rem; text-align: center; }
 .error-message { color: #b42318; }
 
 .search-container { position: relative; margin-bottom: 20px; }
 .search-container input {
     width: 100%; padding: 12px 20px; border-radius: 25px;
-    border: none; background: #f5f5f5; outline: none;
+    border: 1px solid var(--lgu-border); background: var(--lgu-surface); outline: none;
+    color: var(--lgu-text);
+    box-shadow: var(--lgu-shadow);
 }
 .search-icon { position: absolute; right: 15px; top: 10px; color: #aaa; }
 
 .bin-card {
-    width: 100%; background: white; padding: 14px 16px; border-radius: 18px;
+    width: 100%; background: var(--lgu-surface); padding: 14px 16px; border-radius: 18px;
     display: flex; justify-content: space-between; align-items: center; gap: 12px;
-    margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    cursor: pointer; border: 1px solid #f0f0f0; transition: 0.2s; text-align: left;
+    margin-bottom: 10px; box-shadow: var(--lgu-shadow);
+    cursor: pointer; border: 1px solid var(--lgu-border); transition: 0.2s; text-align: left;
     font: inherit;
 }
 
 .bin-card:hover { border-color: #cfe3a8; transform: translateY(-1px); }
 .bin-card:focus-visible { outline: 3px solid #48742C; outline-offset: 2px; }
 .bin-card-content { display: flex; flex: 1; flex-direction: column; gap: 5px; min-width: 0; }
-.bin-name { color: #48742C; font-weight: 700; font-size: 1rem; }
-.bin-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; color: #777; font-size: 0.75rem; }
+.bin-name { color: var(--lgu-dark-green); font-weight: 700; font-size: 1rem; }
+.bin-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; color: var(--lgu-muted); font-size: 0.75rem; }
 .sample-label { display: block; font-size: 0.68rem; font-weight: 700; }
 .bin-status-indicator { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
 .chevron { color: #99cc33; font-size: 0.9rem; line-height: 1; }
@@ -66,13 +80,13 @@ body {
 .incident-report-list { display: grid; gap: 10px; }
 .incident-report-card {
     padding: 14px 16px;
-    border: 1px solid #edf0e9;
+    border: 1px solid var(--lgu-border);
     border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background: var(--lgu-surface);
+    box-shadow: var(--lgu-shadow);
 }
 .incident-report-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.incident-report-header h3 { min-width: 0; color: #48742C; font-size: 0.92rem; overflow-wrap: anywhere; }
+.incident-report-header h3 { min-width: 0; color: var(--lgu-text); font-size: 0.92rem; overflow-wrap: anywhere; }
 .incident-status { flex: 0 0 auto; padding: 4px 8px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; }
 .status-pending { background: #fff4d6; color: #916300; }
 .status-in-progress { background: #e7f2ff; color: #1762a3; }
@@ -81,21 +95,20 @@ body {
     display: -webkit-box;
     margin-top: 8px;
     overflow: hidden;
-    color: #444;
+    color: var(--lgu-text);
     font-size: 0.86rem;
     font-weight: 600;
     overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
 }
-.incident-report-location, .incident-report-time { display: block; margin-top: 5px; color: #777; font-size: 0.74rem; }
-
+.incident-report-location, .incident-report-time { display: block; margin-top: 5px; color: var(--lgu-muted); font-size: 0.74rem; }
 .back-link { background: none; border: none; color: white; cursor: pointer; font-size: 2rem; font-weight: 700;}
-.section-label { color: #48742C; font-weight: 700; font-size: 1.5rem; margin: 15px 0 10px 5px; }
+.section-label { color: var(--lgu-text); font-weight: 700; font-size: 1.5rem; margin: 15px 0 10px 5px; }
 
 .status-card, .report-card {
-    background: white; border-radius: 25px; padding: 25px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; margin-bottom: 20px;
+    background: var(--lgu-surface); border-radius: 25px; padding: 25px;
+    box-shadow: var(--lgu-shadow-lg); border: 1px solid var(--lgu-border); text-align: center; margin-bottom: 20px;
 }
 
 .status-card h2 {
@@ -180,7 +193,7 @@ body {
 /* --- UNIFIED DESKTOP DASHBOARD LAYOUT --- */
 @media (min-width: 900px) {
     body {
-        background-color: #f8faf8; 
+        background-color: var(--lgu-page); 
         display: block;
         overflow: hidden;
     }
@@ -252,7 +265,7 @@ body {
     }
 
     .dashboard-title {
-        color: #2d3436; 
+        color: var(--lgu-text); 
         font-size: 1.8rem;
     }
 
@@ -350,7 +363,7 @@ body {
 }
 
 .alert-box {
-    background: #fff;
+    background: var(--lgu-surface);
     width: 100%;
     max-width: 340px;
     border-radius: 28px;
@@ -406,7 +419,7 @@ body {
 }
 
 .alert-message {
-    color: #777;
+    color: var(--lgu-muted);
     font-size: 0.95rem;
     line-height: 1.5;
     margin-bottom: 24px;

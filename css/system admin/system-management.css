@@ -1,13 +1,13 @@
 :root {
     --admin-green: #99cc33;
-    --admin-dark-green: #558B2F;
-    --admin-text: #333333;
-    --admin-muted: #777777;
+    --admin-dark-green: #48742C;
+    --admin-text: #1E293B;
+    --admin-muted: #64748B;
     --admin-surface: #FFFFFF;
-    --admin-page: #F8F8F8;
+    --admin-page: #F4F7F2;
     --admin-border: #E2E8F0;
     --admin-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    --admin-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
+    --admin-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
     --radius-sm: 12px;
     --radius-md: 16px;
     --radius-lg: 35px;
@@ -30,7 +30,7 @@ html {
 
 body {
     font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--admin-page);
     color: var(--admin-text);
     display: flex;
     justify-content: center;
@@ -154,25 +154,12 @@ img {
 
 /* Cards */
 .white-card {
-    background: #fff;
+    background: var(--admin-surface);
     border-radius: var(--radius-lg);
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--admin-shadow);
     margin-bottom: 20px;
     min-width: 0;
-}
-
-.summary-box,
-.status-box,
-.bin-card,
-.modal-content {
-    border: 1px solid var(--admin-border);
-    box-shadow: var(--admin-shadow);
-}
-
-.summary-box {
-    padding: 8px 22px;
-    border-radius: var(--radius-md);
 }
 
 .summary-row {
@@ -181,13 +168,14 @@ img {
     align-items: center;
     padding: 12px 0;
     font-weight: 600;
-    color: #4A4A4A;
+    color: var(--admin-text);
     min-height: 48px;
 }
 
 .summary-row:not(:last-child) {
-    border-bottom: 1px solid #F0F0F0;
+    border-bottom: 1px solid var(--admin-border);
 }
+
 
 .active-text {
     color: var(--admin-green);
@@ -242,7 +230,7 @@ img {
 
 .sync-text {
     font-size: 0.85rem;
-    color: #999;
+    color: var(--admin-muted);
     margin-bottom: 8px;
 }
 
@@ -334,10 +322,10 @@ img {
     padding: 12px 15px;
     margin-bottom: 0;
     border-radius: var(--radius-sm);
-    border: 1px solid #E0E0E0;
+    border: 1px solid var(--admin-border);
     font-family: inherit;
-    font-size: 16px; /* Prevents iOS auto-zoom */
-    color: #333;
+    font-size: 16px;
+    color: var(--admin-text);
     background-color: #F9F9F9;
     outline: none;
     transition: border-color 0.15s ease, background 0.15s ease;
