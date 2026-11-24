@@ -1,4 +1,5 @@
 import { showAccountDeletionUnavailable } from '../action-confirmation.js';
+import { showPasswordNotification } from '../password-notification.js';
 import { supabase } from '../supabase-init.js';
 
 /**
@@ -40,20 +41,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const confirmPass = document.getElementById("confirm-password").value;
 
         if (!currentPass || !newPass || !confirmPass) {
-            alert("Please fill in all fields.");
+            showPasswordNotification("Please fill in all fields.", "error");
             return;
         }
 
         if (newPass !== confirmPass) {
-            alert("Passwords do not match.");
+            showPasswordNotification("Passwords do not match.", "error");
             return;
         }
 
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {
-            alert("User not logged in.");
-            window.location.href = "login.html";
+            showPasswordNotification("User not logged in.", "error", 1500);
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
             return;
         }
 
@@ -65,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // ✅ Added Audit Log
             await writeLog("Security", "User successfully changed their password");
 
-            alert("Password changed successfully!");
+            showPasswordNotification("Password changed successfully!");
 
             // Clear input fields
             document.getElementById("current-password").value = "";
@@ -77,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 1500);
 
         } catch (error) {
-            alert("Error: " + error.message);
+            showPasswordNotification("Error: " + error.message, "error");
         }
     });
 
