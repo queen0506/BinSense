@@ -5,7 +5,7 @@ document.head.append(stylesheet);
 
 let activeDialog;
 
-export function confirmAction({ title, message, action, cancel = 'Go Back', tone = 'warning' }) {
+export function confirmAction({ title, message, action, cancel = 'Go Back', tone = 'warning', icon = '!' }) {
     if (activeDialog) return Promise.resolve(false);
 
     const opener = document.activeElement;
@@ -16,7 +16,7 @@ export function confirmAction({ title, message, action, cancel = 'Go Back', tone
     dialog.setAttribute('aria-labelledby', 'action-confirmation-title');
     dialog.setAttribute('aria-describedby', 'action-confirmation-message');
     dialog.innerHTML = `
-        <span class="action-confirmation-icon" aria-hidden="true">!</span>
+        <span class="action-confirmation-icon" aria-hidden="true"></span>
         <h2 id="action-confirmation-title"></h2>
         <p id="action-confirmation-message"></p>
         <form method="dialog">
@@ -25,6 +25,7 @@ export function confirmAction({ title, message, action, cancel = 'Go Back', tone
         </form>
     `;
 
+    dialog.querySelector('.action-confirmation-icon').textContent = icon;
     dialog.querySelector('h2').textContent = title;
     dialog.querySelector('p').textContent = message;
     const cancelButton = dialog.querySelector('[value="cancel"]');
@@ -74,4 +75,12 @@ export function showAccountDeletionUnavailable() {
         cancel: null,
         tone: 'info'
     });
+}
+
+export function showSuccessAlert(title, message, action = 'OK') {
+    return confirmAction({ title, message, action, cancel: null, tone: 'success', icon: '✓' });
+}
+
+export function showErrorAlert(title, message, action = 'Close') {
+    return confirmAction({ title, message, action, cancel: null, tone: 'danger', icon: '!' });
 }
