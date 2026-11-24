@@ -373,7 +373,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (insertError) {
                     if (insertError.code === '23505') {
-                        showBinNotice("Already Connected", "This bin is already connected to your account.");
+                        showBinNotice("Bin Already Linked", "This smart bin is already linked to an account. If it should be transferred to you, contact the system administrator.");
+                        setCitizenBinIdError(input, 'This ID is already linked to an account');
+                        input?.focus();                    
                     } else {
                         throw insertError;
                     }
