@@ -6,41 +6,48 @@
     <title>BinSense - Edit Account</title>
     <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/collection personnel/collection-edit-profile.css">
+    <link rel="stylesheet" href="../../css/role-settings.css">
 </head>
-<body>
-
+<body class="role-settings-page role-account-page">
     <div class="mobile-container">
-        
         <header class="top-nav">
             <div class="header-content">
-                <span class="back-btn" id="back-btn">←</span>
-                <h1 class="page-title">Edit Account Information</h1>
+                <button type="button" class="back-btn" id="back-btn" aria-label="Go back">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <h1 class="page-title">Account Information</h1>
             </div>
         </header>
 
         <main class="main-content">
-            <div class="graphic-section">
-                <img src="../../logo/edit-image.png" alt="Edit Graphic" class="center-graphic">
+            <div class="account-content">
+                <div class="profile-heading">
+                    <div>
+                        <p class="profile-eyebrow">Waste Collector account</p>
+                        <p id="current-user-name" class="current-user-name">Loading user...</p>
+                    </div>
+                </div>
+
+                <form class="edit-form">
+                    <section class="form-section" aria-labelledby="personal-heading">
+                        <h2 id="personal-heading">Personal Information</h2>
+                        <div class="input-group">
+                            <label for="fullName">Full Name*</label>
+                            <input type="text" id="fullName" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="emailAddress">Email Address*</label>
+                            <input type="email" id="emailAddress" required>
+                        </div>
+                    </section>
+                    <button type="submit" class="btn-update">Update Information</button>
+                </form>
             </div>
-            <p id="current-user-name" class="current-user-name">Loading user...</p>
-
-            <form class="edit-form">
-                <div class="input-group">
-                    <label for="fullName">Full Name*</label>
-                    <input type="text" id="fullName" name="fullName" required>
-                </div>
-
-                <div class="input-group">
-                    <label for="emailAddress">Email Address*</label>
-                    <input type="email" id="emailAddress" name="emailAddress" required>
-                </div>
-
-                <button type="submit" class="btn-update">Update Information</button>
-            </form>
+            <div id="toast" class="toast" role="status" aria-live="polite"></div>
         </main>
-
     </div>
-
     <script type="module" src="../../js/collection personnel/collection-edit-profile.js"></script>
 </body>
 </html>

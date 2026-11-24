@@ -1,0 +1,868 @@
+.role-settings-page {
+    --brand-green: #99cc33;
+    --brand-green-dark: #48742c;
+    --page-surface: #f3f6f0;
+    --surface: #fff;
+    --ink: #2d3436;
+    --muted: #687267;
+    --line: #e4ecdf;
+    --soft-green: #f5f9f1;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin: 0;
+    color: var(--ink);
+    background: linear-gradient(180deg, #f8faf8 0%, var(--page-surface) 100%);
+    font-family: "Reddit Sans", Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+.role-settings-page *,
+.role-settings-page *::before,
+.role-settings-page *::after {
+    box-sizing: border-box;
+}
+
+.role-settings-page .mobile-container {
+    display: flex;
+    width: min(100%, 1160px);
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: auto;
+    margin: 0 auto;
+    flex-direction: column;
+    overflow: visible;
+    background: var(--surface);
+}
+
+.role-settings-page .top-nav {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 76px;
+    flex: 0 0 auto;
+    align-items: center;
+    padding: 10px clamp(18px, 3.5vw, 40px);
+    border-bottom: 1px solid #e8eee4;
+    background: #fff;
+    box-shadow: 0 3px 14px rgb(31 62 22 / 3%);
+}
+
+.role-settings-page .header-content {
+    position: relative;
+    display: grid;
+    width: 100%;
+    min-height: 44px;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+}
+
+.role-settings-page .back-btn {
+    display: inline-flex;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid #e4ecdf;
+    border-radius: 14px;
+    color: var(--brand-green-dark);
+    background: #f7faf4;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.role-settings-page .back-btn svg,
+.role-settings-page .header-mark svg,
+.role-settings-page .intro-icon svg,
+.role-settings-page .card-icon svg,
+.role-settings-page .city-tag svg,
+.role-settings-page .feature-icon svg {
+    display: block;
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.role-settings-page .back-btn:hover {
+    border-color: #d3e2c8;
+    background: #eef5ea;
+}
+
+.role-settings-page .back-btn:active {
+    transform: scale(.96);
+}
+
+.role-settings-page button:disabled {
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: .55;
+    transform: none;
+}
+
+.role-settings-page .back-btn:focus-visible,
+.role-settings-page button:focus-visible,
+.role-settings-page a:focus-visible {
+    outline: 3px solid rgb(72 116 44 / 30%);
+    outline-offset: 3px;
+}
+
+.role-settings-page .page-title {
+    position: absolute;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100% - 112px);
+    margin: 0;
+    color: #263126;
+    font-size: clamp(17px, 2vw, 20px);
+    font-weight: 700;
+    line-height: 1.25;
+    text-align: center;
+    transform: translateX(-50%);
+}
+
+.role-settings-page .header-title-group {
+    position: absolute;
+    left: 50%;
+    display: grid;
+    justify-items: center;
+    max-width: calc(100% - 112px);
+    transform: translateX(-50%);
+}
+
+.role-settings-page .header-eyebrow,
+.role-settings-page .section-eyebrow,
+.role-settings-page .brand-eyebrow,
+.role-settings-page .profile-eyebrow {
+    color: var(--brand-green-dark);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .13em;
+    line-height: 1.4;
+}
+
+.role-settings-page .header-eyebrow {
+    font-size: 9px;
+}
+
+.role-settings-page .header-title-group .page-title {
+    position: static;
+    max-width: 100%;
+    transform: none;
+}
+
+.role-settings-page .header-mark {
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    grid-column: 3;
+    align-items: center;
+    justify-content: center;
+    justify-self: end;
+    border: 1px solid #e4ecdf;
+    border-radius: 13px;
+    color: var(--brand-green-dark);
+    background: #f7faf4;
+}
+
+.role-settings-page .header-mark svg {
+    width: 19px;
+    height: 19px;
+}
+
+.role-settings-page .main-content {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    flex: 1 0 auto;
+    padding: clamp(24px, 4vw, 46px) clamp(18px, 4vw, 48px) 40px;
+    overflow: visible;
+}
+
+.role-settings-page button {
+    font: inherit;
+}
+
+.role-account-page .account-content {
+    display: grid;
+    width: min(100%, 760px);
+    gap: 20px;
+    margin: 0 auto;
+}
+
+.role-account-page .profile-heading {
+    display: flex;
+    min-height: 94px;
+    align-items: center;
+    padding: 18px 22px;
+    border: 1px solid #e4ecdf;
+    border-radius: 18px;
+    background: linear-gradient(115deg, #f2f7ec 0%, #fbfcfa 68%, #fff 100%);
+}
+
+.role-account-page .profile-eyebrow {
+    margin: 0 0 7px;
+    text-transform: uppercase;
+}
+
+.role-account-page .current-user-name {
+    margin: 0;
+    color: #2d3436;
+    font-size: clamp(20px, 3vw, 24px);
+    font-weight: 700;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.role-account-page .edit-form {
+    display: grid;
+    gap: 16px;
+}
+
+.role-account-page .form-section {
+    display: grid;
+    gap: 18px;
+    padding: clamp(20px, 3vw, 28px);
+    border: 1px solid #e5eddf;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 26px rgb(35 61 24 / 4%);
+}
+
+.role-account-page .form-section h2 {
+    margin: 0;
+    color: var(--brand-green-dark);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.role-settings-page .input-group {
+    display: grid;
+    min-width: 0;
+    gap: 8px;
+}
+
+.role-settings-page .input-group label {
+    color: #394239;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.role-settings-page .input-group input {
+    width: 100%;
+    min-width: 0;
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid #dce4d8;
+    border-radius: 11px;
+    outline: none;
+    color: #303a31;
+    background: #fbfcfa;
+    font: inherit;
+    font-size: 15px;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.role-settings-page .input-group input::placeholder {
+    color: #8a9386;
+    opacity: 1;
+}
+
+.role-settings-page .input-group input:focus {
+    border-color: var(--brand-green-dark);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgb(72 116 44 / 13%);
+}
+
+.role-settings-page .input-group input:disabled {
+    color: #777;
+    background: #f4f5f2;
+    cursor: not-allowed;
+}
+
+.role-account-page .btn-update,
+.role-security-page .btn-primary,
+.role-security-page .btn-danger {
+    display: inline-flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.role-account-page .btn-update,
+.role-security-page .btn-primary {
+    color: #fff;
+    background: var(--brand-green-dark);
+}
+
+.role-account-page .btn-update:hover,
+.role-security-page .btn-primary:hover {
+    background: #3d6725;
+    box-shadow: 0 6px 16px rgb(72 116 44 / 18%);
+}
+
+.role-account-page .btn-update:active,
+.role-security-page .btn-primary:active,
+.role-security-page .btn-danger:active {
+    transform: translateY(1px);
+}
+
+.role-account-page .toast {
+    position: fixed;
+    z-index: 5;
+    right: 20px;
+    bottom: 20px;
+    left: 20px;
+    width: fit-content;
+    max-width: min(440px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 13px 18px;
+    border-radius: 12px;
+    color: #fff;
+    background: var(--brand-green-dark);
+    box-shadow: 0 10px 28px rgb(20 35 15 / 20%);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.role-account-page .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.role-account-page .toast.error {
+    background: #b43d3d;
+}
+
+.role-security-page .security-content {
+    width: min(100%, 1000px);
+    margin: 0 auto;
+}
+
+.role-security-page .security-intro {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 0 24px;
+}
+
+.role-security-page .intro-icon {
+    display: inline-flex;
+    width: 54px;
+    height: 54px;
+    flex: 0 0 54px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dfebd7;
+    border-radius: 17px;
+    color: var(--brand-green-dark);
+    background: #eef5ea;
+}
+
+.role-security-page .intro-icon svg {
+    width: 25px;
+    height: 25px;
+}
+
+.role-security-page .section-eyebrow {
+    display: block;
+    margin: 0 0 6px;
+    text-transform: uppercase;
+}
+
+.role-security-page .security-intro h2 {
+    margin: 0 0 5px;
+    color: #2d3436;
+    font-size: clamp(22px, 3vw, 28px);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.role-security-page .security-intro p:last-child {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.role-security-page .security-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(260px, .9fr);
+    align-items: start;
+    gap: 20px;
+}
+
+.role-security-page .security-card {
+    min-width: 0;
+    padding: clamp(20px, 3vw, 28px);
+    border: 1px solid #e5eddf;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 26px rgb(35 61 24 / 4%);
+}
+
+.role-security-page .card-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    margin: 0 0 22px;
+}
+
+.role-security-page .card-icon {
+    display: inline-flex;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e4ecdf;
+    border-radius: 13px;
+    color: var(--brand-green-dark);
+    background: #f7faf4;
+}
+
+.role-security-page .card-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.role-security-page .card-heading h3 {
+    margin: 1px 0 5px;
+    color: #2d3436;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.role-security-page .card-heading p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.role-security-page .password-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.role-security-page .password-fields .input-group:first-child {
+    grid-column: 1 / -1;
+}
+
+.role-security-page .btn-primary {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.role-security-page .delete-card {
+    border-color: #e7e8df;
+    background: linear-gradient(145deg, #fff 20%, #fafaf6 100%);
+}
+
+.role-security-page .delete-icon {
+    border-color: #e7e8df;
+    color: #71805c;
+    background: #f5f6ef;
+}
+
+.role-security-page .delete-note {
+    margin: 0 0 18px;
+    padding: 12px 13px;
+    border: 1px solid #e7e8df;
+    border-radius: 11px;
+    color: #687267;
+    background: #f8f8f4;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.role-security-page .btn-danger {
+    width: 100%;
+    border-color: #d9e0d1;
+    color: #5b654d;
+    background: #fff;
+}
+
+.role-security-page .btn-danger:hover {
+    border-color: #c4cfb8;
+    background: #f4f6ef;
+}
+
+.role-about-page * {
+    overflow-x: visible;
+}
+
+.role-about-page .about-page-content {
+    display: grid;
+    width: min(100%, 1040px);
+    gap: 20px;
+    margin: 0 auto;
+}
+
+.role-about-page .brand-showcase {
+    position: relative;
+    display: flex;
+    min-height: 230px;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    padding: clamp(24px, 4vw, 40px);
+    border: 1px solid #e5eddf;
+    border-radius: 22px;
+    background: linear-gradient(112deg, #eef5ea 0%, #f8faf6 54%, #fff 100%);
+    text-align: left;
+}
+
+.role-about-page .brand-showcase::after {
+    position: absolute;
+    right: -44px;
+    bottom: -96px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid rgb(72 116 44 / 10%);
+    border-radius: 50%;
+    box-shadow: 0 0 0 22px rgb(72 116 44 / 3%), 0 0 0 46px rgb(72 116 44 / 2%);
+    content: "";
+    pointer-events: none;
+}
+
+.role-about-page .brand-copy {
+    position: relative;
+    z-index: 1;
+    max-width: 650px;
+}
+
+.role-about-page .brand-eyebrow {
+    display: inline-block;
+    margin: 0 0 11px;
+    text-transform: uppercase;
+}
+
+.role-about-page .brand-title {
+    margin: 0 0 10px;
+    color: #2d3436;
+    font-size: clamp(27px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -.035em;
+    line-height: 1.1;
+}
+
+.role-about-page .brand-copy > p {
+    max-width: 530px;
+    margin: 0 0 16px;
+    color: #596356;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.role-about-page .city-tag {
+    display: inline-flex;
+    max-width: 100%;
+    min-height: 34px;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 11px;
+    border: 1px solid #dfe9d7;
+    border-radius: 999px;
+    color: var(--brand-green-dark);
+    background: rgb(255 255 255 / 78%);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.role-about-page .city-tag svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+}
+
+.role-about-page .about-card {
+    display: grid;
+    gap: 25px;
+    padding: clamp(20px, 3.5vw, 34px);
+    border: 1px solid #e5eddf;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 8px 26px rgb(35 61 24 / 4%);
+}
+
+.role-about-page .description-box {
+    display: grid;
+    gap: 13px;
+}
+
+.role-about-page .story-heading {
+    display: grid;
+    gap: 5px;
+}
+
+.role-about-page .section-title {
+    margin: 0;
+    color: #2d3436;
+    font-size: clamp(19px, 2.5vw, 23px);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.role-about-page .description-box > p {
+    max-width: 850px;
+    margin: 0;
+    color: #5f685d;
+    font-size: 14px;
+    line-height: 1.75;
+    text-align: left;
+}
+
+.role-about-page .description-box strong {
+    color: #394239;
+    font-weight: 700;
+}
+
+.role-about-page .feature-section {
+    display: grid;
+    gap: 16px;
+    padding-top: 23px;
+    border-top: 1px solid #e9eee6;
+}
+
+.role-about-page .feature-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.role-about-page .feature-heading .section-eyebrow {
+    margin-bottom: 5px;
+}
+
+.role-about-page .feature-heading-mark {
+    width: 38px;
+    height: 8px;
+    flex: 0 0 38px;
+    border-radius: 999px;
+    background: var(--brand-green);
+    box-shadow: 12px 0 0 #dceacb, 24px 0 0 #edf4e5;
+}
+
+.role-about-page .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+}
+
+.role-about-page .feature-card {
+    display: grid;
+    min-width: 0;
+    align-content: start;
+    gap: 9px;
+    padding: 17px;
+    border: 1px solid #e7ece4;
+    border-radius: 15px;
+    background: #fbfcfa;
+}
+
+.role-about-page .feature-icon {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e1ebd9;
+    border-radius: 11px;
+    color: var(--brand-green-dark);
+    background: #f1f7eb;
+}
+
+.role-about-page .feature-icon svg {
+    width: 19px;
+    height: 19px;
+}
+
+.role-about-page .feature-card h3 {
+    margin: 0;
+    color: #394239;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.role-about-page .feature-card p {
+    margin: 0;
+    color: #697367;
+    font-size: 12px;
+    line-height: 1.55;
+    text-align: left;
+}
+
+@media (min-width: 700px) {
+    .role-settings-page .mobile-container {
+        min-height: calc(100dvh - 48px);
+        margin: 24px auto;
+        border: 1px solid #e7ece4;
+        border-radius: 24px;
+        box-shadow: 0 18px 50px rgb(36 57 29 / 7%);
+    }
+
+    .role-settings-page .top-nav {
+        border-radius: 24px 24px 0 0;
+    }
+}
+
+@media (max-width: 760px) {
+    .role-security-page .security-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .role-security-page .password-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .role-security-page .password-fields .input-group:first-child {
+        grid-column: auto;
+    }
+
+    .role-about-page .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .role-security-page .password-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .role-security-page .password-fields .input-group:first-child {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 520px) {
+    .role-settings-page {
+        background: #fff;
+    }
+
+    .role-settings-page .mobile-container {
+        width: 100%;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .role-settings-page .top-nav {
+        min-height: 68px;
+        padding: 9px 16px;
+    }
+
+    .role-settings-page .main-content {
+        padding: 22px 16px 30px;
+    }
+
+    .role-account-page .profile-heading {
+        min-height: 82px;
+        padding: 15px 17px;
+    }
+
+    .role-account-page .form-section,
+    .role-security-page .security-card {
+        padding: 19px 16px;
+        border-radius: 16px;
+    }
+
+    .role-account-page .btn-update,
+    .role-security-page .btn-primary,
+    .role-security-page .btn-danger {
+        width: 100%;
+        min-height: 48px;
+    }
+
+    .role-security-page .security-intro {
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .role-security-page .intro-icon {
+        width: 46px;
+        height: 46px;
+        flex-basis: 46px;
+        border-radius: 14px;
+    }
+
+    .role-about-page .about-page-content {
+        gap: 14px;
+    }
+
+    .role-about-page .brand-showcase {
+        min-height: 0;
+        padding: 24px 19px;
+        border-radius: 18px;
+    }
+
+    .role-about-page .brand-title {
+        font-size: clamp(26px, 8vw, 34px);
+    }
+
+    .role-about-page .brand-copy > p {
+        font-size: 14px;
+    }
+
+    .role-about-page .about-card {
+        gap: 21px;
+        padding: 20px 17px;
+        border-radius: 17px;
+    }
+}
+
+@media (max-width: 380px) {
+    .role-settings-page .top-nav {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    .role-settings-page .main-content {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    .role-settings-page .page-title {
+        font-size: 16px;
+    }
+
+    .role-about-page .feature-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .role-about-page .city-tag {
+        align-items: flex-start;
+        border-radius: 13px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .role-settings-page *,
+    .role-settings-page *::before,
+    .role-settings-page *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}

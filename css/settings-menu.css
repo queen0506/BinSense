@@ -1,0 +1,242 @@
+.role-settings-menu .top-nav {
+    padding: calc(env(safe-area-inset-top, 0px) + 22px) clamp(20px, 4vw, 40px) 16px;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.role-settings-menu .top-nav > div {
+    width: 100%;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 4px 0 4px 16px;
+    border-left: 3px solid var(--lgu-green);
+}
+
+.role-settings-menu .top-nav > div::before {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--lgu-dark-green);
+    content: "YOUR ACCOUNT";
+    font-size: .66rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+}
+
+.role-settings-menu .dashboard-title {
+    color: #1a1a1a;
+    font-size: clamp(1.8rem, 4vw, 2.45rem);
+    letter-spacing: -.035em;
+    line-height: 1.12;
+}
+
+.role-settings-menu .main-content {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 8px 0 24px;
+}
+
+.role-settings-menu .menu-list {
+    display: grid;
+    width: min(100%, 1040px);
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 0;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 28px);
+    background: transparent;
+    box-shadow: none;
+}
+
+.role-settings-menu .menu-section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 3px 11px;
+    color: #687267;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.role-settings-menu .menu-section-title::before {
+    width: 8px;
+    height: 8px;
+    flex: 0 0 8px;
+    border-radius: 3px;
+    background: var(--lgu-green);
+    box-shadow: 0 0 0 4px rgb(153 204 51 / 13%);
+    content: "";
+}
+
+.role-settings-menu .menu-section-title:not(:first-child) {
+    margin-top: 21px;
+}
+
+.role-settings-menu .menu-section {
+    min-width: 0;
+    margin: 0;
+    padding: 6px;
+    border: 1px solid #e8eee4;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 8px 22px rgb(48 65 43 / 5.5%);
+}
+
+.role-settings-menu .menu-item {
+    min-height: 68px;
+    gap: 12px;
+    padding: 10px;
+    border-bottom: 1px solid #eef1eb;
+    border-radius: 13px;
+    color: var(--lgu-text);
+    transition: background-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.role-settings-menu .menu-item:last-child {
+    border-bottom: 0;
+}
+
+.role-settings-menu .menu-item:hover {
+    background: #f7faf4;
+}
+
+.role-settings-menu .menu-item:active {
+    transform: scale(.99);
+}
+
+.role-settings-menu .menu-item:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline: 3px solid rgb(72 116 44 / 25%);
+    outline-offset: 1px;
+}
+
+.role-settings-menu .menu-left {
+    gap: 13px;
+}
+
+.role-settings-menu .menu-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    padding: 10px;
+    border: 1px solid #e4ecdf;
+    border-radius: 14px;
+    background: #f2f7ec;
+    filter: none;
+}
+
+.role-settings-menu .menu-left span {
+    min-width: 0;
+    color: #394239;
+    font-size: .96rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+}
+
+.role-settings-menu .arrow-icon {
+    width: 18px;
+    height: 18px;
+    opacity: .7;
+    filter: brightness(0) saturate(100%) invert(39%) sepia(10%) saturate(657%) hue-rotate(58deg) brightness(94%) contrast(86%);
+    transition: transform 150ms ease, opacity 150ms ease;
+}
+
+.role-settings-menu .menu-item:hover .arrow-icon {
+    transform: translateX(2px);
+    opacity: 1;
+}
+
+.role-settings-menu #menu-logout {
+    margin-top: 4px;
+    border-top: 1px solid #e8eee4;
+}
+
+.role-settings-menu #menu-logout .menu-icon {
+    border-color: #e8ebe5;
+    background: #f3f4f1;
+}
+
+.role-settings-menu #menu-logout .menu-left span {
+    color: #687267;
+}
+
+@media (max-width: 600px) {
+    .role-settings-menu .top-nav {
+        padding-bottom: 13px;
+    }
+
+    .role-settings-menu .menu-list {
+        padding-right: 17px;
+        padding-left: 17px;
+    }
+
+    .role-settings-menu .menu-section-title {
+        margin-top: 13px;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1023.98px) {
+    .role-settings-menu .mobile-container {
+        height: calc(100vh - 40px);
+        height: calc(100dvh - 40px);
+    }
+
+    .role-settings-menu .top-nav {
+        padding-top: calc(env(safe-area-inset-top, 0px) + 26px);
+    }
+
+    .role-settings-menu .menu-list {
+        width: min(100%, 860px);
+        padding-right: 30px;
+        padding-left: 30px;
+    }
+}
+
+@media (min-width: 900px) {
+    .role-settings-menu .menu-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 26px;
+        row-gap: 0;
+    }
+
+    .role-settings-menu .menu-list > .menu-section-title:nth-of-type(1) {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .role-settings-menu .menu-list > .menu-section:nth-of-type(1) {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .role-settings-menu .menu-list > .menu-section-title:nth-of-type(2) {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .role-settings-menu .menu-list > .menu-section:nth-of-type(2) {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .role-settings-menu .menu-section {
+        align-self: start;
+    }
+
+    .role-settings-menu .menu-section-title:not(:first-child) {
+        margin-top: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .role-settings-menu .menu-item,
+    .role-settings-menu .arrow-icon {
+        transition: none;
+    }
+}
