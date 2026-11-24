@@ -149,7 +149,11 @@ const insightTitle = document.getElementById('insightTitle');
 const insightMessage = document.getElementById('insightMessage');
 const chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MANILA_OFFSET_MS = 8 * 60 * 60 * 1000;
+const statisticsBinPicker = document.getElementById('statisticsBinPicker');
+const statisticsBin = document.getElementById('statisticsBin');
 let activeBinId = null;
+let statisticsChannel = null;
+let statisticsRequest = 0;
 let activePeriod = 'weekly';
 let retryStatistics = null;
 
@@ -302,7 +306,8 @@ async function loadStatistics() {
         const { data: connectedBins, error: connectedBinsError } = await supabase
             .from('user_connected_bins')
             .select('bin_id')
-            .eq('user_id', user.id);
+            .eq('user_id', user.id)
+            .order('bin_id');
         if (connectedBinsError) throw connectedBinsError;
 
         if (!connectedBins || connectedBins.length === 0) {
@@ -313,7 +318,10 @@ async function loadStatistics() {
             return;
         }
 
-        await startTracking(connectedBins[0].bin_id);
+        statisticsBin.replaceChildren(...connectedBins.map(({ bin_id }) => new Option(`Smart Bin #${bin_id.replace(/^bin_/i, '')}`, bin_id)));
+        if (connectedBins.some(({ bin_id }) => bin_id === activeBinId)) statisticsBin.value = activeBinId;
+        statisticsBinPicker.hidden = false;
+        await startTracking(statisticsBin.value);
     } catch (error) {
         if (error?.name === 'AuthSessionMissingError') {
             setChartState('empty', 'Sign in to view connected-bin statistics.');
@@ -328,20 +336,38 @@ async function loadStatistics() {
 }
 
 // --- 3. Persistent Data Logic ---
+statisticsBin.addEventListener('change', () => startTracking(statisticsBin.value));
+
+const statisticsRefreshTimer = window.setInterval(() => {
+    if (!document.hidden) fetchSensorStatistics();
+}, 30000);
+
+window.addEventListener('pagehide', event => {
+    if (event.persisted) return;
+    window.clearInterval(statisticsRefreshTimer);
+    if (statisticsChannel) supabase.removeChannel(statisticsChannel);
+});
+
 async function startTracking(selectedBinId) {
+    if (statisticsChannel) supabase.removeChannel(statisticsChannel);
     window.activeStatisticsBinId = selectedBinId;
     activeBinId = selectedBinId;
-    await fetchSensorStatistics(true);
+    const initialLoad = fetchSensorStatistics(true);
 
-    supabase
-        .channel(`sensor-readings-${activeBinId}`)
+    // Telemetry writes the reading and updates the bin in the same transaction.
+    statisticsChannel = supabase
+        .channel(`statistics-bin-${selectedBinId}-${statisticsRequest}`)
         .on('postgres_changes', {
-            event: 'INSERT',
+            event: 'UPDATE',
             schema: 'public',
-            table: 'bin_sensor_readings',
-            filter: `bin_id=eq.${activeBinId}`
-        }, () => fetchSensorStatistics(false))
+            table: 'bins',
+            filter: `id=eq.${selectedBinId}`
+        }, () => {
+            if (activeBinId === selectedBinId) fetchSensorStatistics();
+        })
         .subscribe();
+
+    await initialLoad;
 }
 
 function getManilaNow() {
@@ -432,6 +458,7 @@ function aggregateSensorReadings(readings, period, range) {
 
 async function fetchSensorStatistics(showLoading = false) {
     if (!activeBinId) return;
+    const request = ++statisticsRequest;
 
     if (showLoading) {
         setChartState('loading', 'Loading recorded sensor readings…');
@@ -440,27 +467,30 @@ async function fetchSensorStatistics(showLoading = false) {
     const requestedBin = activeBinId;
     const requestedPeriod = activePeriod;
     const range = getPeriodRange(requestedPeriod);
-    chartLabels.splice(0, chartLabels.length, ...range.labels);
-    binChart.data.labels = chartLabels;
-    binChart.data.datasets[0].data = chartLabels.map(() => null);
-    binChart.update();
+    if (showLoading) {
+        chartLabels.splice(0, chartLabels.length, ...range.labels);
+        binChart.data.labels = chartLabels;
+        binChart.data.datasets[0].data = chartLabels.map(() => null);
+        chartPointDetail.hidden = true;
+        binChart.update('none');
+    }
 
     try {
         const [{ data: buckets, error: readingError }, { data: bin, error: binError }] = await Promise.all([
             supabase.rpc('get_bin_sensor_reading_averages', {
-                p_bin_id: activeBinId,
-                p_granularity: activePeriod === 'daily' ? 'hour' : 'day',
+                p_bin_id: requestedBin,
+                p_granularity: requestedPeriod === 'daily' ? 'hour' : 'day',
                 p_start: range.start.toISOString(),
                 p_end: range.end.toISOString()
             }),
             supabase
                 .from('bins')
                 .select('last_sync')
-                .eq('id', activeBinId)
+                .eq('id', requestedBin)
                 .maybeSingle()
         ]);
 
-        if (requestedBin !== activeBinId || requestedPeriod !== activePeriod) return;
+        if (request !== statisticsRequest) return;
         if (readingError) {
             if (readingError.code === 'PGRST202' || readingError.code === '42883') {
                 throw new Error('Sensor statistics RPC is not installed or exposed in the Supabase project used by this website.');
@@ -476,7 +506,14 @@ async function fetchSensorStatistics(showLoading = false) {
             ? new Date(staleTimestamp).toLocaleString('en-PH', { timeZone: 'Asia/Manila' })
             : 'No sensor sync timestamp is available';
 
-        if (!buckets || buckets.length === 0) {
+        const aggregate = aggregateSensorReadings(buckets ?? [], requestedPeriod, range);
+        chartLabels.splice(0, chartLabels.length, ...range.labels);
+        binChart.data.labels = chartLabels;
+        binChart.data.datasets[0].data = aggregate.averages;
+        binChart.update('none');
+        chartPointDetail.hidden = true;
+
+        if (!aggregate.counts.some(count => count > 0)) {
             if (isStale) {
                 setChartState(
                     'offline',
@@ -495,14 +532,6 @@ async function fetchSensorStatistics(showLoading = false) {
             chartPointDetail.hidden = true;
             return;
         }
-
-        const periodNote = document.getElementById('periodLimit');
-        if (periodNote) periodNote.textContent = 'Times are shown in Philippine Time (UTC+8).';
-
-        const aggregate = aggregateSensorReadings(buckets, activePeriod, range);
-        binChart.data.datasets[0].data = aggregate.averages;
-        binChart.update();
-        chartPointDetail.hidden = true;
 
         const validCount = aggregate.averages.filter((value) => value !== null).length;
         const totalReadings = aggregate.counts.reduce((sum, count) => sum + count, 0);
@@ -531,9 +560,12 @@ async function fetchSensorStatistics(showLoading = false) {
             );
         }
     } catch (error) {
-        if (requestedBin !== activeBinId || requestedPeriod !== activePeriod) return;
+        if (request !== statisticsRequest) return;
         console.error('Unable to load sensor readings:', error);
-        setChartState('error', 'Sensor readings could not be loaded. Try again.', () => fetchSensorStatistics(true));
+        const message = /RPC is not installed/.test(error.message ?? '')
+            ? 'The connected Supabase project is missing the sensor statistics function.'
+            : 'Sensor readings could not be loaded. Try again.';
+        setChartState('error', message, () => fetchSensorStatistics(true));
         setInsight('Statistics unavailable', 'An error prevented the recorded sensor readings from loading.');
     }
 }

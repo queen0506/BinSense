@@ -49,7 +49,7 @@
                 <div class="chart-card-header">
                     <div class="chart-card-heading">
                         <h3 id="weeklyChartTitle">Average recorded fill</h3>
-                        <p>Weekday averages for the first connected bin</p>
+                        <p>Average fill from the selected bin’s recorded sensor readings.</p>
                     </div>
                     <div class="period-selector" role="group" aria-label="Chart time period">
                         <button class="period-option" type="button" data-period="daily" aria-pressed="false">Daily</button>
@@ -57,9 +57,13 @@
                         <button class="period-option" type="button" data-period="monthly" aria-pressed="false">Monthly</button>
                     </div>
                 </div>
+                <label class="statistics-bin-picker" id="statisticsBinPicker" hidden>
+                    Smart bin
+                    <select id="statisticsBin"></select>
+                </label>
                 <p class="period-note" id="periodLimit">Times are shown in Philippine Time (UTC+8).</p>
                 <div class="chart-container" id="chartContainer" data-state="loading">
-                    <canvas id="binChart" role="img" aria-label="Weekly average recorded bin fill by weekday"></canvas>
+                    <canvas id="binChart" role="img" aria-label="Average recorded fill for the selected bin and time period"></canvas>
                     <div class="chart-state" id="chartState" role="status" aria-live="polite">
                         <span class="chart-state-icon" aria-hidden="true"></span>
                         <p id="chartStateMessage">Loading recorded readings…</p>
