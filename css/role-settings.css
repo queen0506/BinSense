@@ -866,3 +866,78 @@
         transition-duration: .01ms !important;
     }
 }
+
+.role-security-page .password-notification {
+    position: relative;
+    display: none;
+    width: 100%;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: 1px solid #e1eadb;
+    border-left: 4px solid #48742c;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 14px 36px rgb(34 54 28 / 16%);
+    color: #303a31;
+    pointer-events: none;
+}
+
+.role-security-page .password-notification.is-visible,
+.role-security-page .password-notification.is-leaving {
+    display: grid;
+}
+
+.role-security-page .password-notification.is-visible {
+    animation: role-password-notification-enter 200ms ease both;
+}
+
+.role-security-page .password-notification.is-leaving {
+    animation: role-password-notification-exit 180ms ease both;
+}
+
+.role-security-page .password-notification-icon {
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border-radius: 50%;
+    background: #edf5e8;
+    color: #48742c;
+}
+
+.role-security-page .password-notification-icon svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.role-security-page .password-notification-message {
+    margin: 0;
+    font-size: 0.94rem;
+    font-weight: 600;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+@keyframes role-password-notification-enter {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes role-password-notification-exit {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .role-security-page .password-notification {
+        animation: none !important;
+    }
+}

@@ -52,6 +52,23 @@ function formatScheduleTime(time) {
     )));
 }
 
+function getBinBarangay(bin) {
+    const barangay = String(bin?.barangay || '').trim();
+    return !barangay || /^(null|undefined|unassigned|unknown|n\/a|not specified|global)$/i.test(barangay)
+        ? EAST_BAJAC_BAJAC
+        : barangay;
+}
+
+function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
+}
+
 // Removed: initNotificationListener function[cite: 11]
 initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
@@ -354,7 +371,8 @@ function updateHotspots() {
     const ranking = {};
 
     allBins.filter(b => b.status?.toLowerCase() === 'full').forEach(b => {
-        ranking[b.barangay] = (ranking[b.barangay] || 0) + 1;
+        const barangay = getBinBarangay(b);
+        ranking[barangay] = (ranking[barangay] || 0) + 1;
     });
 
     const sorted = Object.entries(ranking).sort((a, b) => b[1] - a[1]).slice(0, 3);
@@ -363,7 +381,7 @@ function updateHotspots() {
         hotspotContainer.innerHTML = sorted.map(([brgy, count]) => `
             <div class="hotspot-item">
                 <div class="hotspot-text-group">
-                    <span class="hotspot-brgy">${brgy}</span>
+                    <span class="hotspot-brgy">${escapeHtml(brgy)}</span>
                     <span class="hotspot-count">${count} Bins overflowing</span>
                 </div>
                 <div class="alert-badge">URGENT</div>
@@ -384,8 +402,8 @@ window.openDetails = (status) => {
     document.getElementById('modalTitle').innerText = `${status.toUpperCase()} Bins`;
     container.innerHTML = matches.map(b => `
         <div class="bin-id-card">
-            <h4>Smart Bin ID: ${b.id.replace('bin_', '')}</h4>
-            <p>Barangay: ${b.barangay}</p>
+            <h4>Smart Bin ID: ${escapeHtml(String(b.id || '').replace('bin_', ''))}</h4>
+            <p>Barangay: ${escapeHtml(getBinBarangay(b))}</p>
         </div>
     `).join('');
     modal.style.display = "flex";

@@ -1,5 +1,6 @@
 // collection-dashboard.js
 import { supabase } from '../supabase-init.js';
+import { EAST_BAJAC_BAJAC } from '../citizen-address.js';
 
 let map, truckMarker, routeLine;
 let binMarkers = [];
@@ -410,7 +411,7 @@ async function executeMarkAsCollected(binId) {
 
         const { error: logError } = await supabase.from('collection_logs').insert({
             bin_id: binId,
-            barangay: binData.barangay || 'Unknown',
+            barangay: binData.barangay || EAST_BAJAC_BAJAC,
             collected_at: collectedAt,
             waste_level_at_collection: binData.level || 0,
             personnel_location: currentTruckPos,

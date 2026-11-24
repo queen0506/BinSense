@@ -4,7 +4,24 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
+    min-height: 74px;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) clamp(18px, 4vw, 28px) 12px;
+    border: 0;
+    border-bottom: 1px solid #e8eee4;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(34, 54, 27, 0.045);
     overflow: visible;
+}
+
+.dashboard-title {
+    min-width: 0;
+    color: #1e293b;
+    font-size: clamp(1.25rem, 2vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
 }
 
 .lgu-notification-wrapper {
@@ -18,19 +35,24 @@
     position: relative;
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     border: 0;
     border-radius: 50%;
-    background: transparent;
+    background: #99cc33;
     color: #fff;
     cursor: pointer;
-    transition: transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease;
 }
 
 .lgu-notification-button:hover {
-    transform: scale(1.08);
+    transform: scale(1.1);
+}
+
+.lgu-notification-button:active {
+    transform: scale(0.96);
 }
 
 .lgu-notification-button:focus-visible,
@@ -42,8 +64,9 @@
 }
 
 .lgu-notification-button svg {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
+    color: #fff;
     stroke: currentColor;
     stroke-width: 2;
     stroke-linecap: round;
@@ -52,19 +75,19 @@
 
 .lgu-notification-badge {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: 4px;
+    right: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 19px;
-    height: 19px;
-    padding: 0 4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 2px;
     border: 2px solid #99cc33;
     border-radius: 999px;
     background: #f44336;
     color: #fff;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     line-height: 1;
     pointer-events: none;
@@ -334,6 +357,11 @@
 }
 
 @media (max-width: 360px) {
+    .top-nav {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
     .lgu-notification-header {
         padding-right: 10px;
         padding-left: 12px;
@@ -355,5 +383,28 @@
     .lgu-mark-read-button,
     .lgu-read-label {
         margin-left: auto;
+    }
+}
+
+@media (min-width: 601px) {
+    .top-nav {
+        min-height: 86px;
+        padding: 18px 40px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .top-nav {
+        min-height: 0;
+        padding: 14px 60px 0 20px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lgu-notification-button {
+        transition: none;
     }
 }

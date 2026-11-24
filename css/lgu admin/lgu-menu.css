@@ -387,7 +387,13 @@ textarea:focus,
     }
 }
 
-@media (min-width: 601px) and (max-width: 1023px) {
+@media (min-width: 415px) and (max-width: 600px) {
+    .mobile-container {
+        max-width: 560px;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1023.98px) {
     body {
         background-color: #f4f7f2;
         align-items: flex-start;

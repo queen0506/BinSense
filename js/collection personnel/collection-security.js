@@ -1,4 +1,5 @@
 import { showAccountDeletionUnavailable } from '../action-confirmation.js';
+import { showPasswordNotification } from '../password-notification.js';
 import { supabase } from '../supabase-init.js';
 
 async function writeLog(action, message, category = 'logs') {
@@ -29,7 +30,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const newPass = document.getElementById("new-password").value;
         const confirmPass = document.getElementById("confirm-password").value;
 
-        if (newPass !== confirmPass) { alert("Passwords do not match."); return; }
+        if (newPass !== confirmPass) {
+            showPasswordNotification("Passwords do not match.", "error");
+            return;
+        }
 
         try {
             const { data: { user } } = await supabase.auth.getUser();
@@ -40,8 +44,10 @@ document.addEventListener("DOMContentLoaded", () => {
             // LOGGING LOGIC (Audit Trail)
             await writeLog("Password Changed", "Collector updated account security settings.", "audit");
 
-            alert("Password updated!");
-        } catch (error) { alert("Error: " + error.message); }
+            showPasswordNotification("Password changed successfully!");
+        } catch (error) {
+            showPasswordNotification("Error: " + error.message, "error");
+        }
     });
 
     deleteBtn?.addEventListener('click', () => showAccountDeletionUnavailable());
