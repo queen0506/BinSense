@@ -35,24 +35,91 @@ async function loadRouteLocationLabels(path) {
         .filter(binId => typeof binId === 'string' && binId.trim()))];
     if (binIds.length === 0) return new Map();
 
+    const labels = new Map();
+
     try {
         const { data, error } = await supabase.rpc('get_lgu_collection_bin_addresses', {
             p_bin_ids: binIds
         });
-        if (error) {
-            console.error('Unable to load confirmed Citizen addresses for the LGU route:', error);
-            return new Map();
+        if (!error) {
+            (data || [])
+                .filter(row => binIds.includes(row.bin_id) &&
+                    typeof row.location_label === 'string' &&
+                    row.location_label.trim())
+                .forEach(row => labels.set(row.bin_id, row.location_label.trim()));
+        } else {
+            console.warn('Unable to load confirmed Citizen addresses for the LGU route:', error);
         }
-
-        return new Map((data || [])
-            .filter(row => binIds.includes(row.bin_id) &&
-                typeof row.location_label === 'string' &&
-                row.location_label.trim())
-            .map(row => [row.bin_id, row.location_label.trim()]));
     } catch (error) {
         console.error('Unable to load confirmed Citizen addresses for the LGU route:', error);
-        return new Map();
     }
+
+    const unresolvedIds = binIds.filter(binId => !labels.has(binId));
+    if (!unresolvedIds.length) return labels;
+
+    try {
+        const [{ data: connections, error: connectionError }, { data: bins, error: binError }] = await Promise.all([
+            supabase.from('user_connected_bins').select('bin_id, user_id').in('bin_id', unresolvedIds),
+            supabase.from('bins').select('id, street, barangay').in('id', unresolvedIds)
+        ]);
+
+        if (!binError) {
+            (bins || []).forEach(bin => {
+                const parts = [bin.street, bin.barangay]
+                    .map(value => String(value || '').trim())
+                    .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+                if (parts.length) labels.set(bin.id, parts.join(', '));
+            });
+        }
+
+        if (!connectionError) {
+            const userIdsByBin = new Map();
+            (connections || []).forEach(connection => {
+                const userIds = userIdsByBin.get(connection.bin_id) || [];
+                userIds.push(connection.user_id);
+                userIdsByBin.set(connection.bin_id, userIds);
+            });
+
+            const uniqueConnections = [];
+            userIdsByBin.forEach((userIds, binId) => {
+                if (new Set(userIds).size === 1) {
+                    uniqueConnections.push({ binId, userId: userIds[0] });
+                }
+            });
+            if (!uniqueConnections.length) return labels;
+
+            const { data: profiles, error: profileError } = await supabase
+                .from('users')
+                .select('id, role, address_confirmed, house_number, street_name, barangay, city_municipality, province')
+                .in('id', [...new Set(uniqueConnections.map(connection => connection.userId))]);
+
+            if (!profileError) {
+                const profilesById = new Map((profiles || []).map(profile => [profile.id, profile]));
+                uniqueConnections.forEach(({ binId, userId }) => {
+                    const profile = profilesById.get(userId);
+                    if (String(profile?.role || '').trim().toLowerCase() !== 'citizen' ||
+                        profile.address_confirmed !== true) return;
+
+                    const houseAndStreet = [profile.house_number, profile.street_name]
+                        .map(value => String(value || '').trim())
+                        .filter(Boolean)
+                        .join(' ');
+                    const addressParts = [
+                        houseAndStreet,
+                        profile.barangay,
+                        profile.city_municipality,
+                        profile.province
+                    ].map(value => String(value || '').trim())
+                        .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+                    if (addressParts.length) labels.set(binId, addressParts.join(', '));
+                });
+            }
+        }
+    } catch (fallbackError) {
+        console.error('Unable to load fallback bin/Citizen addresses:', fallbackError);
+    }
+
+    return labels;
 }
 
 initializeLguNotifications(supabase).catch(error => {

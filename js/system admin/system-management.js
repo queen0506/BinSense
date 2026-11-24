@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeBinId) removeBin(activeBinId, e);
         });
     }
-    
+
     loadRegisteredBins();
 
     // Auto-refresh UI every 10 seconds to dynamically update active/offline status based on time
@@ -84,7 +84,8 @@ function getBinInstallationLocation(bin) {
 }
 
 function getConfirmedCitizenAddressLabel(profile) {
-    if (profile?.role !== 'citizen' || profile.address_confirmed !== true) return null;
+    if (String(profile?.role || '').trim().toLowerCase() !== 'citizen' ||
+        profile.address_confirmed !== true) return null;
 
     const houseAndStreet = [profile.house_number, profile.street_name]
         .map(value => String(value || '').trim())
@@ -324,6 +325,7 @@ function toggleView(view) {
         if (realtimeView) realtimeView.style.display = 'none';
         if (listView) listView.style.display = 'block';
         if (appContainer) appContainer.classList.remove('real-time-mode');
+        document.getElementById('remove-bin-btn')?.style.setProperty('display', 'none');
         loadRegisteredBins(); 
     }
 }
