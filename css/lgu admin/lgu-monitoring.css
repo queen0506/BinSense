@@ -49,6 +49,12 @@ img {
     background-color: #fff;
     display: flex;
     flex-direction: column;
+}
+
+.schedule-area-note {
+    margin: 0 0 12px;
+    color: #48742c;
+    font-weight: 700;
     overflow: hidden;
     margin: 0 auto;
 }

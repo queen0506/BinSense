@@ -1,5 +1,6 @@
 import { confirmAction, confirmDiscard } from '../action-confirmation.js';
 import { supabase } from '../supabase-init.js';
+import { EAST_BAJAC_BAJAC } from '../citizen-address.js';
 import { initializeLguNotifications } from './lgu-notifications.js';
 
 let allBins = [];
@@ -306,8 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const scheduleType = document.getElementById('scheduleType').value;
         const values = {
             title: 'Waste Collection Schedule',
-            message: `Waste collection in Olongapo City on ${date} at ${time} (${scheduleType})`,
-            barangay: 'Global',
+            message: `Waste collection in ${EAST_BAJAC_BAJAC}, Olongapo City on ${date} at ${time} (${scheduleType})`,
+            barangay: EAST_BAJAC_BAJAC,
             date,
             time,
             scheduleType,
