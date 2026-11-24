@@ -39,7 +39,7 @@ body {
     color: white;
     font-size: 1.5rem;
     font-weight: 700; 
-    padding-left: 15px;
+    padding-left: 8px;
 }
 
 
@@ -103,7 +103,26 @@ body {
     -webkit-line-clamp: 2;
 }
 .incident-report-location, .incident-report-time { display: block; margin-top: 5px; color: var(--lgu-muted); font-size: 0.74rem; }
-.back-link { background: none; border: none; color: white; cursor: pointer; font-size: 2rem; font-weight: 700;}
+.back-link {
+    display: inline-flex;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    align-items: center;
+    justify-content: center;
+    margin-right: 2px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.back-link[hidden] { display: none; }
+.back-link:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .section-label { color: var(--lgu-text); font-weight: 700; font-size: 1.5rem; margin: 15px 0 10px 5px; }
 
 .status-card, .report-card {

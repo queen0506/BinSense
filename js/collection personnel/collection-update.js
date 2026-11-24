@@ -252,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         binSelectionView.style.display = 'none';
         binDetailView.style.display = 'block';
+        backBtn.hidden = false;
     }
 
     /**
@@ -384,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         binDetailView.style.display = 'none';
         binSelectionView.style.display = 'block';
+        backBtn.hidden = true;
         
         document.querySelectorAll('input[name="issue"]').forEach(el => el.checked = false);
         clearIncidentError();
