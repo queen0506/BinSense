@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeBinId) removeBin(activeBinId, e);
         });
     }
-    
+
     loadRegisteredBins();
 
     // Auto-refresh UI every 10 seconds to dynamically update active/offline status based on time
@@ -83,8 +83,15 @@ function getBinInstallationLocation(bin) {
     return parts.join(', ') || 'Location not assigned';
 }
 
+function getBinIdVariants(value) {
+    const binId = String(value || '').trim();
+    const normalizedId = binId.replace(/^bin_/i, '');
+    return [...new Set([binId, normalizedId, normalizedId && `bin_${normalizedId}`].filter(Boolean))];
+}
+
 function getConfirmedCitizenAddressLabel(profile) {
-    if (profile?.role !== 'citizen' || profile.address_confirmed !== true) return null;
+    if (String(profile?.role || '').trim().toLowerCase() !== 'citizen' ||
+        profile.address_confirmed !== true) return null;
 
     const houseAndStreet = [profile.house_number, profile.street_name]
         .map(value => String(value || '').trim())
@@ -105,37 +112,45 @@ async function loadConnectedCitizenLocationLabels(binIds) {
     const labels = new Map();
     if (binIds.length === 0) return labels;
 
+    const lookupIds = [...new Set(binIds.flatMap(getBinIdVariants))];
     const { data: connections, error: connectionError } = await supabase
         .from('user_connected_bins')
         .select('bin_id, user_id')
-        .in('bin_id', binIds);
+        .in('bin_id', lookupIds);
     if (connectionError) throw connectionError;
 
-    const userIdsByBin = new Map();
+    const connectionsByBinId = new Map();
     for (const connection of connections || []) {
-        const userIds = userIdsByBin.get(connection.bin_id) || [];
-        userIds.push(connection.user_id);
-        userIdsByBin.set(connection.bin_id, userIds);
+        const matchingConnections = connectionsByBinId.get(connection.bin_id) || [];
+        matchingConnections.push(connection);
+        connectionsByBinId.set(connection.bin_id, matchingConnections);
     }
 
-    const uniqueUserIds = [...new Set(
-        [...userIdsByBin.values()]
-            .filter(userIds => userIds.length === 1)
-            .map(userIds => userIds[0])
+    const userIds = [...new Set(
+        (connections || []).map(connection => connection.user_id).filter(Boolean)
     )];
-    if (uniqueUserIds.length === 0) return labels;
+    if (userIds.length === 0) return labels;
 
     const { data: profiles, error: profileError } = await supabase
         .from('users')
         .select('id, role, address_confirmed, house_number, street_name, barangay, city_municipality, province')
-        .in('id', uniqueUserIds);
+        .in('id', userIds);
     if (profileError) throw profileError;
 
     const profilesById = new Map((profiles || []).map(profile => [profile.id, profile]));
-    for (const [binId, userIds] of userIdsByBin) {
-        if (userIds.length !== 1) continue;
+    const uniqueCitizenConnections = binIds.flatMap(binId => {
+        const citizenConnections = getBinIdVariants(binId)
+            .flatMap(variant => connectionsByBinId.get(variant) || [])
+            .filter(connection =>
+                String(profilesById.get(connection.user_id)?.role || '').trim().toLowerCase() === 'citizen'
+            );
+        return citizenConnections.length === 1
+            ? [{ binId, userId: citizenConnections[0].user_id }]
+            : [];
+    });
 
-        const addressLabel = getConfirmedCitizenAddressLabel(profilesById.get(userIds[0]));
+    for (const { binId, userId } of uniqueCitizenConnections) {
+        const addressLabel = getConfirmedCitizenAddressLabel(profilesById.get(userId));
         if (addressLabel) labels.set(binId, addressLabel);
     }
 
@@ -226,6 +241,16 @@ function startLiveUpdate(binId) {
             if (error) throw error;
 
             if (bin) {
+                try {
+                    const locationLabels = await loadConnectedCitizenLocationLabels([binId]);
+                    const locationLabel = locationLabels.get(binId);
+                    if (locationLabel) connectedCitizenLocationLabels.set(binId, locationLabel);
+                    else connectedCitizenLocationLabels.delete(binId);
+                } catch (locationError) {
+                    connectedCitizenLocationLabels.delete(binId);
+                    console.error('Unable to refresh connected Citizen address:', locationError);
+                }
+
                 const calculatedStatus = getDeviceOnlineStatus(bin.last_sync, bin.status);
                 const isOffline = calculatedStatus === 'OFFLINE';
                 
@@ -324,6 +349,7 @@ function toggleView(view) {
         if (realtimeView) realtimeView.style.display = 'none';
         if (listView) listView.style.display = 'block';
         if (appContainer) appContainer.classList.remove('real-time-mode');
+        document.getElementById('remove-bin-btn')?.style.setProperty('display', 'none');
         loadRegisteredBins(); 
     }
 }

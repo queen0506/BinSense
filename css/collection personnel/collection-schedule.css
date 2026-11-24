@@ -107,6 +107,7 @@ body {
 }
 
 .calendar-days div {
+    position: relative;
     padding: 10px 0; 
     font-size: 0.9rem; 
     color: #444; 
@@ -117,6 +118,19 @@ body {
     background-color: #99cc33; 
     color: white; 
     font-weight: 700;
+}
+
+.calendar-days .has-schedule {
+    background-color: #edf6dc;
+    color: #48742C;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px #99cc33;
+}
+
+.calendar-days .active.has-schedule {
+    background-color: #99cc33;
+    color: white;
+    box-shadow: none;
 }
 
 /* --- Schedule Section --- */

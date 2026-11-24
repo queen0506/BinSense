@@ -11,11 +11,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeSchedule = null;
 
     const date = new Date();
-    const currYear = date.getFullYear();
-    const currMonth = date.getMonth();
+    let currYear = date.getFullYear();
+    let currMonth = date.getMonth();
     const months = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
     let isWasteCollector = false;
+    let scheduledDates = new Set();
+    let scheduledDatesCount = new Map();
     const getScheduleArea = schedule => schedule.barangay && schedule.barangay !== 'Global'
         ? `Brgy. ${schedule.barangay}`
         : 'Olongapo City';
@@ -49,7 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let index = 0; index < firstDayOfMonth; index++) calendarDays.innerHTML += '<div></div>';
         for (let day = 1; day <= lastDateOfMonth; day++) {
             const isToday = day === date.getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? 'active' : '';
-            calendarDays.innerHTML += `<div class="${isToday}">${day}</div>`;
+            const dateKey = `${currYear}-${String(currMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const hasSchedule = scheduledDates.has(dateKey);
+            const scheduleClass = hasSchedule ? 'has-schedule' : '';
+            const scheduleCount = scheduledDatesCount?.get(dateKey) || 0;
+            const label = hasSchedule
+                ? ` aria-label="${day} ${months[currMonth]} ${currYear}, ${scheduleCount} collection schedule${scheduleCount === 1 ? '' : 's'}"`
+                : '';
+            calendarDays.innerHTML += `<div class="${isToday} ${scheduleClass}"${label}><span>${day}</span></div>`;
         }
     };
 
@@ -230,6 +239,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const hiddenIds = JSON.parse(localStorage.getItem('hidden_collection_schedules') || '[]');
         
         const visibleData = data ? data.filter(schedule => !hiddenIds.includes(schedule.id)) : [];
+        scheduledDates = new Set();
+        scheduledDatesCount = new Map();
+        visibleData.forEach(schedule => {
+            if (!schedule.date) return;
+            const dateKey = String(schedule.date).slice(0, 10);
+            scheduledDates.add(dateKey);
+            scheduledDatesCount.set(dateKey, (scheduledDatesCount.get(dateKey) || 0) + 1);
+        });
+        renderCalendar();
 
         if (!visibleData?.length) {
             const emptyMessage = document.createElement('p');
@@ -334,6 +352,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     renderCalendar();
+    document.getElementById('prevMonth')?.addEventListener('click', () => {
+        currMonth--;
+        if (currMonth < 0) {
+            currMonth = 11;
+            currYear--;
+        }
+        renderCalendar();
+    });
+    document.getElementById('nextMonth')?.addEventListener('click', () => {
+        currMonth++;
+        if (currMonth > 11) {
+            currMonth = 0;
+            currYear++;
+        }
+        renderCalendar();
+    });
+
     const loadCollectorRole = async () => {
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {

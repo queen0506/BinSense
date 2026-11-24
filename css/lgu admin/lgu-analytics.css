@@ -469,6 +469,53 @@ table {
     .dashboard-title {
         font-size: 1.4rem;
     }
+
+    .records-table-container {
+        overflow-x: visible;
+    }
+
+    .records-table thead {
+        display: none;
+    }
+
+    .records-table tbody {
+        display: block;
+    }
+
+    .records-table tbody tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        margin-bottom: 12px;
+        border: 1px solid #edf1e7;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .records-table td {
+        display: grid;
+        grid-template-columns: 105px minmax(0, 1fr);
+        align-items: start;
+        padding: 9px 10px;
+        border-bottom: 1px solid #f0f0f0;
+        overflow-wrap: anywhere;
+    }
+
+    .records-table td::before {
+        content: attr(data-label);
+        color: #777;
+        font-size: 0.72rem;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+
+    .records-table tbody tr td:last-child {
+        border-bottom: none;
+    }
+
+    .records-table .bin-id-cell,
+    .records-table .bin-address-cell {
+        background: #fbfdf7;
+    }
 }
 
 @media (min-width: 601px) and (max-width: 1023px) {
