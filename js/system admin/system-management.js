@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeBinId) removeBin(activeBinId, e);
         });
     }
-    
+
     loadRegisteredBins();
 
     // Auto-refresh UI every 10 seconds to dynamically update active/offline status based on time
@@ -90,7 +90,8 @@ function getBinIdVariants(value) {
 }
 
 function getConfirmedCitizenAddressLabel(profile) {
-    if (profile?.role !== 'citizen' || profile.address_confirmed !== true) return null;
+    if (String(profile?.role || '').trim().toLowerCase() !== 'citizen' ||
+        profile.address_confirmed !== true) return null;
 
     const houseAndStreet = [profile.house_number, profile.street_name]
         .map(value => String(value || '').trim())
@@ -234,6 +235,16 @@ function startLiveUpdate(binId) {
             if (error) throw error;
 
             if (bin) {
+                try {
+                    const locationLabels = await loadConnectedCitizenLocationLabels([binId]);
+                    const locationLabel = locationLabels.get(binId);
+                    if (locationLabel) connectedCitizenLocationLabels.set(binId, locationLabel);
+                    else connectedCitizenLocationLabels.delete(binId);
+                } catch (locationError) {
+                    connectedCitizenLocationLabels.delete(binId);
+                    console.error('Unable to refresh connected Citizen address:', locationError);
+                }
+
                 const calculatedStatus = getDeviceOnlineStatus(bin.last_sync, bin.status);
                 const isOffline = calculatedStatus === 'OFFLINE';
                 
@@ -332,6 +343,7 @@ function toggleView(view) {
         if (realtimeView) realtimeView.style.display = 'none';
         if (listView) listView.style.display = 'block';
         if (appContainer) appContainer.classList.remove('real-time-mode');
+        document.getElementById('remove-bin-btn')?.style.setProperty('display', 'none');
         loadRegisteredBins(); 
     }
 }
