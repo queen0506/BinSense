@@ -201,76 +201,76 @@
     }
 }
 
-/* =========================================
-   DESKTOP LAYOUT ONLY (Naka-center at Malaki)
-   ========================================= */
+
 @media (min-width: 900px) {
-    /* Center-in ang laman pero safe pa rin */
+    /* 1. Center-in ang laman */
     .role-settings-menu .main-content {
-        justify-content: flex-start; 
-        align-items: center; /* Dito lang natin gagamitin ang center */
-        padding-top: 20px;
+        justify-content: center !important; 
+        align-items: flex-start !important;
+        padding: 0 60px 40px 20px !important; 
     }
 
-    /* Ang malaking white card background */
+    /* 2. Gawing kaparehas ng Citizen ang lapad, padding, at gap */
     .role-settings-menu .menu-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        column-gap: 60px; 
-        row-gap: 0;
-        max-width: 1200px; 
+        column-gap: 80px !important; /* Ginawang 80px (dating 60px) */
+        row-gap: 20px !important;
+        max-width: 1200px !important; 
         
         background: #ffffff;
-        padding: 50px 60px;
+        padding: 60px !important; /* Ginawang 60px pantay sa lahat ng gilid */
         border-radius: 35px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        margin-top: 10px; /* Konting distansya mula sa header */
+        margin: 10px auto 0 auto !important;
     }
 
-    /* Tinatanggal ang background ng sections sa loob ng malaking card */
-    .role-settings-menu .menu-section {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        align-self: start;
+    /* 3. Gawing malaki ang text ng GENERAL / FEEDBACK */
+    .role-settings-menu .menu-section-title {
+        font-size: 1.5rem !important; /* Ginawang 1.5rem gaya ng Citizen */
+        margin: 0 0 20px 0 !important;
+        text-transform: uppercase !important;
     }
 
-    /* Pinalalaki ng bahagya ang items para magmukhang premium */
+    /* 4. Gawing mas malaki at readable ang mga menu items (Account Info, etc.) */
+    .role-settings-menu .menu-left span {
+        font-size: 1.05rem !important; /* Ginawang 1.05rem gaya ng Citizen */
+        font-weight: 500 !important;
+    }
+
     .role-settings-menu .menu-item {
-        min-height: 75px;
-        padding: 12px 16px;
-        border-radius: 16px;
-        margin-bottom: 8px;
-    }
-    
-    .role-settings-menu .menu-item:last-child {
-        margin-bottom: 0;
+        padding: 20px 0 !important;
+        border-bottom: 1px solid #eee !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        min-height: auto !important;
+        margin-bottom: 0 !important;
     }
 
-    .role-settings-menu .menu-item:hover {
-        background: #f4f7f2; 
+    .role-settings-menu .menu-section {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
     }
 
-    /* Grid positions */
-    .role-settings-menu .menu-list > .menu-section-title:nth-of-type(1) {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    .role-settings-menu .menu-list > .menu-section:nth-of-type(1) {
-        grid-column: 1;
-        grid-row: 2;
-    }
-    .role-settings-menu .menu-list > .menu-section-title:nth-of-type(2) {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    .role-settings-menu .menu-list > .menu-section:nth-of-type(2) {
-        grid-column: 2;
-        grid-row: 2;
+    /* 5. Header Position (Center at tamang baba) */
+    .role-settings-menu .top-nav {
+        padding: 50px 60px 10px 20px !important; /* Inayos ang spacing sa taas */
+        justify-content: center !important;
     }
 
-    .role-settings-menu .menu-section-title:not(:first-child) {
-        margin-top: 16px;
+    .role-settings-menu .top-nav > div {
+        margin: 0 auto !important;      
+        text-align: center !important;  
+        border-left: none !important;   
+        padding: 0 !important;          
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .role-settings-menu .dashboard-title {
+        font-size: 2.5rem !important; /* Pantay na sa Citizen title size */
     }
 }
 
