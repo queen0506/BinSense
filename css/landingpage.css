@@ -826,10 +826,12 @@ img {
     content: "";
 }
 
-#landing2 .card:hover {
-    transform: translateY(-7px);
-    border-color: rgba(92, 141, 42, 0.28);
-    box-shadow: 0 22px 38px rgba(54, 80, 31, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+@media (hover: hover) {
+    #landing2 .card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(92, 141, 42, 0.28);
+        box-shadow: 0 20px 34px rgba(54, 80, 31, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
 }
 
 .feature-icon {
@@ -959,6 +961,7 @@ img {
     max-height: min(58vh, 560px);
     object-fit: contain;
     filter: drop-shadow(0 24px 24px rgba(74, 74, 74, 0.14));
+    animation: phone-float 7s ease-in-out infinite;
 }
 
 #landing3 .cta-heading {
@@ -1012,6 +1015,16 @@ img {
     }
 }
 
+@keyframes phone-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
 @media (max-width: 600px) {
     .scroll-container .page {
         padding: 30px 20px;
@@ -1042,8 +1055,8 @@ img {
 
     #landing1 .hero-assets {
         width: 100%;
-        height: clamp(205px, 38vh, 300px);
-        margin-top: 8px;
+        height: clamp(185px, 32vh, 270px);
+        margin-top: 4px;
     }
 
     #landing1 .asset-circles {
@@ -1076,24 +1089,35 @@ img {
     }
 
     #landing2 .card {
+        display: grid;
+        grid-template-columns: 46px minmax(0, 1fr);
+        align-items: center;
+        column-gap: 14px;
+        row-gap: 8px;
         min-height: 0;
-        padding: 21px;
+        padding: 19px;
         border-radius: 19px;
     }
 
     .feature-icon {
+        grid-column: 1;
+        grid-row: 1;
         width: 46px;
         height: 46px;
         flex-basis: 46px;
-        margin-bottom: 16px;
+        margin-bottom: 0;
         border-radius: 15px;
     }
 
     #landing2 .card h3 {
+        grid-column: 2;
+        grid-row: 1;
+        margin-bottom: 0;
         font-size: 1.12rem;
     }
 
     #landing2 .card p {
+        grid-column: 1 / -1;
         font-size: 0.91rem;
     }
 
@@ -1121,7 +1145,7 @@ img {
 
     #landing3 .phone-container {
         width: 100%;
-        min-height: clamp(240px, 40vh, 330px);
+        min-height: clamp(220px, 36vh, 300px);
         margin: 0 auto 10px;
     }
 
@@ -1131,7 +1155,7 @@ img {
 
     #landing3 .asset-phone {
         width: clamp(215px, 70vw, 300px);
-        max-height: 40vh;
+        max-height: 38vh;
     }
 
     #landing3 .cta-heading {
@@ -1287,10 +1311,41 @@ img {
         animation: none;
     }
 
+    #landing3 .asset-phone {
+        animation: none;
+    }
+
     .btn-get-started,
     .btn-get-started::after,
     #landing2 .card,
     .reveal {
         transition: none;
+    }
+}
+
+@media (max-width: 360px) {
+    .scroll-container .page {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    #landing1 .headline {
+        font-size: clamp(1.95rem, 9vw, 2.25rem);
+    }
+
+    #landing1 .sub-headline {
+        font-size: 0.93rem;
+    }
+
+    #landing1 .hero-assets {
+        height: clamp(175px, 30vh, 230px);
+    }
+
+    #landing1 .asset-robot {
+        width: min(82%, 245px);
+    }
+
+    #landing2 .card {
+        padding: 17px;
     }
 }
