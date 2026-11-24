@@ -146,7 +146,7 @@ body {
     font-weight: 800; font-size: 1rem; 
     display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0;
 }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
 .report-card { text-align: left; }
 .report-prompt { color: #48742C; font-weight: 700; font-size: 1.2rem; margin-bottom: 15px; }

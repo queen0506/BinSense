@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const binDetailView = document.getElementById('binDetailView');
     const displayBinID = document.getElementById('displayBinID');
     const displayStatus = document.getElementById('displayStatus');
+    const displayFill = document.getElementById('displayFill');
+    const statusIndicator = binDetailView.querySelector('.status-indicator');
     const backBtn = document.getElementById('backToList');
     const binContainer = document.getElementById('binContainer');
     const binSearch = document.getElementById('binSearch');
@@ -31,44 +33,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const incidentReportsContainer = document.getElementById('myIncidentReports');
 
     let allBins = {}; 
-    let unsubscribeDetail = null; 
+    let activeBinId = null;
+    let binRequest = 0;
     let activeCollectorEmail = null;
     let incidentReportRequest = 0;
 
-    /**
-     * 1. TRAFFIC-LIGHT COLOR LOGIC
-     */
-    function getStatusColor(bin) {
-        const status = String(bin.status || '').toLowerCase();
-        const fillLevel = bin.level ?? bin.volume ?? 0;
-        if (status === "full" || fillLevel >= 90) {
-            return "#ff4444"; // Red
-        } else if (fillLevel >= 50 || status === "filling") {
-            return "#ffbb33"; // Yellow
-        }
-        return "#99cc33"; // Green
+    function getBinReading(bin) {
+        const status = String(bin.status ?? '').trim().toLowerCase();
+        const colors = {
+            available: '#48742c',
+            filling: '#8a5700',
+            full: '#b42318'
+        };
+        const color = Object.hasOwn(colors, status) ? colors[status] : null;
+        const level = bin.level ?? bin.volume;
+        const percentage = Number(level);
+        const hasFill = level != null && String(level).trim() !== '' &&
+            Number.isFinite(percentage) && percentage >= 0 && percentage <= 100;
+        return {
+            label: color ? status.toUpperCase() : 'UNKNOWN',
+            color: color || '#667085',
+            fill: hasFill ? `${percentage}% full` : 'Fill level unavailable'
+        };
     }
 
-    /**
-     * 2. FETCH ALL BINS (LIST VIEW)
-     */
     const loadBins = async () => {
+        const request = ++binRequest;
         const { data, error } = await supabase.from('bins').select('*');
+        if (request !== binRequest) return;
         if (error) {
             console.error('Unable to load bins:', error);
             binContainer.innerHTML = '<p class="section-message error-message">Unable to load bins. Please try again.</p>';
             return;
         }
-        if (!data?.length) {
+
+        allBins = Object.fromEntries((data ?? []).map(bin => [bin.id, bin]));
+        if (data?.length) {
+            renderBins(allBins, binSearch.value);
+        } else {
             binContainer.innerHTML = '<p class="section-message">No bins found.</p>';
-            allBins = {};
-            return;
         }
-        allBins = Object.fromEntries(data.map(bin => [bin.id, bin]));
-        renderBins(allBins, binSearch.value);
-        if (activeCollectorEmail) loadIncidentReports();
+
+        if (activeBinId !== null) {
+            const bin = allBins[activeBinId];
+            if (bin) renderBinDetail(bin);
+            else closeDetailView();
+        }
     };
-    loadBins();
 
     function renderBins(bins, filter = "") {
         binContainer.innerHTML = ""; 
@@ -77,11 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const binDisplayId = id.replace('bin_', '#');
             const searchText = `${binDisplayId} ${bin.barangay || ''}`.toLowerCase();
             if (searchText.includes(filter.trim().toLowerCase())) {
-                const statusColor = getStatusColor(bin);
+                const reading = getBinReading(bin);
                 const card = document.createElement('button');
                 card.className = 'bin-card clickable-bin';
                 card.type = 'button';
-                card.setAttribute('aria-label', `View bin ${binDisplayId}, ${bin.status || 'Unknown'}`);
+                card.setAttribute('aria-label', `View bin ${binDisplayId}, ${reading.label}, ${reading.fill}`);
 
                 const content = document.createElement('span');
                 content.className = 'bin-card-content';
@@ -90,22 +101,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 name.textContent = `BIN ${binDisplayId}`;
                 const meta = document.createElement('span');
                 meta.className = 'bin-card-meta';
-                const fillValue = bin.level ?? bin.volume;
-                if (fillValue !== null && fillValue !== undefined) {
-                    const fillLevel = document.createElement('span');
-                    fillLevel.textContent = `${fillValue}% full`;
-                    meta.appendChild(fillLevel);
-                }
+                const fillLevel = document.createElement('span');
+                fillLevel.textContent = reading.fill;
+                meta.appendChild(fillLevel);
                 const status = document.createElement('span');
                 status.className = 'sample-label';
-                status.style.color = statusColor;
-                status.textContent = String(bin.status || 'Unknown').toUpperCase();
+                status.style.color = reading.color;
+                status.textContent = reading.label;
                 meta.appendChild(status);
                 content.append(name, meta);
 
                 const indicator = document.createElement('span');
                 indicator.className = 'bin-status-indicator';
-                indicator.style.backgroundColor = statusColor;
+                indicator.style.backgroundColor = reading.color;
                 indicator.setAttribute('aria-hidden', 'true');
                 const chevron = document.createElement('span');
                 chevron.className = 'chevron';
@@ -223,33 +231,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeIncidentReports();
 
-    /**
-     * 3. SHOW DETAIL VIEW (WITH LIVE LISTENER)
-     */
+    function renderBinDetail(bin) {
+        const reading = getBinReading(bin);
+        displayBinID.textContent = `BIN #${bin.id.replace(/^bin_/, '')}`;
+        displayStatus.textContent = reading.label;
+        displayFill.textContent = reading.fill;
+        statusIndicator.style.color = reading.color;
+    }
+
     function showDetail(binId) {
-        if (unsubscribeDetail) unsubscribeDetail();
+        const bin = allBins[binId];
+        if (!bin) return;
 
-        const loadBin = async () => {
-            const { data: bin, error } = await supabase.from('bins').select('*').eq('id', binId).single();
-            if (error) { console.error(error); return; }
-            if (!bin) {
-                alert("This bin has been disconnected or removed.");
-                closeDetailView();
-                return;
-            }
-
-            displayBinID.innerText = binId.replace('bin_', 'BIN #');
-            displayStatus.innerText = bin.status.toUpperCase();
-            
-            const detailColor = getStatusColor(bin);
-            const indicator = document.querySelector('.status-indicator');
-            indicator.style.color = detailColor;
-            document.querySelectorAll('.status-dot').forEach(dot => {
-                dot.style.background = detailColor;
-            });
-        };
-        loadBin();
-
+        activeBinId = binId;
+        renderBinDetail(bin);
         binSelectionView.style.display = 'none';
         binDetailView.style.display = 'block';
         backBtn.hidden = false;
@@ -310,7 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         clearIncidentError();
 
-        const binKey = displayBinID.innerText.replace('BIN #', 'bin_');
+        const binKey = activeBinId;
+        if (binKey === null) return;
         let issueText = selected ? selected.value : "Routine Checkup";
         if (issueText === "Others") {
             const otherInput = document.getElementById('otherIssueInput');
@@ -381,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * 6. NAVIGATION HELPERS
      */
     function closeDetailView() {
-        if (unsubscribeDetail) unsubscribeDetail(); 
+        activeBinId = null;
         
         binDetailView.style.display = 'none';
         binSelectionView.style.display = 'block';
@@ -394,4 +390,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     backBtn.addEventListener('click', closeDetailView);
+
+    loadBins();
+    const binChannel = supabase.channel('collector-bin-update')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'bins' }, loadBins)
+        .subscribe(status => {
+            if (status === 'SUBSCRIBED') loadBins();
+        });
+    window.addEventListener('pagehide', event => {
+        if (!event.persisted) supabase.removeChannel(binChannel);
+    });
 });
