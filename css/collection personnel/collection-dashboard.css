@@ -1,11 +1,11 @@
 :root {
     --brand-green: #99cc33;
     --brand-green-dark: #48742c; 
-    --text-main: #2d3436;
-    --text-muted: #7a877f;
-    --bg-panel: #ffffff;
-    --bg-subtle: #f4f8ec; 
-    --border-light: #e2ecd3; 
+    --text-main: #1E293B;
+    --text-muted: #64748B;
+    --bg-panel: #FFFFFF;
+    --bg-subtle: #F4F7F2; 
+    --border-light: #E2E8F0; 
 }
 
 * {
@@ -16,7 +16,7 @@
 
 body {
     font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--bg-subtle);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -29,7 +29,7 @@ body {
     max-width: 414px;
     height: 100vh;
     height: 100dvh;
-    background-color: white;
+    background-color: var(--bg-subtle);
     display: flex;
     flex-direction: column;
     overflow: clip;
@@ -91,7 +91,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid rgba(45, 52, 54, 0.08);
+    border: 1px solid var(--border-light);
     border-radius: 18px;
     background: var(--bg-panel);
     box-shadow: 0 12px 32px rgba(26, 42, 18, 0.15);
@@ -223,13 +223,13 @@ body {
 .eta-unit {
     font-size: 0.75rem;
     font-weight: 500;
-    color: #8b968f;
+    color: var(--text-muted);
 }
 
 .eta-stat-divider {
     width: 1px;
     height: 36px;
-    background: #d5e4be; 
+    background: var(--border-light); 
     margin: 0 12px;
     flex-shrink: 0;
 }
@@ -240,7 +240,7 @@ body {
     margin: 0 0 10px;
     padding: 8px 12px;
     border-radius: 8px;
-    background: #f0f4e8;
+    background: var(--bg-subtle);
     color: var(--brand-green-dark);
     font-size: 0.8rem;
     font-weight: 600;
@@ -271,8 +271,8 @@ body {
     align-items: center;
     gap: 10px;
     padding: 9px 2px;
-    border-bottom: 1px solid #eef2e6;
-    color: #4b5650;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-main);
     font-size: 0.84rem;
     font-weight: 500;
     overflow-wrap: anywhere;
@@ -310,7 +310,7 @@ body {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     font-weight: 700;
     font-size: 0.85rem;
-    color: #1f2d10;
+    color: var(--text-main);
     pointer-events: none;
     overflow-wrap: anywhere;
     text-align: center;
@@ -647,7 +647,7 @@ body {
 }
 
 .alert-box {
-    background: #fff;
+    background: var(--bg-panel);
     width: 100%;
     max-width: 340px;
     border-radius: 28px;
@@ -703,7 +703,7 @@ body {
 }
 
 .alert-message {
-    color: #777;
+    color: var(--text-muted);
     font-size: 0.95rem;
     line-height: 1.5;
     margin-bottom: 24px;

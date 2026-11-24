@@ -1,7 +1,6 @@
 @media (min-width: 1024px) {
-
     body {
-        background-color: #f4f7f2;
+        background-color: var(--admin-page);
         display: block;
         overflow: hidden;
     }
@@ -75,7 +74,7 @@
     }
 
     .dashboard-title {
-        color: #1a1a1a;
+        color: var(--admin-text);
         font-size: 2.5rem;
     }
 

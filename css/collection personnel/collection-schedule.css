@@ -1,4 +1,16 @@
 
+:root {
+    --lgu-green: #99cc33;
+    --lgu-dark-green: #48742C;
+    --lgu-text: #1E293B;
+    --lgu-muted: #64748B;
+    --lgu-surface: #FFFFFF;
+    --lgu-page: #F4F7F2;
+    --lgu-border: #E2E8F0;
+    --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
 * { 
     box-sizing: border-box; 
     margin: 0; 
@@ -7,7 +19,7 @@
 
 body {
     font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--lgu-page);
     display: flex; 
     justify-content: center; 
     min-height: 100vh;
@@ -18,7 +30,7 @@ body {
     width: 100%; 
     max-width: 414px; 
     height: 100vh;
-    background-color: white; 
+    background-color: var(--lgu-page); 
     display: flex; 
     flex-direction: column;
     overflow: hidden;
@@ -52,18 +64,18 @@ body {
 }
 
 .calendar-main-title {
-    color: #48742C; 
+    color: var(--lgu-text); 
     font-size: 1.1rem; 
     font-weight: 700; 
     margin-bottom: 15px;
 }
 
-/* --- Calendar Card Styles --- */
 .calendar-card {
-    background: white; 
+    background: var(--lgu-surface); 
     border-radius: 30px; 
     padding: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+    box-shadow: var(--lgu-shadow); 
+    border: 1px solid var(--lgu-border);
     margin-bottom: 30px;
 }
 
@@ -75,7 +87,7 @@ body {
 }
 
 .calendar-month-year { 
-    color: #48742C; 
+    color: var(--lgu-text); 
     font-weight: 700; 
     font-size: 1.2rem; 
 }
@@ -94,7 +106,7 @@ body {
     grid-template-columns: repeat(7, 1fr);
     text-align: center; 
     font-weight: 700; 
-    color: #ccc; 
+    color: var(--lgu-muted); 
     font-size: 0.75rem; 
     margin-bottom: 10px;
 }
@@ -110,7 +122,7 @@ body {
     position: relative;
     padding: 10px 0; 
     font-size: 0.9rem; 
-    color: #444; 
+    color: var(--lgu-text); 
     border-radius: 12px;
 }
 
@@ -142,7 +154,7 @@ body {
 }
 
 .schedule-title { 
-    color: #48742C; 
+    color: var(--lgu-text); 
     font-size: 1.1rem; 
     font-weight: 700; 
 }
@@ -153,29 +165,38 @@ body {
     cursor: pointer; 
 }
 
+.schedule-title { 
+    color: var(--lgu-text); 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+}
+
 .empty-pill {
-    background: #F8F8F8; 
+    background: var(--lgu-page); 
     height: 65px; 
     border-radius: 25px;
     display: flex; 
     align-items: center; 
     justify-content: center;
-    color: #aaa; 
+    color: var(--lgu-muted); 
     font-style: italic; 
     font-size: 0.9rem;
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
 }
 
 .schedule-item {
-    background: white; 
-    border-left: 6px solid #99cc33;
+    background: var(--lgu-surface); 
+    border-left: 6px solid var(--lgu-green);
     padding: 18px 25px; 
     border-radius: 25px; 
     margin-bottom: 12px; 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: var(--lgu-shadow);
+    border-top: 1px solid var(--lgu-border);
+    border-right: 1px solid var(--lgu-border);
+    border-bottom: 1px solid var(--lgu-border);
     cursor: default;
     transition: all 0.2s ease;
 }
@@ -207,20 +228,23 @@ body {
 }
 
 .schedule-item {
-    background: white; 
-    border-left: 6px solid #99cc33;
+    background: var(--lgu-surface); 
+    border-left: 6px solid var(--lgu-green);
     padding: 18px 25px; 
     border-radius: 25px; 
-    margin-bottom: 0; /* Binago para hindi mag-doble ang space */
+    margin-bottom: 0; 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: var(--lgu-shadow);
+    border-top: 1px solid var(--lgu-border);
+    border-right: 1px solid var(--lgu-border);
+    border-bottom: 1px solid var(--lgu-border);
     cursor: default;
-    transition: transform 0.3s ease, box-shadow 0.2s ease; /* Update transition */
+    transition: transform 0.3s ease, box-shadow 0.2s ease; 
     position: relative;
     z-index: 2;
-    touch-action: pan-y; /* Para hindi ma-block ang vertical scroll */
+    touch-action: pan-y; 
 }
 
 /* Desktop Delete Button (Hidden by default) */
@@ -321,17 +345,18 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--lgu-surface);
     width: 85%;
     max-width: 350px;
     padding: 30px;
     border-radius: 35px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: var(--lgu-shadow-lg);
+    border: 1px solid var(--lgu-border);
     text-align: center;
 }
 
 .modal-title {
-    color: #99cc33;
+    color: var(--lgu-dark-green);
     font-size: 1.3rem;
     margin-bottom: 20px;
     font-weight: 700;
@@ -339,13 +364,13 @@ body {
 
 .input-group { text-align: left; margin-bottom: 15px; }
 .input-group label { 
-    display: block; color: #48742C; font-size: 0.85rem; font-weight: 700;
+    display: block; color: var(--lgu-text); font-size: 0.85rem; font-weight: 700;
     margin-bottom: 6px; margin-left: 5px;
 }
 
 .input-container {
-    border: 1px solid #99cc33; /* Ginawang green border para halata na pwedeng i-edit */
-    background-color: #f9fff5;
+    border: 1px solid var(--lgu-border); 
+    background-color: var(--lgu-page);
     border-radius: 15px;
     padding: 12px 15px;
     transition: all 0.2s ease;
@@ -357,9 +382,10 @@ body {
 
 .input-container input {
     border: none; outline: none; width: 100%;
-    color: #333; font-family: 'Reddit Sans', sans-serif; font-weight: 600;
+    color: var(--lgu-text); font-family: 'Reddit Sans', sans-serif; font-weight: 600;
     font-size: 1rem; background: transparent;
 }
+
 
 /* --- Improved Cancellation Modal Styles --- */
 .cancel-modal {
@@ -373,7 +399,7 @@ body {
 }
 
 .cancel-warning {
-    color: #666;
+    color: var(--lgu-muted);
     font-size: 0.9rem;
     line-height: 1.4;
     margin-bottom: 25px;
@@ -396,8 +422,8 @@ body {
 .delete-btn { background: #ff4444 !important; }
 
 .modal-cancel-btn {
-    flex: 1; padding: 14px; background: #f0f0f0;
-    color: #888; border: none; border-radius: 18px;
+    flex: 1; padding: 14px; background: var(--lgu-page);
+    color: var(--lgu-muted); border: none; border-radius: 18px;
     font-weight: 700; font-size: 1rem; cursor: pointer;
 }
 
@@ -415,7 +441,7 @@ body {
 /* --- COLLECTION SCHEDULE DESKTOP REFINEMENT --- */
 @media (min-width: 900px) {
     body {
-        background-color: #f8faf8; 
+        background-color: var(--lgu-page); 
         display: block;
         overflow: hidden;
     }
@@ -484,7 +510,7 @@ body {
     }
 
     .dashboard-title {
-        color: #2d3436; 
+        color: var(--lgu-text); 
         font-size: 1.8rem;
     }
 
@@ -519,10 +545,11 @@ body {
 
     /* Schedule Section Adjustments[cite: 3] */
 .schedule-section {
-        background: white;
+        background: var(--lgu-surface);
         padding: 30px; 
         border-radius: 30px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        box-shadow: var(--lgu-shadow);
+        border: 1px solid var(--lgu-border);
         height: 100%; 
         display: flex;
         flex-direction: column;
@@ -539,8 +566,9 @@ body {
 
     .schedule-title {
         font-size: 1.3rem; 
-        color: #48742C;
+        color: var(--lgu-text);
     }
+
 
     /* Ensure the list fills the card nicely[cite: 3] */
     .schedule-list {
@@ -570,7 +598,7 @@ body {
     content: "";
     flex: 1;
     height: 1px;
-    background: #e0e0e0;
+    background: var(--lgu-border);
 }
 
 .schedule-divider::after {
@@ -578,14 +606,14 @@ body {
     padding-left: 10px;
     font-size: 0.65rem;
     font-weight: 700;
-    color: #bbb;
+    color: var(--lgu-muted);
     letter-spacing: 1px;
 }
 
 .fixed-label {
     font-size: 0.7rem;
     font-weight: 700;
-    color: #99cc33;
+    color: var(--lgu-dark-green);
     text-transform: uppercase;
     margin-bottom: 5px;
     margin-left: 5px;
@@ -616,13 +644,13 @@ table { width: 100%; max-width: 100%; }
 }
 
 .swal2-title.binsense-title {
-    color: #48742C !important; /* Dark green */
+    color: var(--lgu-dark-green) !important; 
     font-weight: 700 !important;
     font-size: 1.3rem !important;
 }
 
 .swal2-html-container.binsense-text {
-    color: #666 !important;
+    color: var(--lgu-muted) !important;
     font-size: 0.9rem !important;
     line-height: 1.4 !important;
     margin-top: 10px !important;
@@ -654,8 +682,8 @@ table { width: 100%; max-width: 100%; }
 /* Cancel Button (Gray) */
 .swal2-cancel.binsense-cancel-btn {
     flex: 1 !important;
-    background: #f0f0f0 !important;
-    color: #888 !important;
+    background: var(--lgu-page) !important;
+    color: var(--lgu-muted) !important;
     border-radius: 18px !important;
     font-weight: 700 !important;
     font-size: 1rem !important;

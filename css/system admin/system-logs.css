@@ -2,12 +2,13 @@
     --lgu-green: #99cc33;
     --lgu-orange: #FF9800;
     --lgu-dark-green: #48742C;
-    --lgu-text: #444;
+    --lgu-text: #1E293B;
+    --lgu-muted: #64748B;
     --lgu-surface: #FFFFFF;
-    --lgu-page: #F8F8F8;
+    --lgu-page: #F4F7F2;
     --lgu-border: #E2E8F0;
     --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
+    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
     --radius-sm: 12px;
     --radius-md: 20px;
     --radius-lg: 35px;
@@ -29,7 +30,7 @@ html {
 
 body {
     font-family: 'Reddit Sans', sans-serif;
-    background-color: #f0f0f0;
+    background-color: var(--lgu-page);
     color: var(--lgu-text);
     display: flex;
     justify-content: center;
@@ -88,25 +89,26 @@ img {
 }
 
 .filter-tab {
-    background: #e0e0e0;
-    border: none;
+    background: var(--lgu-page);
+    border: 1px solid var(--lgu-border);
     padding: 8px 18px;
     border-radius: var(--radius-md);
     font-family: inherit;
     font-weight: 600;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--lgu-muted);
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .filter-tab:hover {
-    background: #cfcfcf;
+    background: #e2e8f0;
 }
 
 .filter-tab.active {
     background: var(--lgu-green);
     color: #fff;
+    border-color: var(--lgu-green);
     box-shadow: 0 4px 10px rgba(153, 204, 51, 0.3);
 }
 
@@ -124,11 +126,14 @@ img {
 
 /* Log cards */
 .log-card {
-    background: #fff;
+    background: var(--lgu-surface);
     padding: 15px;
     border-radius: 18px;
     border-left: 5px solid var(--lgu-green);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    border-top: 1px solid var(--lgu-border);
+    border-right: 1px solid var(--lgu-border);
+    border-bottom: 1px solid var(--lgu-border);
+    box-shadow: var(--lgu-shadow);
     min-width: 0;
 }
 
@@ -146,7 +151,7 @@ img {
 
 .log-user {
     font-weight: 700;
-    color: #333;
+    color: var(--lgu-text);
     font-size: 0.9rem;
     overflow-wrap: anywhere;
 }
@@ -172,7 +177,7 @@ img {
 
 .log-msg {
     display: block;
-    color: #555;
+    color: var(--lgu-muted);
     font-size: 0.85rem;
     line-height: 1.4;
     margin-bottom: 10px;
@@ -183,8 +188,8 @@ img {
     display: flex;
     justify-content: space-between;
     font-size: 0.7rem;
-    color: #bbb;
-    border-top: 1px solid #f5f5f5;
+    color: var(--lgu-muted);
+    border-top: 1px solid var(--lgu-border);
     padding-top: 8px;
     gap: 10px;
 }
@@ -273,7 +278,7 @@ img {
 /* Desktop (1024px+) */
 @media (min-width: 1024px) {
     body {
-        background-color: #f4f7f2;
+        background-color: var(--lgu-page);
         display: block;
         overflow: hidden;
     }
@@ -347,7 +352,7 @@ img {
     }
 
     .dashboard-title {
-        color: #1a1a1a;
+        color: var(--lgu-text);
         font-size: 2.8rem;
         font-weight: 800;
     }
@@ -376,16 +381,17 @@ img {
     }
 
     .log-card {
-        background: #fff;
+        background: var(--lgu-surface);
         border-radius: 15px;
         min-height: 132px;
         height: auto;
         margin: 0;
         padding: 18px;
-        box-shadow:
-            0 8px 15px rgba(0, 0, 0, 0.06),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        box-shadow: var(--lgu-shadow);
         border-left: 5px solid var(--lgu-green);
+        border-top: 1px solid var(--lgu-border);
+        border-right: 1px solid var(--lgu-border);
+        border-bottom: 1px solid var(--lgu-border);
     }
 
     .log-card.audit-border {

@@ -1,9 +1,10 @@
 :root {
     --lgu-green: #99cc33;
     --lgu-dark-green: #48742C;
-    --lgu-text: #444;
+    --lgu-text: #1E293B;
+    --lgu-muted: #64748B;
     --lgu-surface: #FFFFFF;
-    --lgu-page: #F8F8F8;
+    --lgu-page: #F4F7F2;
     --lgu-border: #E2E8F0;
     --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
@@ -135,7 +136,7 @@
 }
 
 .lgu-schedule-details h4 {
-    color: var(--lgu-dark-green);
+    color: var(--lgu-text);
     margin-bottom: 5px;
     overflow-wrap: anywhere;
     font-size: 0.95rem;
@@ -143,7 +144,7 @@
 }
 
 .lgu-schedule-details p {
-    color: #68706a;
+    color: var(--lgu-muted);
     font-size: 0.85rem;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -175,8 +176,8 @@
 
 .schedule-empty {
     padding: 18px;
-    color: #777;
-    background: #fff;
+    color: var(--lgu-muted);
+    background: var(--lgu-surface);
     border: 1px dashed var(--lgu-border);
     border-radius: 10px;
     text-align: center;
@@ -193,8 +194,8 @@
     padding: 8px 12px;
     border: 1px solid var(--lgu-border);
     border-radius: 7px;
-    background: #fff;
-    color: var(--lgu-dark-green);
+    background: var(--lgu-surface);
+    color: var(--lgu-text);
     font: inherit;
     font-size: 0.85rem;
     font-weight: 700;
@@ -309,7 +310,7 @@
 
 @media (min-width: 1024px) {
     body {
-        background-color: #f4f7f2;
+        background-color: var(--lgu-page);
         display: block;
         overflow: hidden;
     }
@@ -383,7 +384,7 @@
     }
 
     .dashboard-title {
-        color: #1a1a1a;
+        color: var(--lgu-text);
         font-size: 2.5rem;
     }
 
