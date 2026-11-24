@@ -31,10 +31,12 @@ body {
 
 .top-nav {
     background-color: var(--brand-green);
-    padding: 30px 25px 20px 25px;
+    height: 80px;
+    padding: 0 25px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
+    gap: 6px;
     border-bottom-left-radius: 25px;
     border-bottom-right-radius: 25px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -47,7 +49,6 @@ body {
     color: white;
     font-size: 1.5rem;
     font-weight: 700; 
-    padding-left: 8px;
 }
 
 
@@ -118,7 +119,6 @@ body {
     height: 42px;
     align-items: center;
     justify-content: center;
-    margin-right: 2px;
     border: 0;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.18);
@@ -128,8 +128,11 @@ body {
     font-size: 2rem;
     font-weight: 700;
     line-height: 1;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 .back-link[hidden] { display: none; }
+.back-link:hover { background: rgba(255, 255, 255, 0.2); }
+.back-link:active { transform: scale(.96); }
 .back-link:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .section-label { color: var(--lgu-text); font-weight: 700; font-size: 1.5rem; margin: 15px 0 10px 5px; }
 
@@ -286,10 +289,23 @@ body {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
         background-color: transparent;
-        padding: 40px 40px 10px 0;
+        padding: 0 40px 0 0;
         border-radius: 0;
         box-shadow: none;
     }
+
+    .back-link {
+        flex-basis: 44px;
+        width: 44px;
+        height: 44px;
+        border: 1px solid #e4ecdf;
+        border-radius: 14px;
+        background: #f7faf4;
+        color: var(--lgu-dark-green);
+    }
+
+    .back-link:hover { border-color: #d3e2c8; background: #eef5ea; }
+    .back-link:focus-visible { outline-color: rgb(72 116 44 / 30%); }
 
     .dashboard-title {
         color: var(--lgu-text); 

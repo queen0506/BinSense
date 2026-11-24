@@ -247,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBinDetail(bin);
         binSelectionView.style.display = 'none';
         binDetailView.style.display = 'block';
+        backBtn.setAttribute('aria-label', 'Back to bin list');
         backBtn.hidden = false;
     }
 
