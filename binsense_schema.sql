@@ -20,17 +20,35 @@ CREATE TABLE IF NOT EXISTS public.bins (
     id TEXT PRIMARY KEY,
     status TEXT NOT NULL DEFAULT 'available',
     barangay TEXT NOT NULL DEFAULT 'Unassigned',
+    street TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Ensure all mandatory bin columns exist
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS barangay TEXT DEFAULT 'Unassigned';
+ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS street TEXT;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS level INT NOT NULL DEFAULT 0;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS volume INT NOT NULL DEFAULT 0;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS last_sync TIMESTAMPTZ;
 ALTER TABLE public.bins ADD COLUMN IF NOT EXISTS last_collected TIMESTAMPTZ;
+
+CREATE TABLE IF NOT EXISTS public.bin_devices (
+    hardware_id TEXT PRIMARY KEY,
+    bin_id TEXT NOT NULL UNIQUE,
+    device_secret_hash TEXT NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    last_seen_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT bin_devices_bin_id_fkey
+        FOREIGN KEY (bin_id)
+        REFERENCES public.bins(id)
+        ON DELETE CASCADE
+);
+
+ALTER TABLE public.bin_devices ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.bin_devices FROM PUBLIC, anon, authenticated;
 
 CREATE TABLE IF NOT EXISTS public.user_connected_bins (
     id BIGSERIAL PRIMARY KEY,

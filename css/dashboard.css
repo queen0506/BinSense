@@ -825,6 +825,17 @@ table {
     box-shadow: 0 4px 12px rgba(153, 204, 51, 0.15);
 }
 
+#binIdInput[aria-invalid="true"] {
+    border-color: #d32f2f;
+}
+
+.bin-id-error {
+    margin: -10px 0 12px;
+    color: #b42318;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
 #binIdInput::placeholder {
     color: #bbb;
     font-size: 0.9rem;
