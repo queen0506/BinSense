@@ -5,6 +5,8 @@ let wasteChart;
 let trendRequestId = 0;
 let trendRefreshTimer;
 let currentFilter = 'all';
+let collectionCsvAvailable = false;
+let collectionCsvExporting = false;
 
 const manilaDate = new Intl.DateTimeFormat('en', {
     timeZone: 'Asia/Manila',
@@ -23,14 +25,159 @@ initializeLguNotifications(supabase).catch(error => {
 });
 
 function setCollectionCsvAvailability(available) {
+    collectionCsvAvailable = available;
     const button = document.getElementById('exportCollectionCsvBtn');
-    if (button) button.disabled = !available;
+    if (button) button.disabled = !available || collectionCsvExporting;
 }
 
 function escapeCsvField(value) {
     let text = String(value ?? '').replace(/\s+/g, ' ').trim();
     if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
     return `"${text.replace(/"/g, '""')}"`;
+}
+
+function formatBinId(value) {
+    const binId = String(value || '').trim();
+    if (!binId) return 'Unassigned';
+    return binId.startsWith('bin_')
+        ? `Bin #${binId.slice(4)}`
+        : `Bin #${binId}`;
+}
+
+function normalizeBinId(value) {
+    return String(value || '').trim().replace(/^bin_/i, '');
+}
+
+function getBinAddress(record, addresses) {
+    const candidates = [
+        record.bin_id,
+        normalizeBinId(record.bin_id),
+        `bin_${normalizeBinId(record.bin_id)}`
+    ];
+
+    for (const candidate of candidates) {
+        const address = addresses.get(candidate);
+        if (address && address !== 'Location not assigned') return address;
+    }
+    return 'Location not assigned';
+}
+
+async function loadBinAddresses(records) {
+    const ids = [...new Set(records
+        .map(record => record.bin_id)
+        .filter(value => typeof value === 'string' && value.trim()))];
+    const lookupIds = [...new Set(ids.flatMap(binId => [
+        binId,
+        normalizeBinId(binId),
+        `bin_${normalizeBinId(binId)}`
+    ].filter(Boolean)))];
+    const addresses = new Map();
+
+    if (!lookupIds.length) return addresses;
+
+    try {
+        const { data, error } = await supabase.rpc('get_lgu_collection_log_bin_addresses', {
+            p_bin_ids: lookupIds
+        });
+        if (!error) {
+            (data || []).forEach(row => {
+                if (!row?.bin_id || !row?.location_label?.trim()) return;
+                addresses.set(row.bin_id, row.location_label.trim());
+                addresses.set(normalizeBinId(row.bin_id), row.location_label.trim());
+                addresses.set(`bin_${normalizeBinId(row.bin_id)}`, row.location_label.trim());
+            });
+        } else {
+            console.warn('Unable to load collection-log addresses through the secure RPC:', error);
+        }
+    } catch (addressError) {
+        console.warn('Unable to load collection-log addresses through the secure RPC:', addressError);
+    }
+
+    const { data: bins, error: binError } = await supabase
+        .from('bins')
+        .select('id, street, barangay')
+        .in('id', lookupIds);
+    if (binError) {
+        console.warn('Unable to load bin installation addresses:', binError);
+    }
+
+    (bins || []).forEach(bin => {
+        const addressParts = [bin.street, bin.barangay]
+            .map(value => String(value || '').trim())
+            .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+        if (!addressParts.length) return;
+
+        const label = addressParts.join(', ');
+        if (addresses.has(bin.id) ||
+            addresses.has(normalizeBinId(bin.id)) ||
+            addresses.has(`bin_${normalizeBinId(bin.id)}`)) return;
+
+        addresses.set(bin.id, label);
+        addresses.set(normalizeBinId(bin.id), label);
+        addresses.set(`bin_${normalizeBinId(bin.id)}`, label);
+    });
+
+    const { data: connections, error: connectionError } = await supabase
+        .from('user_connected_bins')
+        .select('bin_id, user_id')
+        .in('bin_id', lookupIds);
+    if (connectionError) {
+        console.warn('Unable to load bin citizen connections:', connectionError);
+        return addresses;
+    }
+
+    const userIdsByBin = new Map();
+    (connections || []).forEach(connection => {
+        if (!connection?.bin_id || !connection?.user_id) return;
+        const userIds = userIdsByBin.get(connection.bin_id) || [];
+        userIds.push(connection.user_id);
+        userIdsByBin.set(connection.bin_id, userIds);
+    });
+
+    const uniqueConnections = [];
+    userIdsByBin.forEach((userIds, binId) => {
+        if (new Set(userIds).size !== 1) return;
+        uniqueConnections.push({ binId, userId: userIds[0] });
+    });
+
+    if (!uniqueConnections.length) return addresses;
+
+    const userIds = [...new Set(uniqueConnections.map(connection => connection.userId))];
+    const { data: profiles, error: profileError } = await supabase
+        .from('users')
+        .select('id, role, address_confirmed, house_number, street_name, barangay, city_municipality, province')
+        .in('id', userIds);
+    if (profileError) {
+        console.warn('Unable to load confirmed citizen addresses:', profileError);
+        return addresses;
+    }
+
+    const profilesById = new Map((profiles || []).map(profile => [profile.id, profile]));
+    uniqueConnections.forEach(({ binId, userId }) => {
+        const profile = profilesById.get(userId);
+        if (String(profile?.role || '').trim().toLowerCase() !== 'citizen' ||
+            profile.address_confirmed !== true) return;
+
+        const houseAndStreet = [profile.house_number, profile.street_name]
+            .map(value => String(value || '').trim())
+            .filter(Boolean)
+            .join(' ');
+        const parts = [
+            houseAndStreet,
+            profile.barangay,
+            profile.city_municipality,
+            profile.province
+        ].map(value => String(value || '').trim())
+            .filter(value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value));
+        if (!parts.length) return;
+
+        const label = parts.join(', ');
+        addresses.set(binId, label);
+        addresses.set(normalizeBinId(binId), label);
+        addresses.set(`bin_${normalizeBinId(binId)}`, label);
+    });
+
+    return addresses;
 }
 
 function getLocalDateStamp(date = new Date()) {
@@ -47,42 +194,102 @@ function getCollectionTimeframe(filterType) {
     return labels[filterType] || (filterType.charAt(0).toUpperCase() + filterType.slice(1));
 }
 
-function exportCollectionCsv() {
-    const tableBody = document.getElementById('collectionRecordsBody');
-    if (!tableBody) return;
+function getCollectionStartDate(filterType) {
+    if (filterType === 'all') return null;
 
-    const dataRows = Array.from(tableBody.querySelectorAll('tr')).filter(row =>
-        row.querySelectorAll('td').length === 4
-    );
+    const now = new Date();
+    if (filterType === 'today') {
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    }
+    if (filterType === 'week') {
+        const firstDay = new Date(now);
+        firstDay.setDate(firstDay.getDate() - firstDay.getDay());
+        firstDay.setHours(0, 0, 0, 0);
+        return firstDay.toISOString();
+    }
+    if (filterType === 'month') {
+        return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    }
+    return null;
+}
 
-    if (dataRows.length === 0) {
-        alert('No collection records to export.');
-        return;
+async function fetchAllCollectionRecords(filterType) {
+    const batchSize = 1000;
+    const records = [];
+    let offset = 0;
+    const startDate = getCollectionStartDate(filterType);
+
+    while (true) {
+        const { data, error } = await supabase.rpc('get_lgu_collection_log', {
+            p_start: startDate,
+            p_limit: batchSize,
+            p_offset: offset
+        });
+        if (error) throw error;
+        if (!data?.length) break;
+
+        records.push(...data);
+        offset += data.length;
+        if (data.length < batchSize) break;
     }
 
-    const headers = ['Bin / Barangay', 'Date & Time', 'Actual Collector', 'Registered To'];
-    const rows = dataRows.map(row =>
-        Array.from(row.querySelectorAll('td'))
-            .map(cell => (cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim())
-            .map(escapeCsvField)
-            .join(',')
-    );
+    return records;
+}
 
-    const csvContent = '\uFEFF' + [
-        headers.map(escapeCsvField).join(','),
-        ...rows
-    ].join('\r\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+async function exportCollectionCsv() {
+    if (collectionCsvExporting) return;
 
-    link.href = url;
-    const timeframe = getCollectionTimeframe(currentFilter);
-    link.download = `BinSense_CollectionLog_${timeframe}_${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    collectionCsvExporting = true;
+    setCollectionCsvAvailability(collectionCsvAvailable);
+    try {
+        const filterType = currentFilter;
+        const records = await fetchAllCollectionRecords(filterType);
+        if (records.length === 0) {
+            alert('No collection records to export.');
+            return;
+        }
+
+        const addresses = new Map();
+        for (let index = 0; index < records.length; index += 150) {
+            const batchAddresses = await loadBinAddresses(records.slice(index, index + 150));
+            batchAddresses.forEach((address, binId) => addresses.set(binId, address));
+        }
+
+        const headers = ['Bin ID', 'Bin Address', 'Date & Time', 'Actual Collector', 'Registered To'];
+        const rows = records.map(record => {
+            const date = new Date(record.collected_at);
+            const dateTime = `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+            return [
+                formatBinId(record.bin_id),
+                getBinAddress(record, addresses),
+                dateTime,
+                record.actual_collector_name,
+                record.registered_to
+            ].map(escapeCsvField).join(',');
+        });
+
+        const csvContent = '\uFEFF' + [
+            headers.map(escapeCsvField).join(','),
+            ...rows
+        ].join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = url;
+        const timeframe = getCollectionTimeframe(filterType);
+        link.download = `BinSense_CollectionLog_${timeframe}_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) {
+        console.error('Collection CSV export failed:', error);
+        alert('CSV export failed. Please try again.');
+    } finally {
+        collectionCsvExporting = false;
+        setCollectionCsvAvailability(collectionCsvAvailable);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -102,25 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateFilter = document.getElementById('dateFilter').value;
         const tbody = document.getElementById('collectionRecordsBody');
         setCollectionCsvAvailability(false);
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888; padding: 20px;">Loading records...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888; padding: 20px;">Loading records...</td></tr>';
 
         const from = (currentPage - 1) * pageSize;
-        const to = from + pageSize - 1;
-        let startDate = null;
-
-        if (dateFilter !== 'all') {
-            const now = new Date();
-            if (dateFilter === 'today') {
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-            } else if (dateFilter === 'week') {
-                const firstDay = new Date(now);
-                firstDay.setDate(firstDay.getDate() - firstDay.getDay());
-                firstDay.setHours(0, 0, 0, 0);
-                startDate = firstDay.toISOString();
-            } else if (dateFilter === 'month') {
-                startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-            }
-        }
+        const startDate = getCollectionStartDate(dateFilter);
 
         const { data, error } = await supabase.rpc('get_lgu_collection_log', {
             p_start: startDate,
@@ -129,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (error) {
             console.error('Failed to load records:', error);
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ff4444;">Failed to load records.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff4444;">Failed to load records.</td></tr>';
             return;
         }
 
@@ -137,26 +329,30 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePaginationUI();
 
         if (!data?.length) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888; padding: 20px;">No collection records found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888; padding: 20px;">No collection records found.</td></tr>';
             return;
         }
 
-        tbody.innerHTML = data.map(rec => {
-            const brgyName = escapeHtml(rec.barangay || '');
-            const binInfo = rec.bin_id
-                ? `${escapeHtml(rec.bin_id)} <br><span style="color:#888; font-size:0.75rem;">${brgyName}</span>`
-                : (brgyName ? `<span style="color:#48742C;">Brgy. ${brgyName}</span>` : 'Unassigned');
+        let addresses;
+        try {
+            addresses = await loadBinAddresses(data);
+        } catch (addressError) {
+            console.error('Failed to load bin addresses:', addressError);
+            addresses = new Map();
+        }
 
+        tbody.innerHTML = data.map(rec => {
             const dateObj = new Date(rec.collected_at);
             const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
             return `
                 <tr>
-                    <td style="font-weight: 600;">${binInfo}</td>
-                    <td>${dateStr} <br><span style="color:#888; font-size:0.75rem;">${timeStr}</span></td>
-                    <td><span class="actual-name">${escapeHtml(rec.actual_collector_name)}</span></td>
-                    <td><span class="registered-name">${escapeHtml(rec.registered_to)}</span></td>
+                    <td data-label="Bin ID" class="bin-id-cell" style="font-weight: 700;">${escapeHtml(formatBinId(rec.bin_id))}</td>
+                    <td data-label="Bin Address" class="bin-address-cell">${escapeHtml(getBinAddress(rec, addresses))}</td>
+                    <td data-label="Date & Time">${dateStr} <br><span style="color:#888; font-size:0.75rem;">${timeStr}</span></td>
+                    <td data-label="Actual Collector"><span class="actual-name">${escapeHtml(rec.actual_collector_name)}</span></td>
+                    <td data-label="Registered To"><span class="registered-name">${escapeHtml(rec.registered_to)}</span></td>
                 </tr>
             `;
         }).join('');
