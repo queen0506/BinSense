@@ -126,24 +126,30 @@ async function loadConnectedCitizenLocationLabels(binIds) {
         connectionsByBinId.set(connection.bin_id, matchingConnections);
     }
 
-    const uniqueConnections = binIds.flatMap(binId => {
-        const matchingConnections = getBinIdVariants(binId)
-            .flatMap(variant => connectionsByBinId.get(variant) || []);
-        return matchingConnections.length === 1
-            ? [{ binId, userId: matchingConnections[0].user_id }]
-            : [];
-    });
-    const uniqueUserIds = [...new Set(uniqueConnections.map(connection => connection.userId))];
-    if (uniqueUserIds.length === 0) return labels;
+    const userIds = [...new Set(
+        (connections || []).map(connection => connection.user_id).filter(Boolean)
+    )];
+    if (userIds.length === 0) return labels;
 
     const { data: profiles, error: profileError } = await supabase
         .from('users')
         .select('id, role, address_confirmed, house_number, street_name, barangay, city_municipality, province')
-        .in('id', uniqueUserIds);
+        .in('id', userIds);
     if (profileError) throw profileError;
 
     const profilesById = new Map((profiles || []).map(profile => [profile.id, profile]));
-    for (const { binId, userId } of uniqueConnections) {
+    const uniqueCitizenConnections = binIds.flatMap(binId => {
+        const citizenConnections = getBinIdVariants(binId)
+            .flatMap(variant => connectionsByBinId.get(variant) || [])
+            .filter(connection =>
+                String(profilesById.get(connection.user_id)?.role || '').trim().toLowerCase() === 'citizen'
+            );
+        return citizenConnections.length === 1
+            ? [{ binId, userId: citizenConnections[0].user_id }]
+            : [];
+    });
+
+    for (const { binId, userId } of uniqueCitizenConnections) {
         const addressLabel = getConfirmedCitizenAddressLabel(profilesById.get(userId));
         if (addressLabel) labels.set(binId, addressLabel);
     }
