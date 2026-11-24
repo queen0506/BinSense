@@ -1,556 +1,617 @@
-:root {
-    --lgu-green: #99cc33;
-    --lgu-green-dark: #88b72e;
-    --lgu-dark-green: #48742C;
-    --lgu-text: #333;
-    --lgu-muted: #888;
-    --lgu-surface: #FFFFFF;
-    --lgu-page: #F0F0F0;
-    --lgu-border: #E2E8F0;
-    --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
-    --radius-sm: 12px;
-    --radius-md: 20px;
-    --radius-lg: 25px;
-    --radius-xl: 35px;
-    --radius-2xl: 35px;
+body.citizen-about-page {
+    --brand-green: #99cc33;
+    --brand-green-dark: #48742C;
+    --page-surface: #F0F0F0;
+    --line: #E2E8F0;
+    --ink: #333;
+    --muted: #6f786d;
+    display: flex;
+    min-height: 100vh;
+    min-height: 100dvh;
+    align-items: flex-start;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: linear-gradient(180deg, #f8faf8 0%, var(--page-surface) 100%);
+    color: var(--ink);
+    font-family: 'Reddit Sans', sans-serif;
 }
 
-/* Reset */
-*,
-*::before,
-*::after {
+.citizen-about-page,
+.citizen-about-page * {
     box-sizing: border-box;
+}
+
+.citizen-about-page * {
     margin: 0;
     padding: 0;
 }
 
-html {
-    -webkit-text-size-adjust: 100%;
-}
-
-body {
-    font-family: 'Reddit Sans', sans-serif;
-    background-color: var(--lgu-page);
-    color: var(--lgu-text);
+.citizen-about-page .mobile-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    min-height: 100dvh;
-    overflow-x: hidden;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* Mobile base (0 – 600px) */
-.mobile-container {
     width: 100%;
-    max-width: 414px;
+    max-width: 1160px;
     height: 100vh;
     height: 100dvh;
-    background-color: #fff;
-    display: flex;
     flex-direction: column;
     overflow: hidden;
     margin: 0 auto;
+    background: #fff;
 }
 
-/* Header */
-.top-nav {
-    background-color: var(--lgu-green); 
-    padding: 35px 20px 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom-left-radius: var(--radius-xl);
-    border-bottom-right-radius: var(--radius-xl);
-    position: relative;
-    z-index: 1000;
+.citizen-about-page .top-nav {
+    z-index: 1;
     flex-shrink: 0;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) clamp(18px, 4vw, 40px) 14px;
+    border-bottom: 1px solid #e8eee4;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(48, 65, 43, 0.045);
 }
 
-.top-nav > * {
-    flex: 1;
-}
-
-.top-nav > *:first-child {
-    text-align: left;
-}
-
-.top-nav > *:last-child {
-    text-align: right;
-}
-
-.back-btn {
-    color: #ffffff;
-    font-size: 24px;
-    cursor: pointer;
-    font-weight: bold;
-    line-height: 1;
-    background: none;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 8px;
-    transition: background 0.15s ease;
-    display: inline-block;
-}
-
-.back-btn:hover,
-.back-btn:focus-visible {
-    background: rgba(255, 255, 255, 0.2);
-    outline: none;
-}
-
-.page-title {
-    color: #ffffff;
-    font-size: 1.25rem; /* Increased */
-    font-weight: 600;
-    text-align: center;
-    margin: 0;
-}
-
-/* Main scrollable area */
-.main-content {
-    flex: 1;
-    min-height: 0;
-    padding: 0 30px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Graphic */
-.graphic-section {
-    padding: 20px 0;
-    text-align: center;
-    margin-top: 40px; 
-}
-
-.center-graphic {
-    width: 180px; 
-    max-width: 100%;
-    height: auto;
+.citizen-about-page .header-content {
+    display: grid;
+    width: min(100%, 1040px);
+    min-height: 48px;
+    grid-template-columns: 44px minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: 14px;
     margin: 0 auto;
 }
 
-/* About card */
-.about-card {
-    width: 100%;
-    min-width: 0;
+.citizen-about-page .back-btn {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 1px solid #e4ecdf;
+    border-radius: 14px;
+    background: #f7faf4;
+    color: var(--brand-green-dark);
+    cursor: pointer;
+    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-/* Description */
-.description-box {
-    margin-bottom: 30px;
+.citizen-about-page .back-btn svg {
+    width: 20px;
+    height: 20px;
 }
 
-.description-box p {
-    font-size: 0.95rem; /* Increased */
-    color: #777; 
-    line-height: 1.6;
-    text-align: justify; 
-}
-
-.description-box strong {
-    color: var(--lgu-dark-green);
-}
-
-/* Contact section */
-.contact-section {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-.section-title {
-    color: var(--lgu-dark-green);
-    font-size: 1.35rem; /* Increased */
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.section-subtitle {
-    font-size: 0.9rem; /* Increased */
-    color: var(--lgu-muted);
-    margin-bottom: 15px;
-    line-height: 1.5;
-}
-
-.contact-card {
-    background-color: #f9f9f9;
-    border-radius: 15px;
-    padding: 20px;
-    border: 1px solid #f0f0f0;
-    min-width: 0;
-}
-
-.contact-info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.contact-info-row:last-child {
-    margin-bottom: 0;
-}
-
-.info-label {
-    font-size: 0.9rem; /* Increased */
-    font-weight: 700;
-    color: #6a7b8a;
-    text-transform: uppercase;
-    flex-shrink: 0;
-}
-
-.info-value {
-    font-size: 1rem; /* Increased */
-    color: #333;
-    text-align: right;
-    overflow-wrap: anywhere;
-    min-width: 0;
-}
-
-/* Button */
-.button-container {
-    margin: 40px 0;
-    width: 100%;
-}
-
-.btn-primary {
-    display: block;
-    width: 100%;
-    background-color: var(--lgu-green);
-    color: #fff;
-    padding: 16px;
-    border-radius: var(--radius-sm);
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem; /* Increased */
-    text-align: center;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-    box-shadow: 0 4px 12px rgba(153, 204, 51, 0.2);
-}
-
-.btn-primary:hover,
-.btn-primary:focus-visible {
-    background-color: var(--lgu-green-dark);
+.citizen-about-page .back-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 18px rgba(153, 204, 51, 0.3);
-    outline: none;
+    background: #eef5ea;
+    box-shadow: 0 4px 10px rgba(72, 116, 44, 0.12);
 }
 
-.btn-primary:active {
-    transform: scale(0.98);
+.citizen-about-page .back-btn:active {
+    transform: scale(0.96);
 }
 
-/* Small phone adjustments */
-@media (max-width: 600px) {
-    .main-content {
-        padding: 0 24px;
-    }
-
-    .graphic-section {
-        margin-top: 30px; 
-    }
-
-    .center-graphic {
-        width: 160px;
-    }
+.citizen-about-page .back-btn:focus-visible {
+    outline: 3px solid rgba(72, 116, 44, 0.28);
+    outline-offset: 3px;
 }
 
-/* Tablet (601px – 1023px) */
-@media (min-width: 601px) and (max-width: 1023px) {
-    body {
-        background-color: #f4f7f2;
-        align-items: flex-start;
-        padding: 30px 20px;
-    }
-
-    .mobile-container {
-        width: min(100%, 860px);
-        max-width: 860px;
-        height: auto;
-        min-height: calc(100vh - 60px);
-        min-height: calc(100dvh - 60px);
-        border-radius: var(--radius-md);
-        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.12);
-        overflow: hidden;
-        background-color: #fff;
-    }
-
-    .top-nav {
-        padding: 32px 40px 24px;
-    }
-
-    .main-content {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
-        gap: 32px;
-        align-items: start;
-        padding: 40px;
-        overflow-y: visible;
-    }
-
-    .graphic-section {
-        background: #fff;
-        border-radius: var(--radius-lg);
-        padding: 40px 20px;
-        box-shadow: var(--lgu-shadow);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 320px;
-        margin-top: 0; 
-    }
-
-    .center-graphic {
-        width: 100%;
-        max-width: 220px;
-    }
-
-    .about-card {
-        padding-top: 10px;
-    }
-
-    .description-box p {
-        font-size: 1.1rem; /* Increased for tablet */
-    }
-
-    .page-title {
-        font-size: 1.6rem; /* Increased for tablet */
-    }
-}
-
-/* Desktop (1024px+) */
-@media (min-width: 1024px) {
-    body {
-        background-color: #f8faf8;
-        display: flex;
-        justify-content: center;
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        min-height: 100dvh;
-        overflow-x: hidden;
-    }
-
-    .mobile-container {
-        max-width: 100%;
-        width: 100vw;
-        height: 100vh;
-        height: 100dvh;
-        background-color: transparent;
-        display: grid;
-        grid-template-columns: 140px minmax(0, 1fr);
-        grid-template-rows: auto minmax(0, 1fr);
-        box-shadow: none;
-        overflow: hidden;
-    }
-
-    /* Sidebar pill */
-    .bottom-nav {
-        grid-column: 1 / 2;
-        grid-row: 1 / 3;
-        position: relative;
-        height: calc(100vh - 80px);
-        width: 85px;
-        background-color: var(--lgu-green);
-        margin: 40px auto;
-        padding: 0;
-        border-radius: 100px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.08);
-        min-height: 0;
-    }
-
-    .nav-icons-container {
-        display: flex;
-        flex-direction: column;
-        gap: 35px;
-        align-items: center;
-    }
-
-    .nav-link.active {
-        background-color: #fff !important;
-        border-radius: 50%;
-        width: 55px;
-        height: 55px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        padding: 0;
-    }
-
-    .icon-30 {
-        width: 30px !important;
-        height: 30px !important;
-    }
-
-    .nav-link.active .icon-30 {
-        filter: invert(56%) sepia(57%) saturate(464%) hue-rotate(42deg) brightness(91%) contrast(88%) !important;
-    }
-
-    .nav-icons-container a:not(.active) .icon-30 {
-        filter: brightness(0) invert(1);
-    }
-
-    /* Header */
-    .top-nav {
-        grid-column: 2 / 3;
-        grid-row: 1 / 2;
-        background-color: transparent;
-        padding: 50px 80px 20px 40px;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 15px;
-        border-radius: 0;
-    }
-
-    .top-nav > * {
-        flex: none;
-    }
-
-    .back-btn {
-        color: #333;
-        font-size: 24px;
-    }
-
-    .page-title {
-        color: #2d3436;
-        font-size: 2.4rem; /* Increased for desktop */
-        font-weight: 800;
-        margin: 0;
-        text-align: left;
-    }
-
-    /* Two-column content layout */
-    .main-content {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
-        display: grid;
-        grid-template-columns: 380px minmax(0, 1fr);
-        gap: 60px;
-        padding: 40px 80px 40px 40px; 
-        overflow-y: auto;
-        align-items: start;
-        min-height: 0;
-    }
-
-    /* Logo card (left column) */
-    .graphic-section {
-        background-color: #fff;
-        border-radius: var(--radius-2xl);
-        padding: 60px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
-        border: 1px solid #f0f0f0;
-        height: calc(100vh - 240px); 
-        min-height: 400px;
-        max-height: 600px;
-        position: sticky;
-        top: 0;
-        margin-top: 0; 
-    }
-
-    .center-graphic {
-        width: 100%;
-        max-width: 250px;
-    }
-
-    /* Text column (right) */
-    .about-card {
-        padding-top: 20px;
-        min-width: 0;
-    }
-
-    .description-box {
-        margin-bottom: 30px;
-    }
-
-    .description-box p {
-        font-size: 1.25rem; /* Increased for desktop */
-        color: #555;
-        line-height: 1.8;
-        margin-bottom: 30px;
-    }
-
-    /* Contact card */
-    .contact-card {
-        background-color: #fff;
-        border-radius: 30px;
-        padding: 30px 40px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02);
-        border: 1px solid #f2f2f2;
-        margin: 20px 0 40px;
-    }
-
-    .contact-info-row {
-        padding: 12px 0; /* Slightly more padding */
-        border-bottom: 1px solid #f9f9f9;
-        margin-bottom: 0;
-    }
-
-    .contact-info-row:last-child {
-        border-bottom: none;
-    }
-
-    .info-label {
-        font-size: 0.95rem; /* Increased for desktop */
-    }
-
-    .info-value {
-        font-weight: 500;
-        font-size: 1.05rem; /* Increased for desktop */
-        color: #2d3436;
-    }
-
-    /* Button */
-    .button-container {
-        margin: 0;
-    }
-
-    .btn-primary {
-        width: fit-content;
-        min-width: 240px;
-        padding: 18px 40px;
-        transition: all 0.3s ease;
-        font-size: 1.1rem; /* Increased for desktop */
-    }
-
-    .btn-primary:hover {
-        background-color: var(--lgu-green-dark);
-        transform: translateY(-2px);
-    }
-}
-
-/* Shared polish */
-.white-card,
-.summary-card,
-.chart-container,
-.chart-container-box,
-.report-card,
-.log-card,
-.bin-card {
+.citizen-about-page .header-title-group {
     min-width: 0;
-    box-shadow: var(--lgu-shadow-lg);
 }
 
-.table-container,
-.table-wrapper,
-.logs-container,
-.data-table-container {
+.citizen-about-page .header-eyebrow,
+.citizen-about-page .brand-eyebrow,
+.citizen-about-page .section-eyebrow {
+    display: block;
+    color: var(--brand-green-dark);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+}
+
+.citizen-about-page .page-title {
+    margin-top: 2px;
+    color: #2d3436;
+    font-size: clamp(1.12rem, 2.4vw, 1.4rem);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.citizen-about-page .header-mark {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid #e5eddf;
+    border-radius: 14px;
+    background: #f5f9f1;
+    color: var(--brand-green-dark);
+}
+
+.citizen-about-page .header-mark svg {
+    width: 21px;
+    height: 21px;
+}
+
+.citizen-about-page svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.citizen-about-page img {
+    display: block;
     max-width: 100%;
-    overflow-x: auto;
+    height: auto;
+}
+
+.citizen-about-page .main-content {
+    flex: 1;
+    min-height: 0;
+    padding: clamp(20px, 4vw, 40px) clamp(16px, 4vw, 40px) 36px;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.citizen-about-page .about-page-content {
+    width: min(100%, 1000px);
+    margin: 0 auto;
+}
+
+.citizen-about-page .brand-showcase {
+    position: relative;
+    display: grid;
+    min-height: 240px;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    overflow: hidden;
+    padding: clamp(28px, 5vw, 54px);
+    border: 1px solid #e5eddf;
+    border-radius: 26px;
+    background: linear-gradient(112deg, #eef5ea 0%, #f8faf6 54%, #fff 100%);
+    box-shadow: 0 12px 32px rgba(48, 65, 43, 0.065);
+}
+
+.citizen-about-page .brand-showcase::after {
+    position: absolute;
+    top: -150px;
+    right: -120px;
+    width: 380px;
+    height: 380px;
+    border: 1px solid rgba(72, 116, 44, 0.08);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(153, 204, 51, 0.1), rgba(153, 204, 51, 0) 68%);
+    content: "";
+    pointer-events: none;
+}
+
+.citizen-about-page .brand-copy {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    max-width: 760px;
+}
+
+.citizen-about-page .brand-eyebrow {
+    margin-bottom: 12px;
+    font-size: 0.72rem;
+}
+
+.citizen-about-page .brand-title {
+    max-width: 510px;
+    color: #2d3436;
+    font-size: clamp(1.75rem, 3.4vw, 2.65rem);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+}
+
+.citizen-about-page .brand-copy > p {
+    max-width: 430px;
+    margin-top: 15px;
+    color: #596356;
+    font-size: 1rem;
+    line-height: 1.65;
+}
+
+.citizen-about-page .city-tag {
+    display: inline-flex;
+    width: fit-content;
+    max-width: 100%;
+    min-height: 36px;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 7px 12px;
+    border: 1px solid #dfe9d7;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--brand-green-dark);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.citizen-about-page .city-tag > span {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow-wrap: anywhere;
+}
+
+.citizen-about-page .city-tag svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    margin-top: 1px;
+}
+
+.citizen-about-page .about-card {
+    margin-top: 22px;
+    padding: clamp(24px, 4vw, 38px);
+    border: 1px solid #e7ece4;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(48, 65, 43, 0.055);
+}
+
+.citizen-about-page .description-box {
+    max-width: 880px;
+}
+
+.citizen-about-page .section-eyebrow {
+    margin-bottom: 8px;
+}
+
+.citizen-about-page .section-title {
+    color: #2d3436;
+    font-size: clamp(1.25rem, 2.5vw, 1.7rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+
+.citizen-about-page .description-box p {
+    margin-top: 15px;
+    color: #5f685d;
+    font-size: 1rem;
+    line-height: 1.8;
+    text-align: left;
+}
+
+.citizen-about-page .description-box strong {
+    color: var(--brand-green-dark);
+    font-weight: 700;
+}
+
+.citizen-about-page .feature-section {
+    margin-top: 30px;
+    padding-top: 27px;
+    border-top: 1px solid #e9eee6;
+}
+
+.citizen-about-page .feature-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.citizen-about-page .feature-heading-mark {
+    width: 42px;
+    height: 4px;
+    flex: 0 0 auto;
+    border-radius: 99px;
+    background: var(--brand-green);
+    box-shadow: 12px 0 0 #dceacb, 24px 0 0 #edf4e5;
+}
+
+.citizen-about-page .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.citizen-about-page .feature-card {
+    min-width: 0;
+    padding: 19px;
+    border: 1px solid #e7ece4;
+    border-radius: 17px;
+    background: #fbfcfa;
+    transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
+}
+
+.citizen-about-page .feature-card:hover {
+    transform: translateY(-2px);
+    border-color: #d3e2c8;
+    box-shadow: 0 8px 18px rgba(48, 65, 43, 0.07);
+}
+
+.citizen-about-page .feature-icon {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    margin-bottom: 14px;
+    border: 1px solid #e1ebd9;
+    border-radius: 13px;
+    background: #f1f7eb;
+    color: var(--brand-green-dark);
+}
+
+.citizen-about-page .feature-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.citizen-about-page .feature-card h3 {
+    color: #394239;
+    font-size: 0.98rem;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.citizen-about-page .feature-card p {
+    margin-top: 7px;
+    color: #697367;
+    font-size: 0.87rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+    .citizen-about-page .mobile-container {
+        max-width: none;
+    }
+
+    .citizen-about-page .header-content {
+        grid-template-columns: 44px minmax(0, 1fr) 36px;
+        gap: 10px;
+    }
+
+    .citizen-about-page .header-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+    }
+
+    .citizen-about-page .header-mark svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .citizen-about-page .main-content {
+        padding: 18px 16px max(24px, env(safe-area-inset-bottom, 0px));
+    }
+
+    .citizen-about-page .brand-showcase {
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 18px;
+        border-radius: 21px;
+    }
+
+    .citizen-about-page .brand-eyebrow {
+        margin-bottom: 8px;
+        font-size: 0.64rem;
+    }
+
+    .citizen-about-page .brand-title {
+        font-size: clamp(1.55rem, 7vw, 2rem);
+    }
+
+    .citizen-about-page .brand-copy > p {
+        margin-top: 10px;
+        font-size: 0.93rem;
+    }
+
+    .citizen-about-page .city-tag {
+        margin-top: 14px;
+    }
+
+    .citizen-about-page .about-card {
+        margin-top: 16px;
+        padding: 22px 19px;
+        border-radius: 20px;
+    }
+
+    .citizen-about-page .description-box p {
+        margin-top: 12px;
+        font-size: 0.96rem;
+        line-height: 1.72;
+    }
+
+    .citizen-about-page .feature-section {
+        margin-top: 23px;
+        padding-top: 22px;
+    }
+
+    .citizen-about-page .feature-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .citizen-about-page .feature-card {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+        column-gap: 12px;
+        padding: 14px;
+        border-radius: 15px;
+    }
+
+    .citizen-about-page .feature-icon {
+        grid-row: 1 / span 2;
+        margin: 1px 0 0;
+    }
+
+    .citizen-about-page .feature-card p {
+        margin-top: 3px;
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1023.98px) {
+    body.citizen-about-page {
+        padding: 24px 20px;
+    }
+
+    .citizen-about-page .mobile-container {
+        width: min(100%, 900px);
+        height: auto;
+        min-height: calc(100dvh - 48px);
+        border-radius: 24px;
+        box-shadow: 0 18px 48px rgba(48, 65, 43, 0.1);
+    }
+
+    .citizen-about-page .main-content {
+        overflow: visible;
+    }
+
+    .citizen-about-page .brand-showcase {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 34px;
+    }
+
+    .citizen-about-page .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    body.citizen-about-page {
+        padding: 40px 24px;
+    }
+
+    .citizen-about-page .mobile-container {
+        width: min(100%, 1160px);
+        height: auto;
+        min-height: calc(100dvh - 80px);
+        border-radius: 26px;
+        box-shadow: 0 22px 60px rgba(48, 65, 43, 0.1);
+    }
+
+    .citizen-about-page .top-nav {
+        padding-right: 48px;
+        padding-left: 48px;
+    }
+
+    .citizen-about-page .main-content {
+        padding: 34px 48px 44px;
+        overflow: visible;
+    }
+}
+
+@media (max-width: 350px) {
+    .citizen-about-page .header-content {
+        grid-template-columns: 40px minmax(0, 1fr) 32px;
+        gap: 8px;
+    }
+
+    .citizen-about-page .back-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .citizen-about-page .header-mark {
+        width: 32px;
+        height: 32px;
+    }
+
+    .citizen-about-page .header-eyebrow {
+        font-size: 0.6rem;
+    }
+
+    .citizen-about-page .page-title {
+        font-size: 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .citizen-about-page *,
+    .citizen-about-page *::before,
+    .citizen-about-page *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Standardized Citizen Settings header */
+.citizen-about-page .top-nav {
+    min-height: 72px;
+    height: auto;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) clamp(18px, 4vw, 40px) 10px;
+}
+
+.citizen-about-page .header-content {
+    position: relative;
+    min-height: 48px;
+}
+
+.citizen-about-page .back-btn {
+    display: grid;
+    position: static;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    padding: 0;
+    appearance: none;
+    border: 1px solid #e4ecdf;
+    border-radius: 14px;
+    background: #f7faf4;
+    color: var(--brand-green-dark);
+    font-size: 0;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.citizen-about-page .back-btn:hover {
+    transform: translateY(-1px);
+    background: #eef5ea;
+    box-shadow: 0 4px 10px rgba(72, 116, 44, 0.12);
+}
+
+.citizen-about-page .back-btn:active {
+    transform: scale(0.96);
+}
+
+.citizen-about-page .header-title-group {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100% - 112px);
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.citizen-about-page .header-eyebrow,
+.citizen-about-page .page-title {
+    width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.citizen-about-page .page-title {
+    margin-top: 2px;
+    font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+    line-height: 1.25;
+    text-align: center;
+}
+
+.citizen-about-page .header-mark {
+    grid-column: 3;
+    justify-self: end;
+}
+
+@media (max-width: 350px) {
+    .citizen-about-page .header-content {
+        grid-template-columns: 44px minmax(0, 1fr) 36px;
+        gap: 8px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .citizen-about-page .top-nav {
+        padding-right: 48px;
+        padding-left: 48px;
+    }
 }

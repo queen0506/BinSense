@@ -11,60 +11,126 @@
     <!-- IMPORTANT: your path -->
     <script type="module" src="../js/security.js"></script>
 </head>
-<body>
+<body class="citizen-security-page">
 
 <div class="mobile-container">
 
-    <!-- NAV -->
-    <div class="top-nav">
+    <header class="top-nav">
         <div class="header-content">
-            <span class="back-btn" id="back-btn">←</span>
-            <h1 class="page-title">Privacy & Security</h1>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="card">
-
-            <!-- PASSWORD -->
-            <h2 class="section-title">Password</h2>
-            <p class="section-desc">
-                Change your password and manage your account security.
-            </p>
-
-            <div class="input-group">
-                <label>Current password</label>
-                <input type="password" id="current-password">
-            </div>
-
-            <div class="input-group">
-                <label>New password</label>
-                <input type="password" id="new-password">
-            </div>
-
-            <div class="input-group">
-                <label>Confirm password</label>
-                <input type="password" id="confirm-password">
-            </div>
-
-            <button id="change-password-btn" class="btn-primary">
-                Change Password
+            <button type="button" class="back-btn" id="back-btn" aria-label="Go back">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M19 12H5M12 19l-7-7 7-7"></path>
+                </svg>
             </button>
-
-            <hr class="divider">
-
-            <!-- DELETE -->
-            <h2 class="section-title">Delete Account</h2>
-            <p class="section-desc">
-                Permanently remove your account and all associated data from BinSense.
-            </p>
-
-            <button id="delete-account-trigger" class="btn-primary">
-                Delete Account
-            </button>
-
+            <div class="header-title-group">
+                <span class="header-eyebrow">ACCOUNT SETTINGS</span>
+                <h1 class="page-title">Privacy &amp; Security</h1>
+            </div>
+            <span class="header-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M12 3 19 6v5c0 4.7-2.9 8-7 10-4.1-2-7-5.3-7-10V6l7-3Z"></path>
+                    <path d="m9 12 2 2 4-4"></path>
+                </svg>
+            </span>
         </div>
-    </div>
+    </header>
+
+    <main class="main-content">
+        <div class="security-content">
+            <section class="security-intro" aria-label="Account security overview">
+                <span class="security-intro-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M12 3 19 6v5c0 4.7-2.9 8-7 10-4.1-2-7-5.3-7-10V6l7-3Z"></path>
+                        <path d="M9.5 12V10a2.5 2.5 0 0 1 5 0v2"></path>
+                        <rect x="8" y="12" width="8" height="6" rx="1.5"></rect>
+                    </svg>
+                </span>
+                <div class="security-intro-copy">
+                    <span class="security-eyebrow">YOUR ACCOUNT, YOUR CONTROL</span>
+                    <h2 class="security-intro-title">A safer account starts here</h2>
+                    <p>Manage your sign-in password or review your account removal options.</p>
+                </div>
+                <span class="security-intro-decoration" aria-hidden="true"></span>
+            </section>
+
+            <div class="security-panels">
+                <section class="card password-card">
+                    <div class="section-heading">
+                        <span class="section-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <rect x="5" y="10" width="14" height="11" rx="2"></rect>
+                                <path d="M8 10V7a4 4 0 1 1 8 0v3M12 14v3"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <span class="section-eyebrow">SIGN-IN CREDENTIALS</span>
+                            <h2 class="section-title">Password</h2>
+                        </div>
+                        <span class="section-index" aria-hidden="true">01</span>
+                    </div>
+                    <p class="section-desc">
+                        Enter your current password, then choose and confirm a new one.
+                    </p>
+
+                    <div class="field-grid">
+                        <div class="input-group current-password-group">
+                            <label for="current-password">Current password</label>
+                            <input type="password" id="current-password">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="new-password">New password</label>
+                            <input type="password" id="new-password">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="confirm-password">Confirm password</label>
+                            <input type="password" id="confirm-password">
+                        </div>
+                    </div>
+
+                    <button id="change-password-btn" class="btn-primary">
+                        <span>Change Password</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M5 12h14M13 6l6 6-6 6"></path>
+                        </svg>
+                    </button>
+                </section>
+
+                <section class="card delete-card">
+                    <div class="section-heading">
+                        <span class="section-icon delete-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>
+                            </svg>
+                        </span>
+                        <div>
+                            <span class="section-eyebrow">ACCOUNT OPTIONS</span>
+                            <h2 class="section-title">Delete Account</h2>
+                        </div>
+                    </div>
+                    <p class="section-desc">
+                        Deleting your account permanently removes your account and associated BinSense data.
+                    </p>
+
+                    <div class="delete-note">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M12 3 22 20H2L12 3Z"></path>
+                            <path d="M12 9v5M12 17h.01"></path>
+                        </svg>
+                        <p><strong>This action cannot be undone.</strong> You will be asked to confirm before deletion.</p>
+                    </div>
+
+                    <button id="delete-account-trigger" class="btn-primary">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"></path>
+                        </svg>
+                        <span>Delete Account</span>
+                    </button>
+                </section>
+            </div>
+        </div>
+    </main>
 
 </div>
 

@@ -270,3 +270,27 @@ input::placeholder { color: #BBB; }
 
 .modal-btn:hover { background-color: #8CC63F; }
 .modal-btn:active { transform: scale(0.97); }
+
+@media screen and (max-width: 767px) and (max-height: 700px) {
+    html.citizen-auth-page,
+    html.citizen-auth-page body {
+        height: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    html.citizen-auth-page body {
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    html.citizen-auth-page .mobile-container {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    html.citizen-auth-page .content-card {
+        flex-shrink: 0;
+    }
+}

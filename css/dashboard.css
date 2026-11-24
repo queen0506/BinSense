@@ -1614,3 +1614,59 @@ table {
 
 .bin-notice-btn:hover  { background-color: #e68900; }
 .bin-notice-btn:active { transform: scale(0.97); }
+
+/* Keep Citizen overlays within the visible viewport. */
+.notification-panel {
+    position: fixed;
+    max-height: min(500px, calc(100vh - 40px));
+    max-height: min(500px, calc(100dvh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+}
+
+.notification-list {
+    min-height: 0;
+}
+
+.modal-content {
+    max-height: min(90vh, calc(100vh - 40px));
+    max-height: min(90dvh, calc(100dvh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+    overscroll-behavior: contain;
+}
+
+.bin-success-box,
+.bin-notice-box {
+    max-height: calc(100vh - 40px);
+    max-height: calc(100dvh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+@media (max-width: 600px) {
+    .notification-panel {
+        width: min(88vw, 364px);
+        max-width: calc(100vw - 32px);
+    }
+}
+
+@media (min-width: 601px) and (max-width: 1023.98px) {
+    .mobile-container {
+        height: calc(100vh - 40px);
+        height: calc(100dvh - 40px);
+    }
+
+    .notification-panel {
+        max-height: min(600px, calc(100vh - 40px));
+        max-height: min(600px, calc(100dvh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+    }
+}
+
+@media (max-width: 1023.98px) {
+    .bottom-nav {
+        margin-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    }
+}
+
+@media (min-width: 1024px) {
+    .notification-panel {
+        max-height: min(80vh, calc(100dvh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+    }
+}

@@ -59,22 +59,9 @@ body {
 }
 
 .profile-heading {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.profile-avatar {
-    width: 52px;
-    height: 52px;
-    flex: 0 0 52px;
-    display: grid;
-    place-items: center;
-    border-radius: 16px;
-    background: var(--green);
-    color: #fff;
-    font-weight: 700;
+    display: block;
+    margin-bottom: 18px;
+    padding: 0 2px;
 }
 
 .profile-eyebrow {
@@ -219,4 +206,110 @@ body {
 @media (min-width: 900px) {
     .main-content { padding: 34px 24px 60px; }
     .mobile-container { min-height: 100vh; }
+}
+
+/* Citizen Account Information header */
+.citizen-account-information .top-nav {
+    position: relative;
+    display: block;
+    height: auto;
+    min-height: 72px;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) clamp(18px, 4vw, 40px) 10px;
+    background: #fff;
+}
+
+.citizen-account-information .header-content {
+    position: relative;
+    display: grid;
+    width: min(100%, 1040px);
+    min-height: 48px;
+    grid-template-columns: 44px minmax(0, 1fr) 40px;
+    align-items: center;
+    gap: 14px;
+    margin: 0 auto;
+}
+
+.citizen-account-information .back-btn {
+    display: grid;
+    position: static;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    padding: 0;
+    appearance: none;
+    border: 1px solid #e4ecdf;
+    border-radius: 14px;
+    background: #f7faf4;
+    color: var(--green-dark);
+    font-size: 0;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.citizen-account-information .back-btn svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+}
+
+.citizen-account-information .back-btn:hover {
+    transform: translateY(-1px);
+    background: #eef5ea;
+    box-shadow: 0 4px 10px rgba(72, 116, 44, 0.12);
+}
+
+.citizen-account-information .back-btn:active {
+    transform: scale(0.96);
+}
+
+.citizen-account-information .back-btn:focus-visible {
+    outline: 3px solid rgba(72, 116, 44, 0.28);
+    outline-offset: 3px;
+}
+
+.citizen-account-information .page-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100% - 112px);
+    transform: translate(-50%, -50%);
+    grid-column: auto;
+    margin: 0;
+    color: #2d3436;
+    font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+    .citizen-account-information .header-content {
+        grid-template-columns: 44px minmax(0, 1fr) 36px;
+        gap: 10px;
+    }
+
+    .citizen-account-information .top-nav {
+        padding-bottom: 10px;
+    }
+}
+
+@media (max-width: 350px) {
+    .citizen-account-information .header-content {
+        grid-template-columns: 44px minmax(0, 1fr) 36px;
+        gap: 8px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .citizen-account-information .top-nav {
+        padding-right: 48px;
+        padding-left: 48px;
+    }
 }
