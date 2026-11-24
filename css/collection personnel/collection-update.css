@@ -1,5 +1,6 @@
 :root {
     --lgu-green: #99cc33;
+    --brand-green: #99cc33;
     --lgu-dark-green: #48742C;
     --lgu-text: #1E293B;
     --lgu-muted: #64748B;
@@ -29,14 +30,17 @@ body {
 }
 
 .top-nav {
-    background-color: #99cc33;
-    padding: 55px 25px 20px 25px;
-    display: flex; 
-    justify-content: flex-start; 
+    background-color: var(--brand-green);
+    padding: 30px 25px 20px 25px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    border-bottom-left-radius: 35px; 
-    border-bottom-right-radius: 35px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
 }
 
 .dashboard-title { 
