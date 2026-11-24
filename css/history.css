@@ -2,16 +2,22 @@
     --lgu-green: #99cc33;
     --lgu-green-dark: #88b72e;
     --lgu-dark-green: #48742C;
-    --lgu-text: #333;
-    --lgu-muted: #777;
-    --lgu-surface: #FFFFFF;
-    --lgu-page: #F0F0F0;
-    --lgu-border: #E2E8F0;
+
+    --lgu-text: #1E293B;       
+    --lgu-text-light: #FFFFFF; 
+    --lgu-muted: #64748B;     
+
+    --lgu-surface: #FFFFFF;    
+    --lgu-page: #F4F7F2;       
+    --lgu-border: #E2E8F0;     
+
     --lgu-danger: #ff4444;
     --lgu-warning: #ff9800;
     --lgu-success: #4caf50;
+
     --lgu-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.07);
+    --lgu-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+
     --radius-sm: 12px;
     --radius-md: 14px;
     --radius-lg: 25px;
@@ -56,7 +62,7 @@ img {
     max-width: 414px;
     height: 100vh;
     height: 100dvh;
-    background-color: #fff;
+    background-color: var(--lgu-page); 
     display: flex;
     flex-direction: column;
     position: relative;
@@ -78,7 +84,7 @@ img {
 }
 
 .dashboard-title {
-    color: #1a1a1a;
+    color: var(--lgu-text);
     font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
@@ -317,7 +323,7 @@ img {
 
 /* Guide headings */
 .guide-headline {
-    color: #333333;
+    color: var(--lgu-text);
     font-size: 1.4rem;
     font-weight: 700;
     margin-bottom: 8px;
@@ -325,7 +331,7 @@ img {
 }
 
 .guide-subtitle {
-    color: #666;
+    color: var(--lgu-muted);
     font-size: 0.9rem;
     line-height: 1.4;
     margin-bottom: 25px;
@@ -342,10 +348,10 @@ img {
 .guide-card {
     --guide-accent: #4f8d3a;
     --guide-tint: #eef6e9;
-    background: #fff;
-    border: 1px solid #e8eee6;
+    background: var(--lgu-surface); 
+    border: 1px solid var(--lgu-border);
     border-radius: 18px;
-    box-shadow: 0 3px 12px rgba(42, 69, 35, 0.07);
+    box-shadow: var(--lgu-shadow);
     min-width: 0;
     overflow: hidden;
     transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
@@ -368,13 +374,13 @@ img {
 
 .guide-card:hover {
     border-color: var(--guide-accent);
-    box-shadow: 0 6px 16px rgba(42, 69, 35, 0.1);
-    transform: translateY(-1px);
+    box-shadow: var(--lgu-shadow-lg); /* Mas lumalim ang shadow pag hinover */
+    transform: translateY(-2px);
 }
 
 .guide-card.is-expanded {
     border-color: var(--guide-accent);
-    box-shadow: 0 6px 18px rgba(42, 69, 35, 0.1);
+    box-shadow: var(--lgu-shadow-lg);
 }
 
 .guide-card-toggle {
@@ -422,14 +428,14 @@ img {
 }
 
 .guide-card-title {
-    color: #303a31;
+    color: var(--lgu-text); 
     font-size: 1rem;
     font-weight: 700;
     line-height: 1.25;
 }
 
 .guide-card-description {
-    color: #6a756b;
+    color: var(--lgu-muted); 
     font-size: 0.82rem;
     line-height: 1.4;
     overflow-wrap: anywhere;
