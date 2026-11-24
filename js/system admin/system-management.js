@@ -227,6 +227,16 @@ function startLiveUpdate(binId) {
             if (error) throw error;
 
             if (bin) {
+                try {
+                    const locationLabels = await loadConnectedCitizenLocationLabels([binId]);
+                    const locationLabel = locationLabels.get(binId);
+                    if (locationLabel) connectedCitizenLocationLabels.set(binId, locationLabel);
+                    else connectedCitizenLocationLabels.delete(binId);
+                } catch (locationError) {
+                    connectedCitizenLocationLabels.delete(binId);
+                    console.error('Unable to refresh connected Citizen address:', locationError);
+                }
+
                 const calculatedStatus = getDeviceOnlineStatus(bin.last_sync, bin.status);
                 const isOffline = calculatedStatus === 'OFFLINE';
                 
