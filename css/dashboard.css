@@ -1689,3 +1689,12 @@ table {
         max-height: min(80vh, calc(100dvh - 40px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
     }
 }
+
+.waste-reminder-image {
+    width: 100%;
+    max-width: 860px;
+    height: auto;
+    margin: 10px 0 20px;
+    justify-self: start;
+    object-fit: contain;
+}

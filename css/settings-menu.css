@@ -203,37 +203,66 @@
 
 
 @media (min-width: 900px) {
-    /* 1. Center-in ang laman */
+    /* 1. Pantay na padding sa gilid para mag-align ang header at box */
     .role-settings-menu .main-content {
+        display: flex !important;
         justify-content: center !important; 
         align-items: flex-start !important;
-        padding: 0 60px 40px 20px !important; 
+        padding: 0 40px 40px 40px !important; /* Pantay na 40px sa gilid */
+        width: 100% !important;
     }
 
-    /* 2. Gawing kaparehas ng Citizen ang lapad, padding, at gap */
+    /* 2. Ang White Box (Huwag galawin ang loob, sukat lang) */
     .role-settings-menu .menu-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        column-gap: 80px !important; /* Ginawang 80px (dating 60px) */
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        column-gap: 80px !important;
         row-gap: 20px !important;
+        width: 100% !important;
         max-width: 1200px !important; 
         
-        background: #ffffff;
-        padding: 60px !important; /* Ginawang 60px pantay sa lahat ng gilid */
-        border-radius: 35px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        margin: 10px auto 0 auto !important;
+        background: #ffffff !important;
+        padding: 60px !important;
+        border-radius: 35px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+        margin: 10px auto 0 auto !important; /* Space sa pagitan ng header at box */
     }
 
-    /* 3. Gawing malaki ang text ng GENERAL / FEEDBACK */
+    /* 3. Header Wrapper (Kaparehas na padding at lapad ng main-content) */
+    .role-settings-menu .top-nav {
+        display: flex !important;
+        justify-content: center !important; 
+        padding: 70px 40px 0 40px !important; /* Ibaba nang konti, pantay sa main-content */
+        background: transparent !important;
+    }
+
+    /* 4. Text at Green Line (Upper Left) */
+    .role-settings-menu .top-nav > div {
+        width: 100% !important;
+        max-width: 1200px !important; /* Eksaktong kaparehas ng menu-list */
+        margin: 0 auto !important;    
+        padding: 4px 0 4px 16px !important; /* Space para sa green line at text */
+        
+        text-align: left !important; 
+        border-left: 4px solid var(--lgu-green) !important; /* Green line sa left edge */
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important; /* Text sa upper left */
+    }
+
+    .role-settings-menu .dashboard-title {
+        font-size: 2.5rem !important;
+        margin-bottom: 10px !important; /* Konting dikit sa container */
+    }
+
+    /* 5. Gawing malaki ang text at readable ang menu items */
     .role-settings-menu .menu-section-title {
-        font-size: 1.5rem !important; /* Ginawang 1.5rem gaya ng Citizen */
+        font-size: 1.5rem !important;
         margin: 0 0 20px 0 !important;
         text-transform: uppercase !important;
     }
 
-    /* 4. Gawing mas malaki at readable ang mga menu items (Account Info, etc.) */
     .role-settings-menu .menu-left span {
-        font-size: 1.05rem !important; /* Ginawang 1.05rem gaya ng Citizen */
+        font-size: 1.05rem !important;
         font-weight: 500 !important;
     }
 
@@ -251,26 +280,6 @@
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
-    }
-
-    /* 5. Header Position (Center at tamang baba) */
-    .role-settings-menu .top-nav {
-        padding: 50px 60px 10px 20px !important; /* Inayos ang spacing sa taas */
-        justify-content: center !important;
-    }
-
-    .role-settings-menu .top-nav > div {
-        margin: 0 auto !important;      
-        text-align: center !important;  
-        border-left: none !important;   
-        padding: 0 !important;          
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-    }
-
-    .role-settings-menu .dashboard-title {
-        font-size: 2.5rem !important; /* Pantay na sa Citizen title size */
     }
 }
 

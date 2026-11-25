@@ -7,7 +7,8 @@ let lastFitKey = '';
 let currentComplianceScore = 0;
 let etaRequestId = 0;
 let etaRefreshTimer = null;
-const LGU_DISPATCH_ORIGIN = { lat: 14.8350, lng: 120.2840 };
+const LGU_DISPATCH_ORIGIN = { lat: 14.835450894364168, lng: 120.28780553731539 }; // Same fallback the Waste Collector map uses: the bin's own street/barangay.
+
 const UNASSIGNED_LOCATION_LABEL = 'Location not assigned';
 
 function escapeHtml(value) {
@@ -20,7 +21,7 @@ function escapeHtml(value) {
     })[character]);
 }
 
-// Same fallback the Waste Collector map uses: the bin's own street/barangay.
+// Same fallback the Waste Collector map uses: the bin's own street/barangay. const LGU_DISPATCH_ORIGIN = { lat: 14.835450894364168, lng: 120.28780553731539 };
 function getBinInstallationAddress(bin) {
     const parts = [bin.street, bin.barangay]
         .map(value => String(value || '').trim())
@@ -370,6 +371,12 @@ async function updateDashboardUI(path, score, markerLayer, map) {
     }
 
     const pendingCount = orderedPath.filter(bin => !dispatchedBinIds.has(bin.id)).length;
+
+    markerLayer.clearLayers();
+    // Preview the route only while bins are still waiting to be dispatched.
+    if (routeGeometry && pendingCount > 0) {
+        L.geoJSON(routeGeometry, { style: { color: '#4285F4', weight: 5, opacity: 0.8 } }).addTo(markerLayer);
+    }
 
     document.getElementById('binsToCollect').innerText = orderedPath.length;
     document.getElementById('complianceScore').innerText = `${score}%`;

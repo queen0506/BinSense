@@ -156,11 +156,55 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const reportBinIds = [...new Set(activeReports
+            .map(report => report.bin_id)
+            .filter(binId => typeof binId === 'string' && binId.trim()))];
+        const reportLocationLabels = new Map();
+        if (reportBinIds.length) {
+            try {
+                const { data: addresses, error: addressError } = await supabase.rpc(
+                    'get_collector_report_bin_addresses',
+                    { p_bin_ids: reportBinIds }
+                );
+                if (requestId !== incidentReportRequest) return;
+                if (addressError) {
+                    console.error('Unable to load incident report addresses:', addressError);
+                } else {
+                    (addresses || [])
+                        .filter(row => reportBinIds.includes(row.bin_id) &&
+                            typeof row.location_label === 'string' &&
+                            row.location_label.trim())
+                        .forEach(row => reportLocationLabels.set(row.bin_id, row.location_label.trim()));
+                }
+            } catch (addressError) {
+                console.error('Unable to load incident report addresses:', addressError);
+            }
+        }
+
+        const missingBinIds = [...new Set(activeReports
+            .filter(report => report.bin_id &&
+                !reportLocationLabels.has(report.bin_id) &&
+                !allBins[report.bin_id]?.barangay)
+            .map(report => report.bin_id))];
+        let reportBins = {};
+        if (missingBinIds.length) {
+            const { data: bins, error: binError } = await supabase.from('bins')
+                .select('id, barangay, street')
+                .in('id', missingBinIds);
+            if (requestId !== incidentReportRequest) return;
+            if (binError) {
+                console.error('Unable to load incident report bin locations:', binError);
+            } else {
+                reportBins = Object.fromEntries((bins || []).map(bin => [bin.id, bin]));
+            }
+        }
+
+        if (requestId !== incidentReportRequest) return;
         incidentReportsContainer.replaceChildren();
         activeReports.forEach(report => {
             const statusText = report.status || 'Pending';
             const normalizedStatus = statusText.toLowerCase().replace(/\s+/g, '-');
-            const bin = allBins[report.bin_id];
+            const bin = allBins[report.bin_id] || reportBins[report.bin_id];
             const card = document.createElement('article');
             card.className = 'incident-report-card';
 
@@ -178,7 +222,17 @@ document.addEventListener('DOMContentLoaded', () => {
             issue.textContent = report.issue || 'Reported issue';
             const location = document.createElement('p');
             location.className = 'incident-report-location';
-            location.textContent = bin?.barangay ? `Area: ${bin.barangay}` : 'Area not available';
+            const reportLocation = reportLocationLabels.get(report.bin_id);
+            const barangay = String(bin?.barangay || '').trim();
+            const street = String(bin?.street || '').trim();
+            const isUsableLocation = value => value && !/^(unassigned|unknown|n\/a|not specified|global)$/i.test(value);
+            location.textContent = reportLocation
+                ? `Location: ${reportLocation}`
+                : isUsableLocation(barangay)
+                    ? `Area: ${barangay}`
+                    : isUsableLocation(street)
+                        ? `Location: ${street}`
+                        : 'Area not available';
             const timestamp = document.createElement('time');
             timestamp.className = 'incident-report-time';
             timestamp.dateTime = report.timestamp || '';
@@ -247,6 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBinDetail(bin);
         binSelectionView.style.display = 'none';
         binDetailView.style.display = 'block';
+        backBtn.setAttribute('aria-label', 'Back to bin list');
         backBtn.hidden = false;
     }
 

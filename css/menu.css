@@ -945,82 +945,83 @@ textarea:focus,
 }
 
 @media (min-width: 900px) {
+    /* 1. Pantay na padding sa gilid para mag-align ang header at box */
     .citizen-settings-menu .main-content {
-        justify-content: flex-start; 
-        align-items: center; 
-        padding-top: 20px;
+        display: flex !important;
+        justify-content: center !important; 
+        align-items: flex-start !important;
+        padding: 0 40px 40px 40px !important; 
+        width: 100% !important;
     }
 
+    /* 2. Ang White Box */
     .citizen-settings-menu .menu-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        column-gap: 60px; 
-        row-gap: 0;
-        max-width: 1200px; 
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        column-gap: 80px !important;
+        row-gap: 20px !important;
+        width: 100% !important;
+        max-width: 1200px !important; 
         
-        background: #ffffff;
-        padding: 50px 60px;
-        border-radius: 35px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        
-        margin-top: 10px; 
+        background: #ffffff !important;
+        padding: 60px !important;
+        border-radius: 35px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+        margin: 10px auto 0 auto !important; 
     }
 
-    .citizen-settings-menu .menu-section {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-        align-self: start;
+    /* 3. Header Wrapper */
+    .citizen-settings-menu .top-nav {
+        display: flex !important;
+        justify-content: center !important; 
+        padding: 70px 40px 0 40px !important; 
+        background: transparent !important;
+    }
+
+    /* 4. Text at Green Line (Upper Left) */
+    .citizen-settings-menu .top-nav > div {
+        width: 100% !important;
+        max-width: 1200px !important; 
+        margin: 0 auto !important;    
+        padding: 4px 0 4px 16px !important; 
+        
+        text-align: left !important; 
+        border-left: 4px solid var(--lgu-green) !important; 
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important; 
+    }
+
+    .citizen-settings-menu .dashboard-title {
+        font-size: 2.5rem !important;
+        margin-bottom: 10px !important; 
+    }
+
+    /* 5. Gawing malaki ang text at readable ang menu items */
+    .citizen-settings-menu .menu-section-title {
+        font-size: 1.5rem !important;
+        margin: 0 0 20px 0 !important;
+        text-transform: uppercase !important;
+    }
+
+    .citizen-settings-menu .menu-left span {
+        font-size: 1.05rem !important;
+        font-weight: 500 !important;
     }
 
     .citizen-settings-menu .menu-item {
-        min-height: 75px;
-        padding: 12px 16px;
-        border-radius: 16px;
-        margin-bottom: 8px;
-    }
-    
-    .citizen-settings-menu .menu-item:last-child {
-        margin-bottom: 0;
+        padding: 20px 0 !important;
+        border-bottom: 1px solid #eee !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        min-height: auto !important;
+        margin-bottom: 0 !important;
     }
 
-    .citizen-settings-menu .menu-item:hover {
-        background: #f4f7f2;
-    }
-
-    .citizen-settings-menu .menu-list > .menu-section-title:nth-of-type(1) {
-        grid-column: 1;
-        grid-row: 1;
-    }
-    .citizen-settings-menu .menu-list > .menu-section:nth-of-type(1) {
-        grid-column: 1;
-        grid-row: 2;
-    }
-    .citizen-settings-menu .menu-list > .menu-section-title:nth-of-type(2) {
-        grid-column: 2;
-        grid-row: 1;
-    }
-    .citizen-settings-menu .menu-list > .menu-section:nth-of-type(2) {
-        grid-column: 2;
-        grid-row: 2;
-    }
-
-    .citizen-settings-menu .menu-section-title:not(:first-child) {
-        margin-top: 16px;
-    }
-    .citizen-settings-menu .top-nav {
-        padding-top: 60px !important; 
-        padding-bottom: 20px !important;
-    }
-
-    .citizen-settings-menu .top-nav > div {
-        margin: 0 auto !important;      
-        text-align: center !important; 
-        border-left: none !important;   
-        padding: 0 !important;          
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
+    .citizen-settings-menu .menu-section {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
     }
 }
 
