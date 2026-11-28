@@ -14,14 +14,55 @@
         <h1 class="dashboard-title">System Logs</h1>
     </header>
 
-    <div class="log-filter-tabs" style="padding: 25px 20px 15px;">
-        <button class="filter-tab active" onclick="switchTab(event, 'all')">All</button>
-        <button class="filter-tab" onclick="switchTab(event, 'logs')">Logs</button>
-        <button class="filter-tab" onclick="switchTab(event, 'audit')">Audit</button>
+    <div class="logs-toolbar">
+        <div class="log-filter-tabs">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="logs">Logs</button>
+            <button class="filter-tab" data-filter="audit">Audit</button>
+        </div>
+        <div class="logs-search-wrapper">
+            <input type="text" id="logSearchInput" class="logs-search-input" placeholder="Search user, action...">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+
+         <!-- BAGONG DROPDOWN PARA SA MOBILE SORTING -->
+        <div class="mobile-sort-wrapper">
+            <select id="mobileSortSelect" class="mobile-sort-select">
+                <option value="timestamp-desc">Sort by: Newest First</option>
+                <option value="timestamp-asc">Sort by: Oldest First</option>
+                <option value="email-asc">Sort by: User (A-Z)</option>
+                <option value="email-desc">Sort by: User (Z-A)</option>
+                <option value="role-asc">Sort by: Role (A-Z)</option>
+                <option value="category-asc">Sort by: Category (A-Z)</option>
+                <option value="action-asc">Sort by: Action (A-Z)</option>
+            </select>
+        </div>
     </div>
 
-    <div id="logs-display" class="logs-list-container" style="flex: 1; overflow-y: auto; padding: 0 20px 120px;">
-        <div style="text-align: center; color: var(--lgu-muted); margin-top: 50px;">Synchronizing activities...</div>
+    <div class="logs-table-container">
+        <table class="logs-table">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="timestamp">Time <span class="sort-icon">↕</span></th>
+                    <th class="sortable" data-sort="email">User <span class="sort-icon">↕</span></th>
+                    <th class="sortable" data-sort="role">Role <span class="sort-icon">↕</span></th>
+                    <th class="sortable" data-sort="category">Category <span class="sort-icon">↕</span></th>
+                    <th class="sortable" data-sort="action">Action <span class="sort-icon">↕</span></th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody id="logs-display">
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--lgu-muted); padding: 40px 0;">Synchronizing activities...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="logs-pagination">
+        <button id="prevPageBtn" class="page-btn" disabled>Previous</button>
+        <span id="pageInfo" class="page-info">Page 1 of 1</span>
+        <button id="nextPageBtn" class="page-btn" disabled>Next</button>
     </div>
 
     <footer class="bottom-nav">
