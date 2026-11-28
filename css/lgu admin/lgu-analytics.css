@@ -388,7 +388,7 @@ table {
     gap: 8px;
 }
 
-.export-csv-btn {
+.export-xlsx-btn {
     min-height: 38px;
     padding: 8px 12px;
     border: none;
@@ -403,17 +403,17 @@ table {
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.export-csv-btn:hover {
+.export-xlsx-btn:hover {
     background-color: #88b52b;
     box-shadow: 0 4px 10px rgba(153, 204, 51, 0.3);
 }
 
-.export-csv-btn:focus-visible {
+.export-xlsx-btn:focus-visible {
     outline: 2px solid var(--lgu-dark-green);
     outline-offset: 2px;
 }
 
-.export-csv-btn:disabled {
+.export-xlsx-btn:disabled {
     opacity: 0.65;
     cursor: wait;
     box-shadow: none;
@@ -770,7 +770,7 @@ table {
     gap: 8px;
 }
 
-.export-csv-btn {
+.export-xlsx-btn {
     min-height: 44px;
     padding: 10px 15px;
     border-radius: 12px;
@@ -778,7 +778,7 @@ table {
     transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
 }
 
-.export-csv-btn:hover {
+.export-xlsx-btn:hover {
     transform: translateY(-1px);
     background: #3e6427;
     box-shadow: 0 6px 14px rgba(72, 116, 44, 0.18);
@@ -982,7 +982,7 @@ table {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .export-csv-btn,
+    .export-xlsx-btn,
     .records-table tbody tr,
     .page-btn {
         transition: none;

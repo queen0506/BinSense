@@ -8,6 +8,41 @@ let currentFilter = 'daily';
 const PAGE_SIZE = 1000;
 const TABLE_PAGE_SIZE = 25;
 let currentPage = 1;
+const manilaDateTimeParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hourCycle: 'h23'
+});
+const reportDateFormatter = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'Asia/Manila',
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric'
+});
+const reportTimeFormatter = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'Asia/Manila',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h12'
+});
+const chartHourFormatter = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'UTC',
+    hour: 'numeric'
+});
+const chartWeekdayFormatter = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'UTC',
+    weekday: 'short'
+});
+const chartMonthFormatter = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'UTC',
+    month: 'short',
+    year: '2-digit'
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const filterDropdown = document.getElementById('timeFilter');
@@ -20,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.getElementById('exportCsvBtn')?.addEventListener('click', exportCSV);
+    document.getElementById('exportXlsxBtn')?.addEventListener('click', exportXLSX);
     document.getElementById('exportPdfBtn')?.addEventListener('click', exportPDF);
     document.getElementById('reportPrevPage')?.addEventListener('click', () => {
         if (currentPage > 1) {
@@ -95,41 +130,28 @@ async function fetchAllData() {
 }
 
 function applyFilter(filterType) {
-    // Create a "Today at Midnight" date for comparison
     const now = new Date();
-    const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayKey = getManilaDateKey(now);
+    const todayMidnight = new Date(`${todayKey}T00:00:00Z`);
 
     filteredLogs = allLogs.filter(log => {
-        // Create a "Log Date at Midnight" date
         const logDateObj = new Date(log.collected_at);
         if (Number.isNaN(logDateObj.getTime())) return false;
-        const logMidnight = new Date(logDateObj.getFullYear(), logDateObj.getMonth(), logDateObj.getDate());
-        
-        // 1. DAILY (Exactly the same day)
-        if (filterType === 'daily') {
-            return logMidnight.getTime() === todayMidnight.getTime();
-        } 
-        
-        // 2. WEEKLY (Current calendar week)
-        else if (filterType === 'weekly') {
-            const weekStart = new Date(todayMidnight);
-            const mondayIndex = (todayMidnight.getDay() + 6) % 7;
-            weekStart.setDate(weekStart.getDate() - mondayIndex);
+        const logDateKey = getManilaDateKey(logDateObj);
 
-            return logMidnight >= weekStart && logMidnight <= todayMidnight;
-        } 
-        
-        // 3. MONTHLY (Same Month and Year)
-        else if (filterType === 'monthly') {
-            return logDateObj.getFullYear() === now.getFullYear() &&
-                   logDateObj.getMonth() === now.getMonth();
-        } 
-        
-        // 4. ALL TIME
-        else if (filterType === 'all') {
-            return true; 
+        if (filterType === 'daily') {
+            return logDateKey === todayKey;
+        } else if (filterType === 'weekly') {
+            const weekStart = new Date(todayMidnight);
+            const mondayIndex = (todayMidnight.getUTCDay() + 6) % 7;
+            weekStart.setUTCDate(weekStart.getUTCDate() - mondayIndex);
+            return logDateKey >= weekStart.toISOString().slice(0, 10) && logDateKey <= todayKey;
+        } else if (filterType === 'monthly') {
+            return logDateKey.slice(0, 7) === todayKey.slice(0, 7);
+        } else if (filterType === 'all') {
+            return true;
         }
-        
+
         return false;
     });
 
@@ -157,9 +179,9 @@ function updateUI() {
 }
 
 function setExportAvailability(available) {
-    const csvButton = document.getElementById('exportCsvBtn');
+    const xlsxButton = document.getElementById('exportXlsxBtn');
     const pdfButton = document.getElementById('exportPdfBtn');
-    if (csvButton) csvButton.disabled = !available;
+    if (xlsxButton) xlsxButton.disabled = !available;
     if (pdfButton) pdfButton.disabled = !available;
 }
 
@@ -219,8 +241,8 @@ function renderChart(logs) {
     };
 
     logs.forEach(log => {
-        const date = new Date(log.collected_at);
-        if (Number.isNaN(date.getTime())) return;
+        const date = toPhilippineWallClockDate(log.collected_at);
+        if (!date) return;
 
         const action = normalizeAction(log.action);
         if (!Object.prototype.hasOwnProperty.call(counts, action)) return;
@@ -303,8 +325,8 @@ function createPdfChartImage(logs) {
     };
 
     logs.forEach(log => {
-        const date = new Date(log.collected_at);
-        if (Number.isNaN(date.getTime())) return;
+        const date = toPhilippineWallClockDate(log.collected_at);
+        if (!date) return;
 
         const action = normalizeAction(log.action);
         if (!Object.prototype.hasOwnProperty.call(counts, action)) return;
@@ -379,13 +401,10 @@ function normalizeAction(action) {
 function formatDate(value, includeTime = false) {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return 'Date unavailable';
-    if (!includeTime) return date.toLocaleDateString();
+    if (!includeTime) return reportDateFormatter.format(date);
 
-    const datePart = date.toLocaleDateString();
-    const timePart = date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    const datePart = reportDateFormatter.format(date);
+    const timePart = reportTimeFormatter.format(date);
     return `${datePart} ${timePart}`;
 }
 
@@ -411,14 +430,24 @@ function escapeHtml(value) {
         .replace(/'/g, '&#039;');
 }
 
-function toCsvField(value) {
-    let text = String(value ?? '');
-    if (/^[=+\-@\t\r]/.test(text.trimStart())) text = `'${text}`;
-    return `"${text.replace(/"/g, '""')}"`;
+function getPhilippineDateStamp(date = new Date()) {
+    return getManilaDateKey(date);
 }
 
-function getLocalDateStamp(date = new Date()) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+function toPhilippineWallClockDate(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+
+    const parts = Object.fromEntries(manilaDateTimeParts.formatToParts(date)
+        .map(({ type, value: partValue }) => [type, partValue]));
+    return new Date(Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day),
+        Number(parts.hour),
+        Number(parts.minute),
+        Number(parts.second)
+    ));
 }
 
 function getStatusCounts(logs) {
@@ -441,42 +470,42 @@ function getFilterLabel(filterType) {
 }
 
 function getChartBuckets(filterType, logs) {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const now = toPhilippineWallClockDate(new Date());
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
     if (filterType === 'daily') {
         return [0, 4, 8, 12, 16, 20].map(hour => {
             const start = new Date(today);
-            start.setHours(hour, 0, 0, 0);
+            start.setUTCHours(hour, 0, 0, 0);
             const end = new Date(start);
-            end.setHours(hour + 4, 0, 0, 0);
-            return { start, end, key: String(hour), label: start.toLocaleTimeString([], { hour: 'numeric' }) };
+            end.setUTCHours(hour + 4, 0, 0, 0);
+            return { start, end, key: String(hour), label: chartHourFormatter.format(start) };
         });
     }
 
     if (filterType === 'weekly') {
-        const mondayIndex = (today.getDay() + 6) % 7;
+        const mondayIndex = (today.getUTCDay() + 6) % 7;
         const start = new Date(today);
-        start.setDate(start.getDate() - mondayIndex);
+        start.setUTCDate(start.getUTCDate() - mondayIndex);
         return Array.from({ length: 7 }, (_, index) => {
             const bucketStart = new Date(start);
-            bucketStart.setDate(start.getDate() + index);
+            bucketStart.setUTCDate(start.getUTCDate() + index);
             const bucketEnd = new Date(bucketStart);
-            bucketEnd.setDate(bucketStart.getDate() + 1);
+            bucketEnd.setUTCDate(bucketStart.getUTCDate() + 1);
             return {
                 start: bucketStart,
                 end: bucketEnd,
                 key: getDateKey(bucketStart),
-                label: bucketStart.toLocaleDateString([], { weekday: 'short' })
+                label: chartWeekdayFormatter.format(bucketStart)
             };
         });
     }
 
     if (filterType === 'monthly') {
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const daysInMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0)).getUTCDate();
         return Array.from({ length: daysInMonth }, (_, index) => {
-            const bucketStart = new Date(now.getFullYear(), now.getMonth(), index + 1);
-            const bucketEnd = new Date(now.getFullYear(), now.getMonth(), index + 2);
+            const bucketStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), index + 1));
+            const bucketEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), index + 2));
             return {
                 start: bucketStart,
                 end: bucketEnd,
@@ -487,24 +516,24 @@ function getChartBuckets(filterType, logs) {
     }
 
     const dates = logs
-        .map(log => new Date(log.collected_at))
-        .filter(date => !Number.isNaN(date.getTime()));
+        .map(log => toPhilippineWallClockDate(log.collected_at))
+        .filter(Boolean);
     const earliest = dates.length
         ? dates.reduce((first, date) => date < first ? date : first)
-        : new Date(now.getFullYear(), now.getMonth() - 11, 1);
+        : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1));
     const latest = dates.length
         ? dates.reduce((last, date) => date > last ? date : last, now)
         : now;
-    const monthSpan = (latest.getFullYear() - earliest.getFullYear()) * 12 +
-        latest.getMonth() - earliest.getMonth() + 1;
+    const monthSpan = (latest.getUTCFullYear() - earliest.getUTCFullYear()) * 12 +
+        latest.getUTCMonth() - earliest.getUTCMonth() + 1;
 
     if (monthSpan > 36) {
-        const firstYear = earliest.getFullYear();
-        const lastYear = latest.getFullYear();
+        const firstYear = earliest.getUTCFullYear();
+        const lastYear = latest.getUTCFullYear();
         return Array.from({ length: lastYear - firstYear + 1 }, (_, index) => {
             const year = firstYear + index;
-            const bucketStart = new Date(year, 0, 1);
-            const bucketEnd = new Date(year + 1, 0, 1);
+            const bucketStart = new Date(Date.UTC(year, 0, 1));
+            const bucketEnd = new Date(Date.UTC(year + 1, 0, 1));
             return {
                 start: bucketStart,
                 end: bucketEnd,
@@ -515,33 +544,33 @@ function getChartBuckets(filterType, logs) {
         });
     }
 
-    const firstMonth = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+    const firstMonth = new Date(Date.UTC(earliest.getUTCFullYear(), earliest.getUTCMonth(), 1));
     return Array.from({ length: monthSpan }, (_, index) => {
-        const bucketStart = new Date(firstMonth.getFullYear(), firstMonth.getMonth() + index, 1);
-        const bucketEnd = new Date(bucketStart.getFullYear(), bucketStart.getMonth() + 1, 1);
+        const bucketStart = new Date(Date.UTC(firstMonth.getUTCFullYear(), firstMonth.getUTCMonth() + index, 1));
+        const bucketEnd = new Date(Date.UTC(bucketStart.getUTCFullYear(), bucketStart.getUTCMonth() + 1, 1));
         return {
             start: bucketStart,
             end: bucketEnd,
             key: getMonthKey(bucketStart),
             interval: 'month',
-            label: bucketStart.toLocaleDateString([], { month: 'short', year: '2-digit' })
+            label: chartMonthFormatter.format(bucketStart)
         };
     });
 }
 
 function getLogBucketKey(filterType, date, buckets) {
-    if (filterType === 'daily') return String(Math.floor(date.getHours() / 4) * 4);
+    if (filterType === 'daily') return String(Math.floor(date.getUTCHours() / 4) * 4);
     if (filterType === 'weekly' || filterType === 'monthly') return getDateKey(date);
-    if (buckets[0]?.interval === 'year') return String(date.getFullYear());
+    if (buckets[0]?.interval === 'year') return String(date.getUTCFullYear());
     return getMonthKey(date);
 }
 
 function getDateKey(date) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
 }
 
 function getMonthKey(date) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
 }
 
 function getManilaDateKey(date = new Date()) {
@@ -616,42 +645,219 @@ async function getAveragePeakFill(filterType) {
     return Math.round(average);
 }
 
-function exportCSV() {
+async function exportXLSX() {
     if (filteredLogs.length === 0) return;
 
-    const button = document.getElementById('exportCsvBtn');
-    let url;
+    const ExcelJS = window.ExcelJS;
+    if (!ExcelJS?.Workbook) {
+        console.error('Excel export failed: ExcelJS is unavailable.');
+        alert('Excel export is unavailable. Check your internet connection and try again.');
+        return;
+    }
+
+    const button = document.getElementById('exportXlsxBtn');
     button.disabled = true;
     button.textContent = 'Preparing...';
     button.setAttribute('aria-busy', 'true');
 
     try {
-        const headers = ["Date & Time", "Barangay", "Bin ID", "Status"];
-        const rows = filteredLogs.map(log => {
-            const dateTime = formatDate(log.collected_at, true);
-            const binId = formatBinId(log.bin_id);
-            const action = normalizeAction(log.action);
-            return [dateTime, formatBarangay(log.barangay), binId, action].map(toCsvField).join(',');
+        const counts = getStatusCounts(filteredLogs);
+        const generatedAt = new Date();
+        const generatedAtPhilippine = toPhilippineWallClockDate(generatedAt);
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'BinSense';
+        workbook.created = generatedAt;
+        workbook.modified = generatedAt;
+        workbook.subject = `Collection report - ${getFilterLabel(currentFilter)}`;
+        workbook.title = 'BinSense Collection Report';
+        workbook.company = 'BinSense';
+
+        const summary = workbook.addWorksheet('Report Summary', {
+            properties: { tabColor: { argb: 'FF48742C' } }
+        });
+        summary.columns = [
+            { width: 30 },
+            { width: 18 },
+            { width: 22 },
+            { width: 28 }
+        ];
+        summary.mergeCells('A1:D1');
+        summary.getCell('A1').value = 'BINSENSE COLLECTION REPORT';
+        summary.getCell('A1').font = { name: 'Aptos Display', size: 18, bold: true, color: { argb: 'FFFFFFFF' } };
+        summary.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF48742C' } };
+        summary.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+        summary.getRow(1).height = 36;
+
+        summary.mergeCells('A2:D2');
+        summary.getCell('A2').value = 'Waste Collection Record';
+        summary.getCell('A2').font = { name: 'Aptos', size: 11, color: { argb: 'FF64705F' }, italic: true };
+        summary.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+        summary.getRow(2).height = 22;
+
+        summary.getCell('A4').value = 'Report Period';
+        summary.getCell('B4').value = getFilterLabel(currentFilter);
+        summary.getCell('C4').value = 'Generated';
+        summary.getCell('D4').value = generatedAtPhilippine;
+        summary.getCell('D4').numFmt = 'mmm d, yyyy h:mm AM/PM';
+        summary.getCell('A5').value = 'Record Type';
+        summary.getCell('B5').value = 'Waste Collection';
+        summary.getCell('C5').value = 'Total Records';
+        summary.getCell('D5').value = filteredLogs.length;
+
+        ['A4', 'C4', 'A5', 'C5'].forEach(address => {
+            const cell = summary.getCell(address);
+            cell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF33432C' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEAF1E5' } };
+        });
+        ['B4', 'D4', 'B5', 'D5'].forEach(address => {
+            const cell = summary.getCell(address);
+            cell.font = { name: 'Aptos', size: 10, color: { argb: 'FF333333' } };
+            cell.alignment = { vertical: 'middle' };
+        });
+        summary.getCell('D5').font = { name: 'Aptos', size: 11, bold: true, color: { argb: 'FF48742C' } };
+
+        summary.mergeCells('A7:C7');
+        summary.getCell('A7').value = 'COLLECTION SUMMARY';
+        summary.getCell('A7').font = { name: 'Aptos', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
+        summary.getCell('A7').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF48742C' } };
+        summary.getCell('A7').alignment = { vertical: 'middle' };
+        summary.getRow(7).height = 24;
+        summary.getRow(8).values = ['Metric', 'Count', '% of Total'];
+
+        const summaryHeader = summary.getRow(8);
+        summaryHeader.height = 22;
+        summaryHeader.eachCell(cell => {
+            cell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF71934E' } };
+            cell.alignment = { vertical: 'middle' };
         });
 
-        const csvContent = '\uFEFF' + [headers.map(toCsvField).join(','), ...rows].join('\r\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
-        url = URL.createObjectURL(blob);
+        const summaryRows = [
+            ['All Collection Records', filteredLogs.length],
+            ['Collected', counts.Completed],
+            ['For Collection', counts.Pending],
+            ['Uncollected', counts.Missed]
+        ];
+        summaryRows.forEach(([label, count], index) => {
+            const row = summary.addRow([label, count, filteredLogs.length ? count / filteredLogs.length : 0]);
+            row.height = 21;
+            row.eachCell(cell => {
+                cell.font = { name: 'Aptos', size: 10, color: { argb: 'FF333333' } };
+                cell.border = { bottom: { style: 'thin', color: { argb: 'FFDCE4D7' } } };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: index % 2 === 0 ? 'FFF7F9F5' : 'FFFFFFFF' }
+                };
+                cell.alignment = { vertical: 'middle' };
+            });
+            row.getCell(2).alignment = { horizontal: 'center', vertical: 'middle' };
+            row.getCell(3).numFmt = '0.0%';
+            row.getCell(3).alignment = { horizontal: 'center', vertical: 'middle' };
+            if (index === 0) row.getCell(2).font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF48742C' } };
+        });
+
+        summary.views = [{ state: 'frozen', ySplit: 8 }];
+        summary.pageSetup = { orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1 };
+
+        const activity = workbook.addWorksheet('Collection Activity', {
+            properties: { tabColor: { argb: 'FF99CC33' } },
+            views: [{ state: 'frozen', ySplit: 4 }]
+        });
+        activity.columns = [
+            { key: 'dateTime', width: 24 },
+            { key: 'barangay', width: 30 },
+            { key: 'binId', width: 20 },
+            { key: 'status', width: 22 }
+        ];
+        activity.mergeCells('A1:D1');
+        activity.getCell('A1').value = 'COLLECTION ACTIVITY DETAILS';
+        activity.getCell('A1').font = { name: 'Aptos Display', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+        activity.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF48742C' } };
+        activity.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+        activity.getRow(1).height = 32;
+        activity.mergeCells('A2:D2');
+        activity.getCell('A2').value = `${getFilterLabel(currentFilter)} - ${filteredLogs.length} records`;
+        activity.getCell('A2').font = { name: 'Aptos', size: 10, color: { argb: 'FF64705F' }, italic: true };
+        activity.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+        activity.getRow(2).height = 22;
+        activity.getRow(4).values = ['Date & Time', 'Barangay', 'Bin ID', 'Status'];
+        activity.pageSetup = {
+            orientation: 'landscape',
+            fitToPage: true,
+            fitToWidth: 1,
+            fitToHeight: 0,
+            paperSize: 9
+        };
+        activity.pageSetup.printTitlesRow = '4:4';
+
+        activity.getRow(4).height = 24;
+        activity.getRow(4).eachCell(cell => {
+            cell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF71934E' } };
+            cell.alignment = { vertical: 'middle' };
+            cell.border = { bottom: { style: 'medium', color: { argb: 'FF48742C' } } };
+        });
+
+        const sortedLogs = [...filteredLogs].sort((first, second) =>
+            new Date(second.collected_at) - new Date(first.collected_at)
+        );
+        sortedLogs.forEach((log, index) => {
+            const row = activity.addRow([
+                toPhilippineWallClockDate(log.collected_at) || 'Date unavailable',
+                formatBarangay(log.barangay),
+                formatBinId(log.bin_id),
+                normalizeAction(log.action)
+            ]);
+            row.height = 21;
+            row.eachCell((cell, columnNumber) => {
+                cell.font = { name: 'Aptos', size: 10, color: { argb: 'FF333333' } };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: index % 2 === 0 ? 'FFF7F9F5' : 'FFFFFFFF' }
+                };
+                cell.border = { bottom: { style: 'hair', color: { argb: 'FFDCE4D7' } } };
+                cell.alignment = { vertical: 'middle' };
+                if (columnNumber === 1 && cell.value instanceof Date) {
+                    cell.numFmt = 'mmm d, yyyy h:mm AM/PM';
+                }
+            });
+
+            const statusCell = row.getCell(4);
+            const statusStyles = {
+                Completed: { font: 'FF2E7D32', fill: 'FFE8F5E9' },
+                Pending: { font: 'FF9A6B00', fill: 'FFFFF4D6' },
+                Missed: { font: 'FFC62828', fill: 'FFFFEBEE' }
+            };
+            const style = statusStyles[normalizeAction(log.action)];
+            if (style) {
+                statusCell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: style.font } };
+                statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: style.fill } };
+            }
+        });
+        activity.autoFilter = { from: 'A4', to: `D${activity.rowCount}` };
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         const timeframe = currentFilter === 'all'
             ? 'AllTime'
             : currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1);
-        link.download = `BinSense_AuditData_${timeframe}_${new Date().toISOString().split('T')[0]}.csv`;
+        link.download = `BinSense_Collection_Report_${timeframe}_${getPhilippineDateStamp()}.xlsx`;
         document.body.appendChild(link);
         link.click();
         link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
-        console.error('CSV export failed:', error);
-        alert('CSV export failed. Please try again.');
+        console.error('Excel export failed:', error);
+        alert('Excel export failed. Please try again.');
     } finally {
-        if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
-        button.textContent = 'CSV';
+        button.textContent = 'XLSX';
         button.removeAttribute('aria-busy');
         setExportAvailability(filteredLogs.length > 0);
     }
@@ -703,12 +909,14 @@ async function exportPDF() {
     button.setAttribute('aria-busy', 'true');
 
     try {
-        document.getElementById('pdf-generated-date').textContent = new Date().toLocaleString([], {
+        document.getElementById('pdf-generated-date').textContent = new Date().toLocaleString('en-PH', {
+            timeZone: 'Asia/Manila',
             year: 'numeric',
-            month: 'numeric',
+            month: 'short',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hourCycle: 'h12'
         });
         document.getElementById('pdf-filter-type').textContent = getFilterLabel(currentFilter);
 
@@ -740,7 +948,7 @@ async function exportPDF() {
 
         if (pdfRecordNote) {
             pdfRecordNote.textContent = filteredLogs.length > 10
-                ? `Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download CSV for the complete report.`
+                ? `Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download XLSX for the complete report.`
                 : `${recordsForPdf.length} records included in this report period.`;
         }
 
@@ -814,7 +1022,15 @@ async function exportPDF() {
         y += 8;
 
         pdf.setFontSize(10);
-        pdf.text(`Report Date: ${new Date().toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`, margin, y);
+        pdf.text(`Report Date: ${new Date().toLocaleString('en-PH', {
+            timeZone: 'Asia/Manila',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hourCycle: 'h12'
+        })}`, margin, y);
         pdf.text(`Report Period: ${getFilterLabel(currentFilter)}`, pageWidth - margin, y, { align: 'right' });
         y += 5;
         pdf.text(`Prepared By: ${adminName}`, margin, y);
@@ -876,7 +1092,7 @@ async function exportPDF() {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(8);
             pdf.setTextColor(90);
-            pdf.text(`Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download CSV for the complete report.`, margin, y);
+            pdf.text(`Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download XLSX for the complete report.`, margin, y);
             pdf.setTextColor(0);
             y += 6;
         }
@@ -964,7 +1180,7 @@ async function exportPDF() {
 
         const filename = `BinSense_OfficialAudit_${currentFilter === 'all'
             ? 'AllTime'
-            : currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)}_${new Date().toISOString().split('T')[0]}.pdf`;
+            : currentFilter.charAt(0).toUpperCase() + currentFilter.slice(1)}_${getPhilippineDateStamp()}.pdf`;
         pdf.save(filename);
     } catch (error) {
         console.error('PDF export failed:', error);

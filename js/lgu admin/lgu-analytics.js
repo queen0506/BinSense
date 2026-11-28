@@ -5,14 +5,36 @@ let wasteChart;
 let trendRequestId = 0;
 let trendRefreshTimer;
 let currentFilter = 'all';
-let collectionCsvAvailable = false;
-let collectionCsvExporting = false;
+let collectionXlsxAvailable = false;
+let collectionXlsxExporting = false;
 
 const manilaDate = new Intl.DateTimeFormat('en', {
     timeZone: 'Asia/Manila',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
+});
+const manilaDateTime = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hourCycle: 'h23'
+});
+const collectionDate = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'Asia/Manila',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+});
+const collectionTime = new Intl.DateTimeFormat('en-PH', {
+    timeZone: 'Asia/Manila',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h12'
 });
 const chartDate = new Intl.DateTimeFormat('en-PH', {
     month: 'short',
@@ -24,16 +46,10 @@ initializeLguNotifications(supabase).catch(error => {
     console.error('Unable to initialize LGU notifications:', error);
 });
 
-function setCollectionCsvAvailability(available) {
-    collectionCsvAvailable = available;
-    const button = document.getElementById('exportCollectionCsvBtn');
-    if (button) button.disabled = !available || collectionCsvExporting;
-}
-
-function escapeCsvField(value) {
-    let text = String(value ?? '').replace(/\s+/g, ' ').trim();
-    if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
-    return `"${text.replace(/"/g, '""')}"`;
+function setCollectionXlsxAvailability(available) {
+    collectionXlsxAvailable = available;
+    const button = document.getElementById('exportCollectionXlsxBtn');
+    if (button) button.disabled = !available || collectionXlsxExporting;
 }
 
 function formatBinId(value) {
@@ -180,8 +196,37 @@ async function loadBinAddresses(records) {
     return addresses;
 }
 
-function getLocalDateStamp(date = new Date()) {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+function getManilaParts(date) {
+    return Object.fromEntries(manilaDate.formatToParts(date).map(({ type, value }) => [type, value]));
+}
+
+function getPhilippineDateStamp(date = new Date()) {
+    const parts = getManilaParts(date);
+    return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function toPhilippineExcelDate(value) {
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+
+    const parts = Object.fromEntries(manilaDateTime.formatToParts(date).map(({ type, value: partValue }) => [type, partValue]));
+    return new Date(Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day),
+        Number(parts.hour),
+        Number(parts.minute),
+        Number(parts.second)
+    ));
+}
+
+function formatPhilippineDateTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return { date: 'Date unavailable', time: '' };
+    return {
+        date: collectionDate.format(date),
+        time: collectionTime.format(date)
+    };
 }
 
 function getCollectionTimeframe(filterType) {
@@ -197,18 +242,18 @@ function getCollectionTimeframe(filterType) {
 function getCollectionStartDate(filterType) {
     if (filterType === 'all') return null;
 
-    const now = new Date();
-    if (filterType === 'today') {
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-    }
+    const parts = getManilaParts(new Date());
+    const calendarDay = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+    if (filterType === 'today') return new Date(calendarDay.getTime() - 8 * 60 * 60 * 1000).toISOString();
+
     if (filterType === 'week') {
-        const firstDay = new Date(now);
-        firstDay.setDate(firstDay.getDate() - firstDay.getDay());
-        firstDay.setHours(0, 0, 0, 0);
-        return firstDay.toISOString();
+        const mondayOffset = (calendarDay.getUTCDay() + 6) % 7;
+        calendarDay.setUTCDate(calendarDay.getUTCDate() - mondayOffset);
+        return new Date(calendarDay.getTime() - 8 * 60 * 60 * 1000).toISOString();
     }
     if (filterType === 'month') {
-        return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+        calendarDay.setUTCDate(1);
+        return new Date(calendarDay.getTime() - 8 * 60 * 60 * 1000).toISOString();
     }
     return null;
 }
@@ -236,11 +281,16 @@ async function fetchAllCollectionRecords(filterType) {
     return records;
 }
 
-async function exportCollectionCsv() {
-    if (collectionCsvExporting) return;
+async function exportCollectionXlsx() {
+    if (collectionXlsxExporting) return;
+    if (!window.ExcelJS?.Workbook) {
+        console.error('Collection XLSX export failed: ExcelJS is unavailable.');
+        alert('Excel export is unavailable. Check your internet connection and try again.');
+        return;
+    }
 
-    collectionCsvExporting = true;
-    setCollectionCsvAvailability(collectionCsvAvailable);
+    collectionXlsxExporting = true;
+    setCollectionXlsxAvailability(collectionXlsxAvailable);
     try {
         const filterType = currentFilter;
         const records = await fetchAllCollectionRecords(filterType);
@@ -255,40 +305,158 @@ async function exportCollectionCsv() {
             batchAddresses.forEach((address, binId) => addresses.set(binId, address));
         }
 
-        const headers = ['Bin ID', 'Bin Address', 'Date & Time', 'Actual Collector', 'Registered To'];
-        const rows = records.map(record => {
-            const date = new Date(record.collected_at);
-            const dateTime = `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
-            return [
-                formatBinId(record.bin_id),
-                getBinAddress(record, addresses),
-                dateTime,
-                record.actual_collector_name,
-                record.registered_to
-            ].map(escapeCsvField).join(',');
+        const generatedAt = new Date();
+        const workbook = new window.ExcelJS.Workbook();
+        workbook.creator = 'BinSense';
+        workbook.created = generatedAt;
+        workbook.modified = generatedAt;
+        workbook.title = 'BinSense LGU Collection Log';
+        workbook.subject = `Collection log - ${getCollectionTimeframe(filterType)}`;
+        workbook.company = 'BinSense';
+        workbook.views = [{ x: 0, y: 0, width: 10000, height: 20000, firstSheet: 0, activeTab: 0 }];
+        const collectionLog = workbook.addWorksheet('Collection Log', {
+            properties: { tabColor: { argb: 'FF99CC33' } },
+            views: [{ state: 'frozen', ySplit: 4 }]
         });
 
-        const csvContent = '\uFEFF' + [
-            headers.map(escapeCsvField).join(','),
-            ...rows
-        ].join('\r\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+        const summary = workbook.addWorksheet('Report Summary', {
+            properties: { tabColor: { argb: 'FF48742C' } }
+        });
+        summary.columns = [
+            { width: 28 },
+            { width: 24 },
+            { width: 24 },
+            { width: 32 }
+        ];
+        summary.mergeCells('A1:D1');
+        summary.getCell('A1').value = 'BINSENSE LGU COLLECTION REPORT';
+        summary.getCell('A1').font = { name: 'Aptos Display', size: 18, bold: true, color: { argb: 'FFFFFFFF' } };
+        summary.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF48742C' } };
+        summary.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+        summary.getRow(1).height = 36;
+
+        summary.mergeCells('A2:D2');
+        summary.getCell('A2').value = 'Waste Collection Log';
+        summary.getCell('A2').font = { name: 'Aptos', size: 11, italic: true, color: { argb: 'FF64705F' } };
+        summary.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+        summary.getRow(2).height = 22;
+
+        summary.getCell('A4').value = 'Report Period';
+        summary.getCell('B4').value = getCollectionTimeframe(filterType);
+        summary.getCell('C4').value = 'Generated';
+        summary.getCell('D4').value = toPhilippineExcelDate(generatedAt);
+        summary.getCell('D4').numFmt = 'mmm d, yyyy h:mm AM/PM';
+        summary.getCell('A5').value = 'Record Type';
+        summary.getCell('B5').value = 'Waste Collection';
+        summary.getCell('C5').value = 'Total Records';
+        summary.getCell('D5').value = records.length;
+        summary.getRow(4).height = 22;
+        summary.getRow(5).height = 24;
+        ['A4', 'C4', 'A5', 'C5'].forEach(address => {
+            const cell = summary.getCell(address);
+            cell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FF33432C' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEAF1E5' } };
+        });
+        ['B4', 'D4', 'B5', 'D5'].forEach(address => {
+            const cell = summary.getCell(address);
+            cell.font = { name: 'Aptos', size: 10, color: { argb: 'FF333333' } };
+            cell.alignment = { vertical: 'middle' };
+        });
+        summary.getCell('D5').font = { name: 'Aptos', size: 14, bold: true, color: { argb: 'FF48742C' } };
+        summary.getCell('D5').alignment = { horizontal: 'center', vertical: 'middle' };
+
+        summary.views = [{ state: 'frozen', ySplit: 3 }];
+        summary.pageSetup = { orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1 };
+
+        collectionLog.columns = [
+            { key: 'binId', width: 18 },
+            { key: 'address', width: 42 },
+            { key: 'collectedAt', width: 30 },
+            { key: 'collector', width: 26 },
+            { key: 'registeredTo', width: 26 }
+        ];
+        collectionLog.mergeCells('A1:E1');
+        collectionLog.getCell('A1').value = 'COLLECTION LOG DETAILS';
+        collectionLog.getCell('A1').font = { name: 'Aptos Display', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
+        collectionLog.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF48742C' } };
+        collectionLog.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+        collectionLog.getRow(1).height = 32;
+        collectionLog.mergeCells('A2:E2');
+        collectionLog.getCell('A2').value = `${records.length} records | ${getCollectionTimeframe(filterType)}`;
+        collectionLog.getCell('A2').font = { name: 'Aptos', size: 10, italic: true, color: { argb: 'FF64705F' } };
+        collectionLog.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+        collectionLog.getRow(2).height = 22;
+        collectionLog.getRow(4).values = ['Bin ID', 'Bin Address', 'Date & Time', 'Actual Collector', 'Registered To'];
+        collectionLog.getRow(4).height = 24;
+        collectionLog.getRow(4).eachCell(cell => {
+            cell.font = { name: 'Aptos', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF71934E' } };
+            cell.alignment = { vertical: 'middle', wrapText: true };
+            cell.border = { bottom: { style: 'medium', color: { argb: 'FF48742C' } } };
+        });
+
+        const sortedRecords = [...records].sort((first, second) =>
+            new Date(second.collected_at) - new Date(first.collected_at)
+        );
+        sortedRecords.forEach((record, index) => {
+            const row = collectionLog.addRow({
+                binId: formatBinId(record.bin_id),
+                address: getBinAddress(record, addresses),
+                collectedAt: toPhilippineExcelDate(record.collected_at) || 'Date unavailable',
+                collector: record.actual_collector_name || 'Not recorded',
+                registeredTo: record.registered_to || 'Not recorded'
+            });
+            row.height = 30;
+            row.eachCell((cell, columnNumber) => {
+                cell.font = { name: 'Aptos', size: 10, color: { argb: 'FF333333' } };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: index % 2 === 0 ? 'FFF7F9F5' : 'FFFFFFFF' }
+                };
+                cell.border = { bottom: { style: 'hair', color: { argb: 'FFDCE4D7' } } };
+                cell.alignment = {
+                    vertical: 'middle',
+                    wrapText: columnNumber !== 3
+                };
+                if (columnNumber === 3 && cell.value instanceof Date) {
+                    cell.numFmt = 'mmm d, yyyy h:mm AM/PM';
+                }
+            });
+        });
+        if (collectionLog.rowCount !== records.length + 4) {
+            throw new Error(`Expected ${records.length} collection rows, but only prepared ${collectionLog.rowCount - 4}.`);
+        }
+        collectionLog.autoFilter = { from: 'A4', to: `E${collectionLog.rowCount}` };
+        collectionLog.pageSetup = {
+            orientation: 'landscape',
+            fitToPage: true,
+            fitToWidth: 1,
+            fitToHeight: 0,
+            paperSize: 9,
+            printTitlesRow: '4:4'
+        };
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
 
         link.href = url;
         const timeframe = getCollectionTimeframe(filterType);
-        link.download = `BinSense_CollectionLog_${timeframe}_${new Date().toISOString().split('T')[0]}.csv`;
+        link.download = `BinSense_CollectionLog_${timeframe}_${getPhilippineDateStamp()}.xlsx`;
         document.body.appendChild(link);
         link.click();
         link.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
-        console.error('Collection CSV export failed:', error);
-        alert('CSV export failed. Please try again.');
+        console.error('Collection XLSX export failed:', error);
+        alert('Excel export failed. Please try again.');
     } finally {
-        collectionCsvExporting = false;
-        setCollectionCsvAvailability(collectionCsvAvailable);
+        collectionXlsxExporting = false;
+        setCollectionXlsxAvailability(collectionXlsxAvailable);
     }
 }
 
@@ -308,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadCollectionRecords = async () => {
         const dateFilter = document.getElementById('dateFilter').value;
         const tbody = document.getElementById('collectionRecordsBody');
-        setCollectionCsvAvailability(false);
+        setCollectionXlsxAvailability(false);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #888; padding: 20px;">Loading records...</td></tr>';
 
         const from = (currentPage - 1) * pageSize;
@@ -342,22 +510,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         tbody.innerHTML = data.map(rec => {
-            const dateObj = new Date(rec.collected_at);
-            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            const timeStr = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const dateTime = formatPhilippineDateTime(rec.collected_at);
 
             return `
                 <tr>
                     <td data-label="Bin ID" class="bin-id-cell" style="font-weight: 700;">${escapeHtml(formatBinId(rec.bin_id))}</td>
                     <td data-label="Bin Address" class="bin-address-cell">${escapeHtml(getBinAddress(rec, addresses))}</td>
-                    <td data-label="Date & Time">${dateStr} <br><span style="color:#888; font-size:0.75rem;">${timeStr}</span></td>
+                    <td data-label="Date & Time">${escapeHtml(dateTime.date)} <br><span style="color:#888; font-size:0.75rem;">${escapeHtml(dateTime.time)}</span></td>
                     <td data-label="Actual Collector"><span class="actual-name">${escapeHtml(rec.actual_collector_name)}</span></td>
                     <td data-label="Registered To"><span class="registered-name">${escapeHtml(rec.registered_to)}</span></td>
                 </tr>
             `;
         }).join('');
 
-        setCollectionCsvAvailability(true);
+        setCollectionXlsxAvailability(true);
     };
 
     const updatePaginationUI = () => {
@@ -388,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadCollectionRecords();
     });
 
-    document.getElementById('exportCollectionCsvBtn')?.addEventListener('click', exportCollectionCsv);
+    document.getElementById('exportCollectionXlsxBtn')?.addEventListener('click', exportCollectionXlsx);
 
     loadCollectionRecords();
 

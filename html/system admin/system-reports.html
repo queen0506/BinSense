@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/system admin/system-reports.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
@@ -33,7 +34,7 @@
             </select>
             
             <div class="export-buttons">
-                <button id="exportCsvBtn" class="btn-icon" title="Export CSV" aria-label="Export report as CSV" type="button" disabled>CSV</button>
+                <button id="exportXlsxBtn" class="btn-icon" title="Export Excel workbook" aria-label="Export report as an Excel workbook" type="button" disabled>XLSX</button>
                 <button id="exportPdfBtn" class="btn-icon" title="Export PDF" aria-label="Export report as PDF" type="button" disabled>PDF</button>
             </div>
         </div>
