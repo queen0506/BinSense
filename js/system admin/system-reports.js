@@ -857,7 +857,7 @@ async function exportXLSX() {
         console.error('Excel export failed:', error);
         alert('Excel export failed. Please try again.');
     } finally {
-        button.textContent = 'XLSX';
+        button.textContent = 'EXCEL';
         button.removeAttribute('aria-busy');
         setExportAvailability(filteredLogs.length > 0);
     }
@@ -948,7 +948,7 @@ async function exportPDF() {
 
         if (pdfRecordNote) {
             pdfRecordNote.textContent = filteredLogs.length > 10
-                ? `Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download XLSX for the complete report.`
+                ? `Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download EXCEL for the complete report.`
                 : `${recordsForPdf.length} records included in this report period.`;
         }
 
@@ -1092,7 +1092,7 @@ async function exportPDF() {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(8);
             pdf.setTextColor(90);
-            pdf.text(`Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download XLSX for the complete report.`, margin, y);
+            pdf.text(`Latest ${recordsForPdf.length} of ${filteredLogs.length} records shown. Download EXCEL for the complete report.`, margin, y);
             pdf.setTextColor(0);
             y += 6;
         }
